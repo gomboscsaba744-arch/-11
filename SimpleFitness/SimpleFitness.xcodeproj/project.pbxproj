@@ -1,0 +1,385 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		110000012E1E0001 /* SimpleFitnessApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000012E1E0001 /* SimpleFitnessApp.swift */; };
+		110000022E1E0002 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000022E1E0002 /* MainTabView.swift */; };
+		110000032E1E0003 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000032E1E0003 /* AppColors.swift */; };
+		110000042E1E0004 /* AppStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000042E1E0004 /* AppStyles.swift */; };
+		110000052E1E0005 /* TrainingMockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000052E1E0005 /* TrainingMockData.swift */; };
+		110000062E1E0006 /* TrainingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000062E1E0006 /* TrainingView.swift */; };
+		110000072E1E0007 /* TrainingHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000072E1E0007 /* TrainingHeaderView.swift */; };
+		110000082E1E0008 /* RepCounterCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000082E1E0008 /* RepCounterCardView.swift */; };
+		110000092E1E0009 /* TrainingActionButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000092E1E0009 /* TrainingActionButtonsView.swift */; };
+		110000102E1E0010 /* PlanMockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000102E1E0010 /* PlanMockData.swift */; };
+		110000112E1E0011 /* PlanCustomizationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000112E1E0011 /* PlanCustomizationView.swift */; };
+		110000122E1E0012 /* PlanExerciseRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000122E1E0012 /* PlanExerciseRowView.swift */; };
+		110000132E1E0013 /* ExerciseMockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000132E1E0013 /* ExerciseMockData.swift */; };
+		110000142E1E0014 /* ExerciseLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000142E1E0014 /* ExerciseLibraryView.swift */; };
+		110000152E1E0015 /* CategoryFilterBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000152E1E0015 /* CategoryFilterBarView.swift */; };
+		110000162E1E0016 /* ExerciseCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000162E1E0016 /* ExerciseCardView.swift */; };
+		110000172E1E0017 /* HistoryMockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000172E1E0017 /* HistoryMockData.swift */; };
+		110000182E1E0018 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000182E1E0018 /* HistoryView.swift */; };
+		110000192E1E0019 /* WeeklySummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000192E1E0019 /* WeeklySummaryView.swift */; };
+		110000202E1E0020 /* HistoryRecordRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000202E1E0020 /* HistoryRecordRowView.swift */; };
+		110000212E1E0021 /* RestTimerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000212E1E0021 /* RestTimerModel.swift */; };
+		110000222E1E0022 /* RestTimerCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000222E1E0022 /* RestTimerCardView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		100000012E1E0001 /* SimpleFitnessApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleFitnessApp.swift; sourceTree = "<group>"; };
+		100000022E1E0002 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		100000032E1E0003 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
+		100000042E1E0004 /* AppStyles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStyles.swift; sourceTree = "<group>"; };
+		100000052E1E0005 /* TrainingMockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingMockData.swift; sourceTree = "<group>"; };
+		100000062E1E0006 /* TrainingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingView.swift; sourceTree = "<group>"; };
+		100000072E1E0007 /* TrainingHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingHeaderView.swift; sourceTree = "<group>"; };
+		100000082E1E0008 /* RepCounterCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepCounterCardView.swift; sourceTree = "<group>"; };
+		100000092E1E0009 /* TrainingActionButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingActionButtonsView.swift; sourceTree = "<group>"; };
+		100000102E1E0010 /* PlanMockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanMockData.swift; sourceTree = "<group>"; };
+		100000112E1E0011 /* PlanCustomizationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanCustomizationView.swift; sourceTree = "<group>"; };
+		100000122E1E0012 /* PlanExerciseRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanExerciseRowView.swift; sourceTree = "<group>"; };
+		100000132E1E0013 /* ExerciseMockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseMockData.swift; sourceTree = "<group>"; };
+		100000142E1E0014 /* ExerciseLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseLibraryView.swift; sourceTree = "<group>"; };
+		100000152E1E0015 /* CategoryFilterBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryFilterBarView.swift; sourceTree = "<group>"; };
+		100000162E1E0016 /* ExerciseCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseCardView.swift; sourceTree = "<group>"; };
+		100000172E1E0017 /* HistoryMockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryMockData.swift; sourceTree = "<group>"; };
+		100000182E1E0018 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		100000192E1E0019 /* WeeklySummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklySummaryView.swift; sourceTree = "<group>"; };
+		100000202E1E0020 /* HistoryRecordRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryRecordRowView.swift; sourceTree = "<group>"; };
+		100000212E1E0021 /* RestTimerModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestTimerModel.swift; sourceTree = "<group>"; };
+		100000222E1E0022 /* RestTimerCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestTimerCardView.swift; sourceTree = "<group>"; };
+		990000002E1E0000 /* SimpleFitness.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleFitness.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		200000002E1E0000 = {
+			isa = PBXGroup;
+			children = (
+				200000012E1E0001 /* App */,
+				200000022E1E0002 /* Shared */,
+				200000032E1E0003 /* Modules */,
+				990000002E1E0000 /* SimpleFitness.app */,
+			);
+			sourceTree = "<group>";
+		};
+		200000012E1E0001 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				100000012E1E0001 /* SimpleFitnessApp.swift */,
+				100000022E1E0002 /* MainTabView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		200000022E1E0002 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				200000042E1E0004 /* Theme */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		200000042E1E0004 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				100000032E1E0003 /* AppColors.swift */,
+				100000042E1E0004 /* AppStyles.swift */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
+		200000032E1E0003 /* Modules */ = {
+			isa = PBXGroup;
+			children = (
+				200000052E1E0005 /* Training */,
+				200000062E1E0006 /* PlanCustomization */,
+				200000072E1E0007 /* ExerciseLibrary */,
+				200000082E1E0008 /* History */,
+			);
+			path = Modules;
+			sourceTree = "<group>";
+		};
+		200000052E1E0005 /* Training */ = {
+			isa = PBXGroup;
+			children = (
+				200000092E1E0009 /* Models */,
+				200000102E1E0010 /* Views */,
+			);
+			path = Training;
+			sourceTree = "<group>";
+		};
+		200000092E1E0009 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				100000052E1E0005 /* TrainingMockData.swift */,
+				100000212E1E0021 /* RestTimerModel.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		200000102E1E0010 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				100000062E1E0006 /* TrainingView.swift */,
+				100000072E1E0007 /* TrainingHeaderView.swift */,
+				100000082E1E0008 /* RepCounterCardView.swift */,
+				100000092E1E0009 /* TrainingActionButtonsView.swift */,
+				100000222E1E0022 /* RestTimerCardView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		200000062E1E0006 /* PlanCustomization */ = {
+			isa = PBXGroup;
+			children = (
+				200000112E1E0011 /* Models */,
+				200000122E1E0012 /* Views */,
+			);
+			path = PlanCustomization;
+			sourceTree = "<group>";
+		};
+		200000112E1E0011 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				100000102E1E0010 /* PlanMockData.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		200000122E1E0012 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				100000112E1E0011 /* PlanCustomizationView.swift */,
+				100000122E1E0012 /* PlanExerciseRowView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		200000072E1E0007 /* ExerciseLibrary */ = {
+			isa = PBXGroup;
+			children = (
+				200000132E1E0013 /* Models */,
+				200000142E1E0014 /* Views */,
+			);
+			path = ExerciseLibrary;
+			sourceTree = "<group>";
+		};
+		200000132E1E0013 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				100000132E1E0013 /* ExerciseMockData.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		200000142E1E0014 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				100000142E1E0014 /* ExerciseLibraryView.swift */,
+				100000152E1E0015 /* CategoryFilterBarView.swift */,
+				100000162E1E0016 /* ExerciseCardView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		200000082E1E0008 /* History */ = {
+			isa = PBXGroup;
+			children = (
+				200000152E1E0015 /* Models */,
+				200000162E1E0016 /* Views */,
+			);
+			path = History;
+			sourceTree = "<group>";
+		};
+		200000152E1E0015 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				100000172E1E0017 /* HistoryMockData.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		200000162E1E0016 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				100000182E1E0018 /* HistoryView.swift */,
+				100000192E1E0019 /* WeeklySummaryView.swift */,
+				100000202E1E0020 /* HistoryRecordRowView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		300000002E1E0000 /* SimpleFitness */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 400000002E1E0000 /* Build configuration list for PBXNativeTarget "SimpleFitness" */;
+			buildPhases = (
+				300000012E1E0001 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SimpleFitness;
+			productName = SimpleFitness;
+			productReference = 990000002E1E0000 /* SimpleFitness.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		500000002E1E0000 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+			};
+			buildConfigurationList = 400000012E1E0001 /* Build configuration list for PBXProject "SimpleFitness" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 200000002E1E0000;
+			productRefGroup = 200000002E1E0000;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				300000002E1E0000 /* SimpleFitness */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		300000012E1E0001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				110000012E1E0001 /* SimpleFitnessApp.swift in Sources */,
+				110000022E1E0002 /* MainTabView.swift in Sources */,
+				110000032E1E0003 /* AppColors.swift in Sources */,
+				110000042E1E0004 /* AppStyles.swift in Sources */,
+				110000052E1E0005 /* TrainingMockData.swift in Sources */,
+				110000062E1E0006 /* TrainingView.swift in Sources */,
+				110000072E1E0007 /* TrainingHeaderView.swift in Sources */,
+				110000082E1E0008 /* RepCounterCardView.swift in Sources */,
+				110000092E1E0009 /* TrainingActionButtonsView.swift in Sources */,
+				110000102E1E0010 /* PlanMockData.swift in Sources */,
+				110000112E1E0011 /* PlanCustomizationView.swift in Sources */,
+				110000122E1E0012 /* PlanExerciseRowView.swift in Sources */,
+				110000132E1E0013 /* ExerciseMockData.swift in Sources */,
+				110000142E1E0014 /* ExerciseLibraryView.swift in Sources */,
+				110000152E1E0015 /* CategoryFilterBarView.swift in Sources */,
+				110000162E1E0016 /* ExerciseCardView.swift in Sources */,
+				110000172E1E0017 /* HistoryMockData.swift in Sources */,
+				110000182E1E0018 /* HistoryView.swift in Sources */,
+				110000192E1E0019 /* WeeklySummaryView.swift in Sources */,
+				110000202E1E0020 /* HistoryRecordRowView.swift in Sources */,
+				110000212E1E0021 /* RestTimerModel.swift in Sources */,
+				110000222E1E0022 /* RestTimerCardView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		600000012E1E0001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGNING_REQUIRED = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_DEBUG_DYLIB = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOX = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.simplefitness.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		600000022E1E0002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGNING_REQUIRED = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOX = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.simplefitness.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		600000032E1E0003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_DEBUG_DYLIB = YES;
+				ENABLE_PREVIEWS = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		600000042E1E0004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				SDKROOT = iphoneos;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		400000002E1E0000 /* Build configuration list for PBXNativeTarget "SimpleFitness" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				600000012E1E0001 /* Debug */,
+				600000022E1E0002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		400000012E1E0001 /* Build configuration list for PBXProject "SimpleFitness" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				600000032E1E0003 /* Debug */,
+				600000042E1E0004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 500000002E1E0000 /* Project object */;
+}
