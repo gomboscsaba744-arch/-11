@@ -52,13 +52,17 @@ public struct TrainingView: View {
                             }) {
                                 ZStack {
                                     Circle()
-                                        .fill(Color.secondary.opacity(0.18))
+                                        .fill(.ultraThinMaterial)
+                                        .frame(width: 26, height: 26)
+                                    Circle()
+                                        .strokeBorder(Color.white.opacity(0.35), lineWidth: 0.5)
                                         .frame(width: 26, height: 26)
                                     Image(systemName: "xmark")
                                         .font(.system(size: 11, weight: .bold))
-                                        .foregroundColor(AppColors.primaryText.opacity(0.8))
+                                        .foregroundColor(AppColors.primaryText.opacity(0.85))
                                 }
                             }
+                            .buttonStyle(.plain)
                         }
                         .padding(16)
                         .background(

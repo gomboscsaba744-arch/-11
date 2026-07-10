@@ -75,14 +75,10 @@ public struct TrainingRoutinePickerGlassModalView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(action: { dismiss() }) {
-                        ZStack {
-                            Circle()
-                                .fill(Color.secondary.opacity(0.18))
-                                .frame(width: 28, height: 28)
-                            Image(systemName: "xmark")
-                                .font(.system(size: 12, weight: .bold))
-                                .foregroundColor(AppColors.primaryText.opacity(0.8))
-                        }
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title3)
+                            .symbolRenderingMode(.hierarchical)
+                            .foregroundStyle(Color.secondary)
                     }
                 }
             }
@@ -125,13 +121,17 @@ public struct TrainingExerciseListGlassModalView: View {
                     Button(action: { onClose() }) {
                         ZStack {
                             Circle()
-                                .fill(Color.secondary.opacity(0.18))
-                                .frame(width: 28, height: 28)
+                                .fill(.ultraThinMaterial)
+                                .frame(width: 30, height: 30)
+                            Circle()
+                                .strokeBorder(Color.white.opacity(0.35), lineWidth: 0.5)
+                                .frame(width: 30, height: 30)
                             Image(systemName: "xmark")
                                 .font(.system(size: 12, weight: .bold))
-                                .foregroundColor(AppColors.primaryText.opacity(0.8))
+                                .foregroundColor(AppColors.primaryText.opacity(0.85))
                         }
                     }
+                    .buttonStyle(.plain)
                 }
                 
                 ScrollView(showsIndicators: false) {
@@ -272,13 +272,17 @@ public struct TrainingSetListGlassModalView: View {
                     Button(action: { onClose() }) {
                         ZStack {
                             Circle()
-                                .fill(Color.secondary.opacity(0.18))
-                                .frame(width: 28, height: 28)
+                                .fill(.ultraThinMaterial)
+                                .frame(width: 30, height: 30)
+                            Circle()
+                                .strokeBorder(Color.white.opacity(0.35), lineWidth: 0.5)
+                                .frame(width: 30, height: 30)
                             Image(systemName: "xmark")
                                 .font(.system(size: 12, weight: .bold))
-                                .foregroundColor(AppColors.primaryText.opacity(0.8))
+                                .foregroundColor(AppColors.primaryText.opacity(0.85))
                         }
                     }
+                    .buttonStyle(.plain)
                 }
                 
                 ScrollView(showsIndicators: false) {
@@ -441,13 +445,17 @@ public struct PlanOverviewGlassModalView: View {
                     Button(action: { onClose() }) {
                         ZStack {
                             Circle()
-                                .fill(Color.secondary.opacity(0.18))
-                                .frame(width: 28, height: 28)
+                                .fill(.ultraThinMaterial)
+                                .frame(width: 30, height: 30)
+                            Circle()
+                                .strokeBorder(Color.white.opacity(0.35), lineWidth: 0.5)
+                                .frame(width: 30, height: 30)
                             Image(systemName: "xmark")
                                 .font(.system(size: 12, weight: .bold))
-                                .foregroundColor(AppColors.primaryText.opacity(0.8))
+                                .foregroundColor(AppColors.primaryText.opacity(0.85))
                         }
                     }
+                    .buttonStyle(.plain)
                 }
                 
                 ScrollView(showsIndicators: false) {
