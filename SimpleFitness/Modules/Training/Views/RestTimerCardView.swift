@@ -282,16 +282,16 @@ public struct GiantFloatingTimerDialView: View {
                             timerModel.isPrecisionZoomed = false
                         }
                     }) {
-                        HStack(spacing: 4) {
+                        HStack(spacing: 6) {
                             Text("收起")
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                            Image(systemName: "xmark.circle.fill")
+                                .font(.subheadline.weight(.semibold))
+                            Image(systemName: "xmark")
+                                .font(.system(size: 11, weight: .bold))
                         }
                         .padding(.horizontal, 14)
                         .padding(.vertical, 8)
                         .background(Color.secondary.opacity(0.18))
-                        .foregroundColor(AppColors.primaryText)
+                        .foregroundColor(AppColors.primaryText.opacity(0.85))
                         .clipShape(Capsule())
                     }
                 }

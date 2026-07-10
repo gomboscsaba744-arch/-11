@@ -77,11 +77,11 @@ public struct TrainingRoutinePickerGlassModalView: View {
                     Button(action: { dismiss() }) {
                         ZStack {
                             Circle()
-                                .fill(.ultraThinMaterial)
-                                .frame(width: 32, height: 32)
+                                .fill(Color.secondary.opacity(0.18))
+                                .frame(width: 28, height: 28)
                             Image(systemName: "xmark")
-                                .font(.system(size: 13, weight: .bold))
-                                .foregroundColor(AppColors.primaryText)
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(AppColors.primaryText.opacity(0.8))
                         }
                     }
                 }
@@ -125,12 +125,11 @@ public struct TrainingExerciseListGlassModalView: View {
                     Button(action: { onClose() }) {
                         ZStack {
                             Circle()
-                                .fill(.ultraThinMaterial)
-                                .frame(width: 32, height: 32)
-                                .shadow(color: Color.black.opacity(0.08), radius: 4, x: 0, y: 2)
+                                .fill(Color.secondary.opacity(0.18))
+                                .frame(width: 28, height: 28)
                             Image(systemName: "xmark")
-                                .font(.system(size: 13, weight: .bold))
-                                .foregroundColor(AppColors.primaryText)
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(AppColors.primaryText.opacity(0.8))
                         }
                     }
                 }
@@ -273,12 +272,11 @@ public struct TrainingSetListGlassModalView: View {
                     Button(action: { onClose() }) {
                         ZStack {
                             Circle()
-                                .fill(.ultraThinMaterial)
-                                .frame(width: 32, height: 32)
-                                .shadow(color: Color.black.opacity(0.08), radius: 4, x: 0, y: 2)
+                                .fill(Color.secondary.opacity(0.18))
+                                .frame(width: 28, height: 28)
                             Image(systemName: "xmark")
-                                .font(.system(size: 13, weight: .bold))
-                                .foregroundColor(AppColors.primaryText)
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(AppColors.primaryText.opacity(0.8))
                         }
                     }
                 }
@@ -443,12 +441,11 @@ public struct PlanOverviewGlassModalView: View {
                     Button(action: { onClose() }) {
                         ZStack {
                             Circle()
-                                .fill(.ultraThinMaterial)
-                                .frame(width: 32, height: 32)
-                                .shadow(color: Color.black.opacity(0.08), radius: 4, x: 0, y: 2)
+                                .fill(Color.secondary.opacity(0.18))
+                                .frame(width: 28, height: 28)
                             Image(systemName: "xmark")
-                                .font(.system(size: 13, weight: .bold))
-                                .foregroundColor(AppColors.primaryText)
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(AppColors.primaryText.opacity(0.8))
                         }
                     }
                 }

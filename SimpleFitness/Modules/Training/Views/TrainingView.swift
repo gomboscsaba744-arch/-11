@@ -50,8 +50,14 @@ public struct TrainingView: View {
                             Button(action: {
                                 withAnimation { completedExerciseNotice = nil }
                             }) {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(AppColors.secondaryText)
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.secondary.opacity(0.18))
+                                        .frame(width: 26, height: 26)
+                                    Image(systemName: "xmark")
+                                        .font(.system(size: 11, weight: .bold))
+                                        .foregroundColor(AppColors.primaryText.opacity(0.8))
+                                }
                             }
                         }
                         .padding(16)
