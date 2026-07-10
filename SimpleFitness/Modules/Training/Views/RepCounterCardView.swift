@@ -13,42 +13,44 @@ public struct RepCounterCardView: View {
                 .font(.subheadline)
                 .foregroundColor(AppColors.secondaryText)
             
-            HStack(spacing: 48) {
+            HStack(spacing: 40) {
                 // 减次数按钮
                 Button(action: {
+                    let impact = UIImpactFeedbackGenerator(style: .light)
+                    impact.impactOccurred()
                     if reps > 0 { reps -= 1 }
                 }) {
                     Image(systemName: "minus")
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .frame(width: 52, height: 52)
-                        .background(Color.gray)
+                        .font(.title3.weight(.bold))
+                        .foregroundColor(AppColors.primaryText)
+                        .frame(width: 48, height: 48)
+                        .background(AppColors.pillBackground)
                         .clipShape(Circle())
                 }
                 
                 // 次数显示
                 Text("\(reps)")
-                    .font(.system(size: 64, weight: .black, design: .rounded))
+                    .font(.system(size: 58, weight: .black, design: .rounded))
                     .foregroundColor(AppColors.primaryText)
-                    .frame(minWidth: 90)
+                    .frame(minWidth: 80)
                 
                 // 加次数按钮
                 Button(action: {
+                    let impact = UIImpactFeedbackGenerator(style: .light)
+                    impact.impactOccurred()
                     reps += 1
                 }) {
                     Image(systemName: "plus")
-                        .font(.title)
-                        .fontWeight(.bold)
+                        .font(.title3.weight(.bold))
                         .foregroundColor(.white)
-                        .frame(width: 52, height: 52)
+                        .frame(width: 48, height: 48)
                         .background(AppColors.accentBlue)
                         .clipShape(Circle())
                 }
             }
         }
-        .padding(.vertical, 32)
-        .padding(.horizontal, 24)
+        .padding(.vertical, 22)
+        .padding(.horizontal, 20)
         .frame(maxWidth: .infinity)
         .standardCardStyle()
     }

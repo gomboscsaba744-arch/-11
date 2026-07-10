@@ -19,45 +19,53 @@ public struct TrainingActionButtonsView: View {
     }
     
     public var body: some View {
-        VStack(spacing: 16) {
-            // 完成本组大绿按钮
+        VStack(spacing: 14) {
+            // 完成本组大绿按键
             Button(action: onCompleteSet) {
                 HStack(spacing: 8) {
-                    Image(systemName: "checkmark.seal.fill")
-                    Text("完成第 \(currentSet) 组 (进入组间休息)")
-                        .fontWeight(.bold)
+                    Image(systemName: "checkmark.circle.fill")
+                    Text("完成第 \(currentSet) 组")
+                        .fontWeight(.heavy)
                 }
                 .font(.headline)
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
-                .background(Color.green)
-                .cornerRadius(14)
+                .background(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(Color.green)
+                        .shadow(color: Color.green.opacity(0.32), radius: 10, x: 0, y: 4)
+                )
             }
             
             // 上一动作 / 下一动作 切换
-            HStack {
+            HStack(spacing: 12) {
                 Button(action: onPrevExercise) {
                     HStack(spacing: 4) {
-                        Image(systemName: "arrow.left")
+                        Image(systemName: "chevron.left")
                         Text("上一动作")
                     }
-                    .font(.subheadline)
-                    .foregroundColor(AppColors.accentBlue)
+                    .font(.subheadline.weight(.bold))
+                    .foregroundColor(AppColors.primaryText)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 11)
+                    .background(AppColors.pillBackground)
+                    .clipShape(Capsule())
                 }
-                
-                Spacer()
                 
                 Button(action: onNextExercise) {
                     HStack(spacing: 4) {
                         Text("下一动作")
-                        Image(systemName: "arrow.right")
+                        Image(systemName: "chevron.right")
                     }
-                    .font(.subheadline)
-                    .foregroundColor(AppColors.accentBlue)
+                    .font(.subheadline.weight(.bold))
+                    .foregroundColor(AppColors.primaryText)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 11)
+                    .background(AppColors.pillBackground)
+                    .clipShape(Capsule())
                 }
             }
-            .padding(.horizontal, 8)
         }
     }
 }

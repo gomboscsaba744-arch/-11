@@ -11,6 +11,8 @@ public struct RestTimerModel {
     public var remainingTime: Double = 90.0
     /// 是否正在倒计时运行中
     public var isRunning: Bool = false
+    /// 是否处于倒计时暂停状态
+    public var isPaused: Bool = false
     /// 是否开启全屏浮空巨型表盘（虚化背景，无边界悬浮）
     public var isPrecisionZoomed: Bool = false
     
@@ -49,20 +51,68 @@ public struct RestTimerModel {
         return max(0.0, min(1.0, remainingTime / Double(totalDuration)))
     }
     
+    /// 真实物理时钟锚点（消除主线程帧率抖动导致的先慢后快）
+    public var targetEndTime: Date? = nil
+    
+    /// 核心计时器滴答更新（绑定真实 Date 时间流逝）
+    public mutating func tick() {
+        guard isRunning else { return }
+        if targetEndTime == nil {
+            targetEndTime = Date().addingTimeInterval(remainingTime)
+        }
+        if let target = targetEndTime {
+            let left = target.timeIntervalSinceNow
+            if left <= 0 {
+                remainingTime = 0
+                isRunning = false
+                isPaused = false
+                targetEndTime = nil
+            } else {
+                remainingTime = left
+            }
+        }
+    }
+    
+    /// 启动倒计时
+    public mutating func start() {
+        isRunning = true
+        isPaused = false
+        targetEndTime = Date().addingTimeInterval(remainingTime)
+    }
+    
+    /// 暂停倒计时
+    public mutating func pause() {
+        isRunning = false
+        isPaused = true
+        targetEndTime = nil
+    }
+    
+    /// 继续倒计时
+    public mutating func resume() {
+        isRunning = true
+        isPaused = false
+        targetEndTime = Date().addingTimeInterval(remainingTime)
+    }
+    
     /// 重置为当前设定总时长
     public mutating func reset() {
         isRunning = false
+        isPaused = false
         remainingTime = Double(totalDuration)
+        targetEndTime = nil
     }
     
     /// 增加或减少总时长
     public mutating func adjustDuration(by deltaSeconds: Int) {
         let newDuration = max(10, min(1800, totalDuration + deltaSeconds))
         totalDuration = newDuration
+        defaultDuration = newDuration
         if !isRunning {
             remainingTime = Double(newDuration)
+            targetEndTime = nil
         } else {
             remainingTime = max(0, remainingTime + Double(deltaSeconds))
+            targetEndTime = Date().addingTimeInterval(remainingTime)
         }
     }
 }

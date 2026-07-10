@@ -17,12 +17,7 @@ public struct RestTimerCardView: View {
         .padding(20)
         .standardCardStyle()
         .onReceive(Timer.publish(every: 0.03, on: .main, in: .common).autoconnect()) { _ in
-            guard timerModel.isRunning else { return }
-            if timerModel.remainingTime > 0 {
-                timerModel.remainingTime = max(0, timerModel.remainingTime - 0.03)
-            } else {
-                timerModel.isRunning = false
-            }
+            timerModel.tick()
         }
     }
     
@@ -115,8 +110,9 @@ public struct RestTimerCardView: View {
             HStack(spacing: 8) {
                 Button(action: { timerModel.adjustDuration(by: -15) }) {
                     Text("-15s")
-                        .font(.caption)
-                        .fontWeight(.bold)
+                        .font(.caption.weight(.bold))
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
                         .padding(.vertical, 8)
                         .padding(.horizontal, 10)
                         .background(AppColors.pillBackground)
@@ -126,8 +122,9 @@ public struct RestTimerCardView: View {
                 
                 Button(action: { timerModel.adjustDuration(by: -1) }) {
                     Text("-1s")
-                        .font(.caption)
-                        .fontWeight(.bold)
+                        .font(.caption.weight(.bold))
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
                         .padding(.vertical, 8)
                         .padding(.horizontal, 10)
                         .background(AppColors.pillBackground)
@@ -139,8 +136,9 @@ public struct RestTimerCardView: View {
                 
                 Button(action: { timerModel.adjustDuration(by: 1) }) {
                     Text("+1s")
-                        .font(.caption)
-                        .fontWeight(.bold)
+                        .font(.caption.weight(.bold))
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
                         .padding(.vertical, 8)
                         .padding(.horizontal, 10)
                         .background(AppColors.pillBackground)
@@ -150,8 +148,9 @@ public struct RestTimerCardView: View {
                 
                 Button(action: { timerModel.adjustDuration(by: 15) }) {
                     Text("+15s")
-                        .font(.caption)
-                        .fontWeight(.bold)
+                        .font(.caption.weight(.bold))
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
                         .padding(.vertical, 8)
                         .padding(.horizontal, 10)
                         .background(AppColors.pillBackground)
@@ -160,15 +159,19 @@ public struct RestTimerCardView: View {
                 }
             }
             
-            HStack(spacing: 14) {
+            HStack(spacing: 12) {
                 Button(action: {
                     withAnimation {
-                        timerModel.isRunning.toggle()
+                        if timerModel.isRunning {
+                            timerModel.pause()
+                        } else {
+                            timerModel.resume()
+                        }
                     }
                 }) {
                     HStack(spacing: 6) {
                         Image(systemName: timerModel.isRunning ? "pause.fill" : "play.fill")
-                        Text(timerModel.isRunning ? "暂停" : "开始")
+                        Text(timerModel.isRunning ? "暂停倒计时" : "继续倒计时")
                     }
                     .font(.headline)
                     .fontWeight(.bold)
@@ -184,13 +187,17 @@ public struct RestTimerCardView: View {
                         timerModel.reset()
                     }
                 }) {
-                    Image(systemName: "arrow.counterclockwise")
-                        .font(.subheadline)
-                        .fontWeight(.bold)
-                        .padding(12)
-                        .background(AppColors.pillBackground)
-                        .foregroundColor(AppColors.primaryText)
-                        .clipShape(Circle())
+                    HStack(spacing: 4) {
+                        Text("跳过休息")
+                        Image(systemName: "forward.end.fill")
+                    }
+                    .font(.subheadline)
+                    .fontWeight(.bold)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .background(AppColors.pillBackground)
+                    .foregroundColor(AppColors.primaryText)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
             }
         }
@@ -287,7 +294,7 @@ public struct GiantFloatingTimerDialView: View {
                     Circle()
                         .stroke(Color.secondary.opacity(0.14), lineWidth: 22)
                     
-                    // 1. 活跃跟手层：逆向退圈时暂时隐藏；满圈完成后自 1.0 (100%) 平滑收缩归拢至鼠标真实进度
+                    // 1. 活跃跟手层：满圈完成后自 1.0 (100%) 平滑收缩归拢至真实线性倒计时进度
                     let targetProgress = CGFloat(is60SecondPrecisionDial ? Double(timerModel.totalDuration % 60) / 60.0 : timerModel.lapProgress)
                     Circle()
                         .trim(
@@ -361,10 +368,10 @@ public struct GiantFloatingTimerDialView: View {
                 Spacer()
                 
                 Button(action: {
-                    timerModel.remainingTime = Double(timerModel.totalDuration)
+                    timerModel.reset()
+                    timerModel.start()
                     withAnimation(.spring(response: 0.38, dampingFraction: 0.78)) {
                         timerModel.isPrecisionZoomed = false
-                        timerModel.isRunning = true
                     }
                 }) {
                     Text("完成并开始")
