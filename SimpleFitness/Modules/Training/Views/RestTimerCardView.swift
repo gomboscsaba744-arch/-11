@@ -288,12 +288,19 @@ public struct GiantFloatingTimerDialView: View {
                             Image(systemName: "xmark")
                                 .font(.system(size: 11, weight: .bold))
                         }
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 8)
-                        .background(Color.secondary.opacity(0.18))
-                        .foregroundColor(AppColors.primaryText.opacity(0.85))
-                        .clipShape(Capsule())
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 9)
+                        .background(
+                            Capsule()
+                                .fill(.ultraThinMaterial)
+                        )
+                        .overlay(
+                            Capsule()
+                                .strokeBorder(Color.white.opacity(0.35), lineWidth: 0.5)
+                        )
+                        .foregroundColor(AppColors.primaryText.opacity(0.9))
                     }
+                    .buttonStyle(.plain)
                 }
                 .padding(.horizontal, 28)
                 .padding(.top, 40)

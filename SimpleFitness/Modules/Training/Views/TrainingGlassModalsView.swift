@@ -75,11 +75,19 @@ public struct TrainingRoutinePickerGlassModalView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(action: { dismiss() }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.title3)
-                            .symbolRenderingMode(.hierarchical)
-                            .foregroundStyle(Color.secondary)
+                        ZStack {
+                            Circle()
+                                .fill(.ultraThinMaterial)
+                                .frame(width: 30, height: 30)
+                            Circle()
+                                .strokeBorder(Color.white.opacity(0.35), lineWidth: 0.5)
+                                .frame(width: 30, height: 30)
+                            Image(systemName: "xmark")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(AppColors.primaryText.opacity(0.85))
+                        }
                     }
+                    .buttonStyle(.plain)
                 }
             }
         }
@@ -111,98 +119,101 @@ public struct TrainingExerciseListGlassModalView: View {
                 .ignoresSafeArea()
                 .onTapGesture { onClose() }
             
-            VStack(spacing: 16) {
-                HStack(alignment: .center) {
+            ZStack(alignment: .topTrailing) {
+                VStack(alignment: .leading, spacing: 16) {
                     Text("计划明细")
                         .font(.title3)
                         .fontWeight(.heavy)
                         .foregroundColor(AppColors.primaryText)
-                    Spacer()
-                    Button(action: { onClose() }) {
-                        ZStack {
-                            Circle()
-                                .fill(.ultraThinMaterial)
-                                .frame(width: 30, height: 30)
-                            Circle()
-                                .strokeBorder(Color.white.opacity(0.35), lineWidth: 0.5)
-                                .frame(width: 30, height: 30)
-                            Image(systemName: "xmark")
-                                .font(.system(size: 12, weight: .bold))
-                                .foregroundColor(AppColors.primaryText.opacity(0.85))
-                        }
-                    }
-                    .buttonStyle(.plain)
-                }
-                
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 10) {
-                        ForEach(Array(exercises.enumerated()), id: \.element.id) { index, item in
-                            let orderIndex = index + 1
-                            let isCurrent = orderIndex == currentIndex
-                            let isDone = orderIndex < currentIndex
-                            
-                            Button(action: {
-                                let impact = UIImpactFeedbackGenerator(style: .medium)
-                                impact.impactOccurred()
-                                onSelectExerciseIndex(orderIndex)
-                                onClose()
-                            }) {
-                                HStack(spacing: 12) {
-                                    ZStack {
-                                        Circle()
-                                            .fill(isCurrent ? AppColors.accentBlue : (isDone ? Color.green : AppColors.pillBackground))
-                                            .frame(width: 34, height: 34)
-                                        
-                                        if isDone {
-                                            Image(systemName: "checkmark")
-                                                .font(.caption.weight(.bold))
-                                                .foregroundColor(.white)
-                                        } else {
-                                            Text("\(orderIndex)")
-                                                .font(.subheadline)
-                                                .fontWeight(.bold)
-                                                .foregroundColor(isCurrent ? .white : AppColors.primaryText)
+                        .padding(.top, 2)
+                    
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 10) {
+                            ForEach(Array(exercises.enumerated()), id: \.element.id) { index, item in
+                                let orderIndex = index + 1
+                                let isCurrent = orderIndex == currentIndex
+                                let isDone = orderIndex < currentIndex
+                                
+                                Button(action: {
+                                    let impact = UIImpactFeedbackGenerator(style: .medium)
+                                    impact.impactOccurred()
+                                    onSelectExerciseIndex(orderIndex)
+                                    onClose()
+                                }) {
+                                    HStack(spacing: 12) {
+                                        ZStack {
+                                            Circle()
+                                                .fill(isCurrent ? AppColors.accentBlue : (isDone ? Color.green : AppColors.pillBackground))
+                                                .frame(width: 34, height: 34)
+                                            
+                                            if isDone {
+                                                Image(systemName: "checkmark")
+                                                    .font(.caption.weight(.bold))
+                                                    .foregroundColor(.white)
+                                            } else {
+                                                Text("\(orderIndex)")
+                                                    .font(.subheadline)
+                                                    .fontWeight(.bold)
+                                                    .foregroundColor(isCurrent ? .white : AppColors.primaryText)
+                                            }
                                         }
-                                    }
-                                    
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(item.name)
-                                            .font(.subheadline)
-                                            .fontWeight(isCurrent ? .heavy : .bold)
-                                            .foregroundColor(AppColors.primaryText)
                                         
-                                        Text("\(item.sets)组 × \(item.reps)次 · \(String(format: "%.1f", item.targetWeightKg))kg")
-                                            .font(.caption2)
-                                            .foregroundColor(AppColors.secondaryText)
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text(item.name)
+                                                .font(.subheadline)
+                                                .fontWeight(isCurrent ? .heavy : .bold)
+                                                .foregroundColor(AppColors.primaryText)
+                                            
+                                            Text("\(item.sets)组 × \(item.reps)次 · \(String(format: "%.1f", item.targetWeightKg))kg")
+                                                .font(.caption2)
+                                                .foregroundColor(AppColors.secondaryText)
+                                        }
+                                        
+                                        Spacer()
+                                        
+                                        Text(isCurrent ? "进行中" : (isDone ? "已完成" : "待训练"))
+                                            .font(.caption)
+                                            .fontWeight(.bold)
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 4)
+                                            .background((isCurrent ? AppColors.accentBlue : (isDone ? Color.green : Color.secondary)).opacity(0.12))
+                                            .foregroundColor(isCurrent ? AppColors.accentBlue : (isDone ? Color.green : AppColors.secondaryText))
+                                            .clipShape(Capsule())
                                     }
-                                    
-                                    Spacer()
-                                    
-                                    Text(isCurrent ? "进行中" : (isDone ? "已完成" : "待训练"))
-                                        .font(.caption)
-                                        .fontWeight(.bold)
-                                        .padding(.horizontal, 8)
-                                        .padding(.vertical, 4)
-                                        .background((isCurrent ? AppColors.accentBlue : (isDone ? Color.green : Color.secondary)).opacity(0.12))
-                                        .foregroundColor(isCurrent ? AppColors.accentBlue : (isDone ? Color.green : AppColors.secondaryText))
-                                        .clipShape(Capsule())
+                                    .padding(12)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 14)
+                                            .fill(isCurrent ? AppColors.accentBlue.opacity(0.12) : Color.white.opacity(0.65))
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 14)
+                                                    .stroke(isCurrent ? AppColors.accentBlue : Color.clear, lineWidth: 1.5)
+                                            )
+                                    )
                                 }
-                                .padding(12)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 14)
-                                        .fill(isCurrent ? AppColors.accentBlue.opacity(0.12) : Color.white.opacity(0.65))
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 14)
-                                                .stroke(isCurrent ? AppColors.accentBlue : Color.clear, lineWidth: 1.5)
-                                        )
-                                )
                             }
                         }
                     }
+                    .frame(maxHeight: 380)
                 }
-                .frame(maxHeight: 380)
+                .padding(22)
+                
+                Button(action: { onClose() }) {
+                    ZStack {
+                        Circle()
+                            .fill(.ultraThinMaterial)
+                            .frame(width: 28, height: 28)
+                        Circle()
+                            .strokeBorder(Color.white.opacity(0.35), lineWidth: 0.5)
+                            .frame(width: 28, height: 28)
+                        Image(systemName: "xmark")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(AppColors.primaryText.opacity(0.85))
+                    }
+                }
+                .buttonStyle(.plain)
+                .padding(.top, 14)
+                .padding(.trailing, 14)
             }
-            .padding(22)
             .background(
                 ZStack {
                     RoundedRectangle(cornerRadius: 28, style: .continuous)
@@ -262,30 +273,16 @@ public struct TrainingSetListGlassModalView: View {
                 .ignoresSafeArea()
                 .onTapGesture { onClose() }
             
-            VStack(spacing: 16) {
-                HStack(alignment: .center) {
+            ZStack(alignment: .topTrailing) {
+                VStack(alignment: .leading, spacing: 16) {
                     Text("\(exerciseName) · 组数明细")
                         .font(.title3)
                         .fontWeight(.heavy)
                         .foregroundColor(AppColors.primaryText)
-                    Spacer()
-                    Button(action: { onClose() }) {
-                        ZStack {
-                            Circle()
-                                .fill(.ultraThinMaterial)
-                                .frame(width: 30, height: 30)
-                            Circle()
-                                .strokeBorder(Color.white.opacity(0.35), lineWidth: 0.5)
-                                .frame(width: 30, height: 30)
-                            Image(systemName: "xmark")
-                                .font(.system(size: 12, weight: .bold))
-                                .foregroundColor(AppColors.primaryText.opacity(0.85))
-                        }
-                    }
-                    .buttonStyle(.plain)
-                }
-                
-                ScrollView(showsIndicators: false) {
+                        .padding(.top, 2)
+                        .padding(.trailing, 28)
+                    
+                    ScrollView(showsIndicators: false) {
                     VStack(spacing: 10) {
                         ForEach(1...max(1, totalSets), id: \.self) { setIdx in
                             let isCurrent = setIdx == currentSet
@@ -400,6 +397,24 @@ public struct TrainingSetListGlassModalView: View {
                 .frame(maxHeight: 320)
             }
             .padding(22)
+            
+            Button(action: { onClose() }) {
+                ZStack {
+                    Circle()
+                        .fill(.ultraThinMaterial)
+                        .frame(width: 28, height: 28)
+                    Circle()
+                        .strokeBorder(Color.white.opacity(0.35), lineWidth: 0.5)
+                        .frame(width: 28, height: 28)
+                    Image(systemName: "xmark")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundColor(AppColors.primaryText.opacity(0.85))
+                }
+            }
+            .buttonStyle(.plain)
+            .padding(.top, 14)
+            .padding(.trailing, 14)
+        }
             .background(
                 ZStack {
                     RoundedRectangle(cornerRadius: 28, style: .continuous)
@@ -435,28 +450,14 @@ public struct PlanOverviewGlassModalView: View {
                 .ignoresSafeArea()
                 .onTapGesture { onClose() }
             
-            VStack(spacing: 16) {
-                HStack(alignment: .center) {
+            ZStack(alignment: .topTrailing) {
+                VStack(alignment: .leading, spacing: 16) {
                     Text("课表动作微调")
                         .font(.title3)
                         .fontWeight(.heavy)
                         .foregroundColor(AppColors.primaryText)
-                    Spacer()
-                    Button(action: { onClose() }) {
-                        ZStack {
-                            Circle()
-                                .fill(.ultraThinMaterial)
-                                .frame(width: 30, height: 30)
-                            Circle()
-                                .strokeBorder(Color.white.opacity(0.35), lineWidth: 0.5)
-                                .frame(width: 30, height: 30)
-                            Image(systemName: "xmark")
-                                .font(.system(size: 12, weight: .bold))
-                                .foregroundColor(AppColors.primaryText.opacity(0.85))
-                        }
-                    }
-                    .buttonStyle(.plain)
-                }
+                        .padding(.top, 2)
+                        .padding(.trailing, 28)
                 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 12) {
@@ -524,6 +525,24 @@ public struct PlanOverviewGlassModalView: View {
                 .frame(maxHeight: 400)
             }
             .padding(22)
+            
+            Button(action: { onClose() }) {
+                ZStack {
+                    Circle()
+                        .fill(.ultraThinMaterial)
+                        .frame(width: 28, height: 28)
+                    Circle()
+                        .strokeBorder(Color.white.opacity(0.35), lineWidth: 0.5)
+                        .frame(width: 28, height: 28)
+                    Image(systemName: "xmark")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundColor(AppColors.primaryText.opacity(0.85))
+                }
+            }
+            .buttonStyle(.plain)
+            .padding(.top, 14)
+            .padding(.trailing, 14)
+        }
             .background(
                 ZStack {
                     RoundedRectangle(cornerRadius: 28, style: .continuous)
