@@ -189,7 +189,9 @@ public struct TrainingExerciseListGlassModalView: View {
                                                     .stroke(isCurrent ? AppColors.accentBlue : Color.clear, lineWidth: 1.5)
                                             )
                                     )
+                                    .contentShape(Rectangle())
                                 }
+                                .buttonStyle(.plain)
                             }
                         }
                     }
@@ -290,7 +292,7 @@ public struct TrainingSetListGlassModalView: View {
                             let setReps = exerciseItem?.getTargetReps(forSet: setIdx) ?? targetReps
                             
                             HStack(spacing: 12) {
-                                // 左侧区域：点击切换当前执行组数
+                                // 左侧与中部区域：点击切换当前执行组数（无盲区）
                                 Button(action: {
                                     let impact = UIImpactFeedbackGenerator(style: .medium)
                                     impact.impactOccurred()
@@ -324,11 +326,11 @@ public struct TrainingSetListGlassModalView: View {
                                                 .font(.caption)
                                                 .foregroundColor(AppColors.secondaryText)
                                         }
+                                        Spacer(minLength: 4)
                                     }
+                                    .contentShape(Rectangle())
                                 }
                                 .buttonStyle(.plain)
-                                
-                                Spacer(minLength: 4)
                                 
                                 // 右侧高审美胶囊次数控制器 (Pill Stepper)
                                 HStack(spacing: 0) {
@@ -373,14 +375,22 @@ public struct TrainingSetListGlassModalView: View {
                                         .fill(Color.secondary.opacity(0.12))
                                 )
                                 
-                                Text(isCurrent ? "当前" : (isDone ? "已完" : "待做"))
-                                    .font(.caption2)
-                                    .fontWeight(.bold)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
-                                    .background((isCurrent ? AppColors.accentBlue : (isDone ? Color.green : Color.secondary)).opacity(0.12))
-                                    .foregroundColor(isCurrent ? AppColors.accentBlue : (isDone ? Color.green : AppColors.secondaryText))
-                                    .clipShape(Capsule())
+                                Button(action: {
+                                    let impact = UIImpactFeedbackGenerator(style: .medium)
+                                    impact.impactOccurred()
+                                    onSelectSet(setIdx)
+                                    onClose()
+                                }) {
+                                    Text(isCurrent ? "当前" : (isDone ? "已完" : "待做"))
+                                        .font(.caption2)
+                                        .fontWeight(.bold)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background((isCurrent ? AppColors.accentBlue : (isDone ? Color.green : Color.secondary)).opacity(0.12))
+                                        .foregroundColor(isCurrent ? AppColors.accentBlue : (isDone ? Color.green : AppColors.secondaryText))
+                                        .clipShape(Capsule())
+                                }
+                                .buttonStyle(.plain)
                             }
                             .padding(12)
                             .background(
