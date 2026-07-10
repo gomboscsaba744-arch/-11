@@ -11,6 +11,13 @@ public struct TrainingView: View {
     @State private var showingSetListModal: Bool = false
     @State private var completedExerciseNotice: String? = nil
     
+    // Watch计次与自动流转状态
+    @State private var recordedReps: Int = 0
+    @AppStorage("isAutoFlowModeEnabled") private var isAutoFlowModeEnabled: Bool = true
+    @AppStorage("autoRestBufferSeconds") private var autoRestBufferSeconds: Int = 10
+    @State private var isAutoBufferActive: Bool = false
+    @State private var autoBufferRemaining: Int = 10
+    
     public init() {}
     
     public var body: some View {
@@ -97,7 +104,23 @@ public struct TrainingView: View {
                                 .transition(.move(edge: .top).combined(with: .opacity))
                             
                             VStack(spacing: 14) {
-                                RepCounterCardView(reps: $session.currentReps)
+                                RepCounterCardView(
+                                    recordedReps: $recordedReps,
+                                    targetReps: $session.currentReps,
+                                    isAutoMode: $isAutoFlowModeEnabled,
+                                    isBufferActive: isAutoBufferActive,
+                                    bufferRemaining: autoBufferRemaining,
+                                    onCancelBuffer: {
+                                        withAnimation {
+                                            isAutoBufferActive = false
+                                            isAutoFlowModeEnabled = false
+                                        }
+                                    },
+                                    onImmediateRest: {
+                                        isAutoBufferActive = false
+                                        completeCurrentSet()
+                                    }
+                                )
                                 
                                 TrainingActionButtonsView(
                                     currentSet: session.currentSet,
@@ -108,7 +131,23 @@ public struct TrainingView: View {
                             }
                         } else {
                             VStack(spacing: 14) {
-                                RepCounterCardView(reps: $session.currentReps)
+                                RepCounterCardView(
+                                    recordedReps: $recordedReps,
+                                    targetReps: $session.currentReps,
+                                    isAutoMode: $isAutoFlowModeEnabled,
+                                    isBufferActive: isAutoBufferActive,
+                                    bufferRemaining: autoBufferRemaining,
+                                    onCancelBuffer: {
+                                        withAnimation {
+                                            isAutoBufferActive = false
+                                            isAutoFlowModeEnabled = false
+                                        }
+                                    },
+                                    onImmediateRest: {
+                                        isAutoBufferActive = false
+                                        completeCurrentSet()
+                                    }
+                                )
                                 
                                 TrainingActionButtonsView(
                                     currentSet: session.currentSet,
@@ -223,6 +262,37 @@ public struct TrainingView: View {
                     libraryStore.updateActivePlanExercise(item, at: idx)
                 }
             }
+            .onChange(of: recordedReps) { _, newCount in
+                if newCount >= session.currentReps && session.currentReps > 0 {
+                    UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+                    UINotificationFeedbackGenerator().notificationOccurred(.success)
+                    
+                    if isAutoFlowModeEnabled && !(restTimer.isRunning || restTimer.isPaused) {
+                        autoBufferRemaining = autoRestBufferSeconds
+                        withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
+                            isAutoBufferActive = true
+                        }
+                    }
+                } else {
+                    if isAutoBufferActive {
+                        withAnimation { isAutoBufferActive = false }
+                    }
+                }
+            }
+            .onReceive(Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()) { _ in
+                if isAutoBufferActive {
+                    if autoBufferRemaining > 1 {
+                        autoBufferRemaining -= 1
+                    } else {
+                        isAutoBufferActive = false
+                        completeCurrentSet()
+                    }
+                }
+                // 监听倒计时是否结束：倒计时结束自动进入下一组计数打卡模式，归零次计次
+                if !restTimer.isRunning && !restTimer.isPaused && restTimer.remainingTime == 0 {
+                    recordedReps = 0
+                }
+            }
         }
     }
     
@@ -251,6 +321,9 @@ public struct TrainingView: View {
     }
     
     private func completeCurrentSet() {
+        recordedReps = 0
+        isAutoBufferActive = false
+        
         let impact = UIImpactFeedbackGenerator(style: .heavy)
         impact.impactOccurred()
         
@@ -334,6 +407,9 @@ public struct TrainingView: View {
     }
     
     private func updateExerciseDetails() {
+        recordedReps = 0
+        isAutoBufferActive = false
+        
         let exercises = currentRoutineExercises
         let idx = max(0, min(exercises.count - 1, session.currentExerciseIndex - 1))
         guard idx < exercises.count else { return }

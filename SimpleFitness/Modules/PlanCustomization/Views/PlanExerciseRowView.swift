@@ -2,10 +2,12 @@ import SwiftUI
 
 public struct PlanExerciseRowView: View {
     public var item: PlanExerciseItemMock
+    public var onEdit: (() -> Void)?
     public var onDelete: () -> Void
     
-    public init(item: PlanExerciseItemMock, onDelete: @escaping () -> Void = {}) {
+    public init(item: PlanExerciseItemMock, onEdit: (() -> Void)? = nil, onDelete: @escaping () -> Void = {}) {
         self.item = item
+        self.onEdit = onEdit
         self.onDelete = onDelete
     }
     
@@ -19,9 +21,26 @@ public struct PlanExerciseRowView: View {
                 
                 Spacer()
                 
-                Button(action: onDelete) {
-                    Image(systemName: "trash")
-                        .foregroundColor(AppColors.dangerRed)
+                HStack(spacing: 14) {
+                    if let onEdit = onEdit {
+                        Button(action: onEdit) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "square.and.pencil")
+                                Text("参数编辑")
+                                    .font(.caption.weight(.bold))
+                            }
+                            .foregroundColor(AppColors.accentBlue)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(AppColors.pillBackground)
+                            .clipShape(Capsule())
+                        }
+                    }
+                    
+                    Button(action: onDelete) {
+                        Image(systemName: "trash")
+                            .foregroundColor(AppColors.dangerRed)
+                    }
                 }
             }
             

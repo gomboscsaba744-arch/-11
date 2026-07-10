@@ -30,6 +30,12 @@ public struct MainTabView: View {
                     Label("历史成果", systemImage: "clock.arrow.circlepath")
                 }
                 .tag(3)
+            
+            UserProfileAndSettingsView()
+                .tabItem {
+                    Label("我的", systemImage: "person.crop.circle.fill")
+                }
+                .tag(4)
         }
         .tint(AppColors.accentBlue)
     }

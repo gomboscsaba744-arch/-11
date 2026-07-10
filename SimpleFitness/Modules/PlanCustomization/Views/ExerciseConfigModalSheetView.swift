@@ -22,6 +22,24 @@ public struct ExerciseConfigModalSheetView: View {
         self._restSeconds = State(initialValue: exercise.restSeconds)
     }
     
+    public init(existingItem: PlanExerciseItemMock, onConfirm: @escaping (PlanExerciseItemMock) -> Void) {
+        self.exercise = ExerciseItemMock(
+            name: existingItem.name,
+            category: "力量动作",
+            description: "已编排动作参数自定义编辑",
+            restSeconds: existingItem.restSeconds,
+            thresholdG: "0.20G",
+            badgeLetter: String(existingItem.name.prefix(1))
+        )
+        self.onConfirm = onConfirm
+        self._sets = State(initialValue: existingItem.sets)
+        self._reps = State(initialValue: existingItem.reps)
+        self._weight = State(initialValue: existingItem.targetWeightKg)
+        self._restSeconds = State(initialValue: existingItem.restSeconds)
+        self._exerciseRestSeconds = State(initialValue: existingItem.exerciseRestSeconds)
+        self._customRepsPerSet = State(initialValue: existingItem.customRepsPerSet)
+    }
+    
     public var body: some View {
         NavigationStack {
             ZStack {

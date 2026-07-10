@@ -23,7 +23,7 @@ public struct RestTimerCompactPreviewCardView: View {
             
             Spacer(minLength: 4)
             
-            HStack(spacing: 6) {
+            HStack(spacing: 7) {
                 Button(action: { timerModel.adjustDuration(by: -15) }) {
                     Text("-15s")
                         .font(.caption2.weight(.bold))
@@ -39,8 +39,10 @@ public struct RestTimerCompactPreviewCardView: View {
                 Text("\(timerModel.totalDuration)s")
                     .font(.subheadline.weight(.heavy))
                     .monospacedDigit()
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
                     .foregroundColor(AppColors.accentBlue)
-                    .frame(minWidth: 38)
+                    .contentTransition(.numericText())
                 
                 Button(action: { timerModel.adjustDuration(by: 15) }) {
                     Text("+15s")
@@ -54,6 +56,7 @@ public struct RestTimerCompactPreviewCardView: View {
                         .clipShape(Capsule())
                 }
             }
+            .animation(.spring(response: 0.3, dampingFraction: 0.82), value: "\(timerModel.totalDuration)s".count)
             
             Button(action: {
                 let impact = UIImpactFeedbackGenerator(style: .medium)
