@@ -33,7 +33,7 @@ public class TrainingPlanLibraryStore: ObservableObject {
     
     private init() {
         let chestDay = TrainingRoutinePlan(
-            name: "胸肌与肱三头肌强化日",
+            name: "胸与肱三头强化日",
             notes: "侧重胸大肌中下部与上胸塑形，三头力竭收尾",
             exercises: [
                 PlanExerciseItemMock(name: "杠铃平板卧推", sets: 4, reps: 10, targetWeightKg: 60.0, restSeconds: 90),

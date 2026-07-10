@@ -266,6 +266,10 @@ public struct TrainingView: View {
         if session.currentSet < session.totalSets {
             session.currentSet += 1
             session.currentReps = currentItem.getTargetReps(forSet: session.currentSet)
+            restTimer.defaultDuration = currentItem.restSeconds
+            restTimer.totalDuration = currentItem.restSeconds
+            restTimer.isExerciseRestPhase = false
+            restTimer.nextExerciseTitle = nil
             restTimer.reset()
             restTimer.start()
         } else {
@@ -275,6 +279,11 @@ public struct TrainingView: View {
                 session.currentExerciseIndex += 1
                 session.currentSet = 1
                 updateExerciseDetails()
+                
+                restTimer.defaultDuration = currentItem.exerciseRestSeconds
+                restTimer.totalDuration = currentItem.exerciseRestSeconds
+                restTimer.isExerciseRestPhase = true
+                restTimer.nextExerciseTitle = session.exerciseName
                 restTimer.reset()
                 restTimer.start()
                 

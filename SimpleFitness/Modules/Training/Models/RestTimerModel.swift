@@ -15,6 +15,10 @@ public struct RestTimerModel {
     public var isPaused: Bool = false
     /// 是否开启全屏浮空巨型表盘（虚化背景，无边界悬浮）
     public var isPrecisionZoomed: Bool = false
+    /// 是否为“动作间切换休息”（而非普通组间休息）
+    public var isExerciseRestPhase: Bool = false
+    /// 动作间休息即将过渡到的新动作名称
+    public var nextExerciseTitle: String? = nil
     
     public init(defaultDuration: Int = 90) {
         self.defaultDuration = defaultDuration

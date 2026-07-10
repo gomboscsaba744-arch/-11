@@ -10,9 +10,11 @@ public struct ExerciseConfigModalSheetView: View {
     @State private var reps: Int = 12
     @State private var weight: Double = 30.0
     @State private var restSeconds: Int = 90
+    @State private var exerciseRestSeconds: Int = 120
     @State private var customRepsPerSet: [Int: Int] = [:]
     
     private let restOptions = [45, 60, 90, 120, 180]
+    private let exerciseRestOptions = [60, 90, 120, 180, 240]
     
     public init(exercise: ExerciseItemMock, onConfirm: @escaping (PlanExerciseItemMock) -> Void) {
         self.exercise = exercise
@@ -199,7 +201,7 @@ public struct ExerciseConfigModalSheetView: View {
                         
                         // 4. 组间休息时长卡片
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("组间休息时长 (Rest Time)")
+                            Text("组间休息时长 (Set Rest)")
                                 .font(.headline)
                             
                             HStack(spacing: 8) {
@@ -214,6 +216,31 @@ public struct ExerciseConfigModalSheetView: View {
                                             .padding(.vertical, 10)
                                             .background(restSeconds == sec ? AppColors.accentBlue : AppColors.pillBackground)
                                             .foregroundColor(restSeconds == sec ? .white : AppColors.primaryText)
+                                            .clipShape(Capsule())
+                                    }
+                                }
+                            }
+                        }
+                        .padding(16)
+                        .standardCardStyle()
+                        
+                        // 5. 动作间切换休息时长卡片
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("动作切换后休息 (Exercise Rest)")
+                                .font(.headline)
+                            
+                            HStack(spacing: 8) {
+                                ForEach(exerciseRestOptions, id: \.self) { sec in
+                                    Button(action: {
+                                        exerciseRestSeconds = sec
+                                    }) {
+                                        Text("\(sec)秒")
+                                            .font(.subheadline)
+                                            .fontWeight(exerciseRestSeconds == sec ? .bold : .medium)
+                                            .frame(maxWidth: .infinity)
+                                            .padding(.vertical, 10)
+                                            .background(exerciseRestSeconds == sec ? Color.orange : AppColors.pillBackground)
+                                            .foregroundColor(exerciseRestSeconds == sec ? .white : AppColors.primaryText)
                                             .clipShape(Capsule())
                                     }
                                 }
@@ -237,6 +264,7 @@ public struct ExerciseConfigModalSheetView: View {
                             reps: reps,
                             targetWeightKg: weight,
                             restSeconds: restSeconds,
+                            exerciseRestSeconds: exerciseRestSeconds,
                             customRepsPerSet: customRepsPerSet
                         )
                         onConfirm(configuredItem)

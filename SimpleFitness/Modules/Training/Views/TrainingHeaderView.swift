@@ -24,42 +24,50 @@ public struct TrainingHeaderView: View {
     public var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             // 1. 全局训练路径进度栏 (可点击左侧切换训练日，可点击右侧弹窗浏览全部动作)
-            HStack(spacing: 8) {
+            HStack(alignment: .center, spacing: 6) {
                 Button(action: onSelectRoutine) {
-                    HStack(spacing: 5) {
+                    HStack(alignment: .center, spacing: 5) {
                         Image(systemName: "figure.strengthtraining.traditional")
-                            .font(.footnote)
+                            .font(.body.weight(.bold))
                             .foregroundColor(AppColors.accentBlue)
+                        
                         Text(session.workoutTitle)
-                            .font(.subheadline)
-                            .fontWeight(.heavy)
+                            .font(.system(size: 21, weight: .heavy))
                             .foregroundColor(AppColors.primaryText)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.65)
+                        
                         Image(systemName: "chevron.down.circle.fill")
-                            .font(.caption)
+                            .font(.subheadline)
                             .foregroundColor(AppColors.accentBlue)
                     }
                 }
+                .buttonStyle(.plain)
+                .layoutPriority(2)
                 
-                Spacer()
+                Spacer(minLength: 6)
                 
-                // 当前动作进度指示条 (点击展开所有动作列表模糊浮层)
+                // 当前动作进度指示条 (绝对禁止折行被挤压，强制保持横向精致单行胶囊)
                 Button(action: onTapExerciseListModal) {
                     HStack(spacing: 6) {
                         Text("动作 \(session.currentExerciseIndex)/\(session.totalExercises)")
-                            .font(.footnote)
-                            .fontWeight(.bold)
+                            .font(.footnote.weight(.bold))
                             .foregroundColor(AppColors.accentBlue)
+                            .lineLimit(1)
                         
                         ExerciseProgressDotsView(
                             current: session.currentExerciseIndex,
                             total: session.totalExercises
                         )
                     }
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 5)
+                    .padding(.horizontal, 11)
+                    .padding(.vertical, 6)
                     .background(AppColors.pillBackground)
                     .clipShape(Capsule())
                 }
+                .buttonStyle(.plain)
+                .fixedSize(horizontal: true, vertical: false)
+                .layoutPriority(10)
             }
             
             // 2. 当前阶段状态横幅 (可点击右侧第X/Y组展开组数明细浮层)

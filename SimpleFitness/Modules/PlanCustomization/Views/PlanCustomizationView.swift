@@ -44,14 +44,25 @@ public struct PlanCustomizationView: View {
                         }
                         .padding(.top, 8)
                         
-                        Text("课表名称与备注")
-                            .font(.subheadline)
-                            .foregroundColor(AppColors.secondaryText)
+                        HStack {
+                            Text("课表名称与备注")
+                                .font(.subheadline)
+                                .foregroundColor(AppColors.secondaryText)
+                            Spacer()
+                            Text("\(planName.count)/8 字")
+                                .font(.caption2.weight(.bold))
+                                .foregroundColor(planName.count >= 8 ? .orange : AppColors.secondaryText)
+                        }
                         
                         // 名称与备注输入卡片
                         VStack(spacing: 0) {
-                            TextField("例如：练胸与三头肌日", text: $planName)
+                            TextField("例如：胸三头强化日 (限8字)", text: $planName)
                                 .padding()
+                                .onChange(of: planName) { _, newValue in
+                                    if newValue.count > 8 {
+                                        planName = String(newValue.prefix(8))
+                                    }
+                                }
                             
                             Divider()
                                 .padding(.horizontal)

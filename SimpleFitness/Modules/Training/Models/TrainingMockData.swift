@@ -1,7 +1,7 @@
 import Foundation
 
 public struct TrainingSessionMock {
-    public var workoutTitle: String = "胸肌与肱三头肌强化日"
+    public var workoutTitle: String = "胸与肱三头强化日"
     public var currentExerciseIndex: Int = 5
     public var totalExercises: Int = 12
     

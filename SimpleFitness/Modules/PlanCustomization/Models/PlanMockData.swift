@@ -7,14 +7,17 @@ public struct PlanExerciseItemMock: Identifiable {
     public var reps: Int
     public var targetWeightKg: Double
     public var restSeconds: Int
+    /// 动作间切换休息时长（秒）
+    public var exerciseRestSeconds: Int
     public var customRepsPerSet: [Int: Int]
     
-    public init(name: String, sets: Int, reps: Int, targetWeightKg: Double, restSeconds: Int, customRepsPerSet: [Int: Int] = [:]) {
+    public init(name: String, sets: Int, reps: Int, targetWeightKg: Double, restSeconds: Int, exerciseRestSeconds: Int = 120, customRepsPerSet: [Int: Int] = [:]) {
         self.name = name
         self.sets = sets
         self.reps = reps
         self.targetWeightKg = targetWeightKg
         self.restSeconds = restSeconds
+        self.exerciseRestSeconds = exerciseRestSeconds
         self.customRepsPerSet = customRepsPerSet
     }
     

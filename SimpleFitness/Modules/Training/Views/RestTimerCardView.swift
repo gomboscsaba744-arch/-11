@@ -25,20 +25,32 @@ public struct RestTimerCardView: View {
     private var topHeaderBar: some View {
         HStack {
             HStack(spacing: 6) {
-                Image(systemName: "timer")
+                Image(systemName: timerModel.isExerciseRestPhase ? "arrow.triangle.2.circlepath" : "timer")
                     .font(.subheadline)
-                    .foregroundColor(AppColors.accentBlue)
-                Text("组间倒计时")
+                    .foregroundColor(timerModel.isExerciseRestPhase ? .orange : AppColors.accentBlue)
+                Text(timerModel.isExerciseRestPhase ? "动作切换休息" : "组间倒计时")
                     .font(.headline)
                     .fontWeight(.bold)
+                    .foregroundColor(timerModel.isExerciseRestPhase ? .orange : AppColors.primaryText)
                 
-                Text("\(timerModel.defaultDuration)s")
-                    .font(.caption2)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(AppColors.pillBackground)
-                    .clipShape(Capsule())
-                    .foregroundColor(AppColors.secondaryText)
+                if let nextTitle = timerModel.nextExerciseTitle, timerModel.isExerciseRestPhase {
+                    Text("准备: \(nextTitle)")
+                        .font(.caption2.weight(.bold))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(Color.orange.opacity(0.15))
+                        .clipShape(Capsule())
+                        .foregroundColor(.orange)
+                        .lineLimit(1)
+                } else {
+                    Text("\(timerModel.defaultDuration)s")
+                        .font(.caption2)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(AppColors.pillBackground)
+                        .clipShape(Capsule())
+                        .foregroundColor(AppColors.secondaryText)
+                }
             }
             
             Spacer()
