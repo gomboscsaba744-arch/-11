@@ -166,16 +166,19 @@ public class WatchWorkoutManager: NSObject, ObservableObject {
         workoutDurationSeconds = 0
         workoutStartTime = Date()
         
+        startHealthKitWorkoutSession()
+        startMotionSensorMonitoring()
+        
         workoutTimer?.invalidate()
         workoutTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             guard let self = self, self.isWorkoutRunning else { return }
             self.workoutDurationSeconds += 1
-            if self.workoutDurationSeconds % 8 == 0 {
+            if self.workoutDurationSeconds % 8 == 0 && self.workoutBuilder == nil {
                 self.activeEnergyKcal += 1
             }
+            self.sendTelemetryToPhone()
         }
         
-        startMotionSensorMonitoring()
         WKInterfaceDevice.current().play(.start)
     }
     
@@ -188,6 +191,7 @@ public class WatchWorkoutManager: NSObject, ObservableObject {
         workoutTimer?.invalidate()
         workoutTimer = nil
         stopMotionSensorMonitoring()
+        endHealthKitWorkoutSession()
         
         let elapsed = workoutStartTime != nil ? Int(Date().timeIntervalSince(workoutStartTime!)) : workoutDurationSeconds
         let minutes = elapsed / 60
@@ -299,6 +303,45 @@ public class WatchWorkoutManager: NSObject, ObservableObject {
     private func stopMotionSensorMonitoring() {
         motionManager.stopDeviceMotionUpdates()
     }
+    
+    private func startHealthKitWorkoutSession() {
+        guard HKHealthStore.isHealthDataAvailable() else { return }
+        let configuration = HKWorkoutConfiguration()
+        configuration.activityType = .traditionalStrengthTraining
+        configuration.locationType = .indoor
+        do {
+            workoutSession = try HKWorkoutSession(healthStore: healthStore, configuration: configuration)
+            workoutBuilder = workoutSession?.associatedWorkoutBuilder()
+            workoutBuilder?.dataSource = HKLiveWorkoutDataSource(healthStore: healthStore, workoutConfiguration: configuration)
+            workoutSession?.delegate = self
+            workoutBuilder?.delegate = self
+            workoutSession?.startActivity(with: Date())
+            workoutBuilder?.beginCollection(withStart: Date()) { _, _ in }
+        } catch {
+            print("HKWorkoutSession setup failed: \(error)")
+        }
+    }
+    
+    private func endHealthKitWorkoutSession() {
+        workoutSession?.end()
+        workoutBuilder?.endCollection(withEnd: Date()) { [weak self] _, _ in
+            self?.workoutBuilder?.finishWorkout { _, _ in }
+        }
+    }
+    
+    private func sendTelemetryToPhone() {
+        guard let session = wcSession, session.activationState == .activated else { return }
+        let telemetry: [String: Any] = [
+            "heartRate": currentHeartRate,
+            "calories": activeEnergyKcal,
+            "detectedRepCount": detectedRepCount,
+            "gyroAmplitude": gyroAmplitude,
+            "timestamp": Date().timeIntervalSince1970
+        ]
+        if session.isReachable {
+            session.sendMessage(telemetry, replyHandler: nil, errorHandler: nil)
+        }
+    }
 }
 
 extension WatchWorkoutManager: WCSessionDelegate {
@@ -333,6 +376,22 @@ extension WatchWorkoutManager: HKWorkoutSessionDelegate, HKLiveWorkoutBuilderDel
     public func workoutSession(_ workoutSession: HKWorkoutSession, didChangeTo toState: HKWorkoutSessionState, from fromState: HKWorkoutSessionState, date: Date) {}
     public func workoutSession(_ workoutSession: HKWorkoutSession, didFailWithError error: Error) {}
     public func workoutBuilderDidCollectEvent(_ workoutBuilder: HKLiveWorkoutBuilder) {}
-    public func workoutBuilder(_ workoutBuilder: HKLiveWorkoutBuilder, didCollectDataOf collectedTypes: Set<HKSampleType>) {}
+    public func workoutBuilder(_ workoutBuilder: HKLiveWorkoutBuilder, didCollectDataOf collectedTypes: Set<HKSampleType>) {
+        for type in collectedTypes {
+            guard let quantityType = type as? HKQuantityType else { continue }
+            if let statistics = workoutBuilder.statistics(for: quantityType) {
+                DispatchQueue.main.async {
+                    if quantityType == HKQuantityType(.heartRate),
+                       let value = statistics.mostRecentQuantity()?.doubleValue(for: HKUnit.count().unitDivided(by: .minute())) {
+                        self.currentHeartRate = Int(value)
+                    }
+                    if quantityType == HKQuantityType(.activeEnergyBurned),
+                       let value = statistics.sumQuantity()?.doubleValue(for: .kilocalorie()) {
+                        self.activeEnergyKcal = Int(value)
+                    }
+                }
+            }
+        }
+    }
 }
 #endif
