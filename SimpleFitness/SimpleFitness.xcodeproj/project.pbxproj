@@ -40,14 +40,39 @@
 		110000802E1E0080 /* WatchTrainingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000702E1E0070 /* WatchTrainingView.swift */; };
 		110000812E1E0081 /* WatchWorkoutManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000712E1E0071 /* WatchWorkoutManager.swift */; };
 		110000822E1E0082 /* SimpleFitnessWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000722E1E0072 /* SimpleFitnessWatchApp.swift */; };
-		110000852E1E0085 /* WatchLongPressEndButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000752E1E0075 /* WatchLongPressEndButton.swift */; };
-		110000862E1E0086 /* WatchPreWorkoutTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000762E1E0076 /* WatchPreWorkoutTabView.swift */; };
-		110000872E1E0087 /* WatchActiveWorkoutTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000772E1E0077 /* WatchActiveWorkoutTabView.swift */; };
-		110000882E1E0088 /* WatchCountdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000782E1E0078 /* WatchCountdownView.swift */; };
-		110000892E1E0089 /* WatchRestTimerOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000792E1E0079 /* WatchRestTimerOverlay.swift */; };
-		1100008A2E1E008A /* WatchTargetReachedOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1000007A2E1E007A /* WatchTargetReachedOverlay.swift */; };
-		1100008B2E1E008B /* WatchPostWorkoutSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1000007B2E1E007B /* WatchPostWorkoutSummaryView.swift */; };
+		110000852E1E0085 /* Modules/Components/WatchLongPressEndButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000752E1E0075 /* Modules/Components/WatchLongPressEndButton.swift */; };
+		110000862E1E0086 /* Modules/PreWorkout/WatchPreWorkoutTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000762E1E0076 /* Modules/PreWorkout/WatchPreWorkoutTabView.swift */; };
+		110000872E1E0087 /* Modules/ActiveWorkout/WatchActiveWorkoutTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000772E1E0077 /* Modules/ActiveWorkout/WatchActiveWorkoutTabView.swift */; };
+		110000882E1E0088 /* Modules/PreWorkout/WatchCountdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000782E1E0078 /* Modules/PreWorkout/WatchCountdownView.swift */; };
+		110000892E1E0089 /* Modules/ActiveWorkout/WatchRestTimerOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000792E1E0079 /* Modules/ActiveWorkout/WatchRestTimerOverlay.swift */; };
+		1100008A2E1E008A /* Modules/ActiveWorkout/WatchTargetReachedOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1000007A2E1E007A /* Modules/ActiveWorkout/WatchTargetReachedOverlay.swift */; };
+		1100008B2E1E008B /* Modules/PostWorkout/WatchPostWorkoutSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1000007B2E1E007B /* Modules/PostWorkout/WatchPostWorkoutSummaryView.swift */; };
+		110000902E1E0090 /* SimpleFitnessWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 990000502E1E0050 /* SimpleFitnessWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		500000012E1E0001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 500000002E1E0000 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 300000502E1E0050;
+			remoteInfo = SimpleFitnessWatch;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		300000022E1E0002 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				110000902E1E0090 /* SimpleFitnessWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		100000012E1E0001 /* SimpleFitnessApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleFitnessApp.swift; sourceTree = "<group>"; };
@@ -83,13 +108,13 @@
 		100000702E1E0070 /* WatchTrainingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchTrainingView.swift; sourceTree = "<group>"; };
 		100000712E1E0071 /* WatchWorkoutManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchWorkoutManager.swift; sourceTree = "<group>"; };
 		100000722E1E0072 /* SimpleFitnessWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleFitnessWatchApp.swift; sourceTree = "<group>"; };
-		100000752E1E0075 /* WatchLongPressEndButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modules/Components/WatchLongPressEndButton.swift; sourceTree = "<group>"; };
-		100000762E1E0076 /* WatchPreWorkoutTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modules/PreWorkout/WatchPreWorkoutTabView.swift; sourceTree = "<group>"; };
-		100000772E1E0077 /* WatchActiveWorkoutTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modules/ActiveWorkout/WatchActiveWorkoutTabView.swift; sourceTree = "<group>"; };
-		100000782E1E0078 /* WatchCountdownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modules/PreWorkout/WatchCountdownView.swift; sourceTree = "<group>"; };
-		100000792E1E0079 /* WatchRestTimerOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modules/ActiveWorkout/WatchRestTimerOverlay.swift; sourceTree = "<group>"; };
-		1000007A2E1E007A /* WatchTargetReachedOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modules/ActiveWorkout/WatchTargetReachedOverlay.swift; sourceTree = "<group>"; };
-		1000007B2E1E007B /* WatchPostWorkoutSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modules/PostWorkout/WatchPostWorkoutSummaryView.swift; sourceTree = "<group>"; };
+		100000752E1E0075 /* Modules/Components/WatchLongPressEndButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modules/Components/WatchLongPressEndButton.swift; sourceTree = "<group>"; };
+		100000762E1E0076 /* Modules/PreWorkout/WatchPreWorkoutTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modules/PreWorkout/WatchPreWorkoutTabView.swift; sourceTree = "<group>"; };
+		100000772E1E0077 /* Modules/ActiveWorkout/WatchActiveWorkoutTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modules/ActiveWorkout/WatchActiveWorkoutTabView.swift; sourceTree = "<group>"; };
+		100000782E1E0078 /* Modules/PreWorkout/WatchCountdownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modules/PreWorkout/WatchCountdownView.swift; sourceTree = "<group>"; };
+		100000792E1E0079 /* Modules/ActiveWorkout/WatchRestTimerOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modules/ActiveWorkout/WatchRestTimerOverlay.swift; sourceTree = "<group>"; };
+		1000007A2E1E007A /* Modules/ActiveWorkout/WatchTargetReachedOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modules/ActiveWorkout/WatchTargetReachedOverlay.swift; sourceTree = "<group>"; };
+		1000007B2E1E007B /* Modules/PostWorkout/WatchPostWorkoutSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modules/PostWorkout/WatchPostWorkoutSummaryView.swift; sourceTree = "<group>"; };
 		990000002E1E0000 /* SimpleFitness.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleFitness.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		990000502E1E0050 /* SimpleFitnessWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleFitnessWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -292,13 +317,13 @@
 				100000702E1E0070 /* WatchTrainingView.swift */,
 				100000712E1E0071 /* WatchWorkoutManager.swift */,
 				100000722E1E0072 /* SimpleFitnessWatchApp.swift */,
-				100000752E1E0075 /* WatchLongPressEndButton.swift */,
-				100000762E1E0076 /* WatchPreWorkoutTabView.swift */,
-				100000772E1E0077 /* WatchActiveWorkoutTabView.swift */,
-				100000782E1E0078 /* WatchCountdownView.swift */,
-				100000792E1E0079 /* WatchRestTimerOverlay.swift */,
-				1000007A2E1E007A /* WatchTargetReachedOverlay.swift */,
-				1000007B2E1E007B /* WatchPostWorkoutSummaryView.swift */,
+				100000752E1E0075 /* Modules/Components/WatchLongPressEndButton.swift */,
+				100000762E1E0076 /* Modules/PreWorkout/WatchPreWorkoutTabView.swift */,
+				100000772E1E0077 /* Modules/ActiveWorkout/WatchActiveWorkoutTabView.swift */,
+				100000782E1E0078 /* Modules/PreWorkout/WatchCountdownView.swift */,
+				100000792E1E0079 /* Modules/ActiveWorkout/WatchRestTimerOverlay.swift */,
+				1000007A2E1E007A /* Modules/ActiveWorkout/WatchTargetReachedOverlay.swift */,
+				1000007B2E1E007B /* Modules/PostWorkout/WatchPostWorkoutSummaryView.swift */,
 			);
 			path = SimpleFitnessWatch;
 			sourceTree = "<group>";
@@ -311,10 +336,12 @@
 			buildConfigurationList = 400000002E1E0000 /* Build configuration list for PBXNativeTarget "SimpleFitness" */;
 			buildPhases = (
 				300000012E1E0001 /* Sources */,
+				300000022E1E0002 /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				500000022E1E0002 /* PBXTargetDependency */,
 			);
 			name = SimpleFitness;
 			productName = SimpleFitness;
@@ -337,6 +364,14 @@
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
+
+/* Begin PBXTargetDependency section */
+		500000022E1E0002 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 300000502E1E0050 /* SimpleFitnessWatch */;
+			targetProxy = 500000012E1E0001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXProject section */
 		500000002E1E0000 /* Project object */ = {
@@ -410,13 +445,13 @@
 				110000822E1E0082 /* SimpleFitnessWatchApp.swift in Sources */,
 				110000802E1E0080 /* WatchTrainingView.swift in Sources */,
 				110000812E1E0081 /* WatchWorkoutManager.swift in Sources */,
-				110000852E1E0085 /* WatchLongPressEndButton.swift in Sources */,
-				110000862E1E0086 /* WatchPreWorkoutTabView.swift in Sources */,
-				110000872E1E0087 /* WatchActiveWorkoutTabView.swift in Sources */,
-				110000882E1E0088 /* WatchCountdownView.swift in Sources */,
-				110000892E1E0089 /* WatchRestTimerOverlay.swift in Sources */,
-				1100008A2E1E008A /* WatchTargetReachedOverlay.swift in Sources */,
-				1100008B2E1E008B /* WatchPostWorkoutSummaryView.swift in Sources */,
+				110000852E1E0085 /* Modules/Components/WatchLongPressEndButton.swift in Sources */,
+				110000862E1E0086 /* Modules/PreWorkout/WatchPreWorkoutTabView.swift in Sources */,
+				110000872E1E0087 /* Modules/ActiveWorkout/WatchActiveWorkoutTabView.swift in Sources */,
+				110000882E1E0088 /* Modules/PreWorkout/WatchCountdownView.swift in Sources */,
+				110000892E1E0089 /* Modules/ActiveWorkout/WatchRestTimerOverlay.swift in Sources */,
+				1100008A2E1E008A /* Modules/ActiveWorkout/WatchTargetReachedOverlay.swift in Sources */,
+				1100008B2E1E008B /* Modules/PostWorkout/WatchPostWorkoutSummaryView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -429,13 +464,14 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_ENTITLEMENTS = SimpleFitness.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = K8WZPF4CSL;
 				ENABLE_DEBUG_DYLIB = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOX = YES;
-				CODE_SIGN_ENTITLEMENTS = SimpleFitness.entitlements;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "需要读取您的心率与卡路里燃烧数据以在训练界面实时展示";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "需要将您的运动记录写入Apple健康活动卡路里";
@@ -460,11 +496,12 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_ENTITLEMENTS = SimpleFitness.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = K8WZPF4CSL;
 				ENABLE_USER_SCRIPT_SANDBOX = YES;
-				CODE_SIGN_ENTITLEMENTS = SimpleFitness.entitlements;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "需要读取您的心率与卡路里燃烧数据以在训练界面实时展示";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "需要将您的运动记录写入Apple健康活动卡路里";
@@ -565,11 +602,12 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_ENTITLEMENTS = SimpleFitnessWatch/SimpleFitnessWatch.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = K8WZPF4CSL;
 				ENABLE_PREVIEWS = YES;
-				CODE_SIGN_ENTITLEMENTS = "SimpleFitnessWatch/SimpleFitnessWatch.entitlements";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "需要读取您的心率与卡路里燃烧数据以在训练界面实时展示";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "需要将您的运动记录写入Apple健康活动卡路里";
@@ -594,11 +632,12 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_ENTITLEMENTS = SimpleFitnessWatch/SimpleFitnessWatch.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = K8WZPF4CSL;
 				ENABLE_PREVIEWS = YES;
-				CODE_SIGN_ENTITLEMENTS = "SimpleFitnessWatch/SimpleFitnessWatch.entitlements";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "需要读取您的心率与卡路里燃烧数据以在训练界面实时展示";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "需要将您的运动记录写入Apple健康活动卡路里";
