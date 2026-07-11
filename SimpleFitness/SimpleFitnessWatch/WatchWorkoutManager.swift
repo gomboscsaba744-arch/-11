@@ -75,6 +75,8 @@ public class WatchWorkoutManager: NSObject, ObservableObject {
     private var restTimer: Timer?
     private var workoutDurationSeconds: Int = 0
     private var workoutTimer: Timer?
+    private var telemetryTimer: Timer?
+    private var lastRepDetectTime: Date = Date.distantPast
     
     private let healthStore = HKHealthStore()
     private var workoutSession: HKWorkoutSession?
@@ -176,6 +178,11 @@ public class WatchWorkoutManager: NSObject, ObservableObject {
             if self.workoutDurationSeconds % 8 == 0 && self.workoutBuilder == nil {
                 self.activeEnergyKcal += 1
             }
+        }
+        
+        telemetryTimer?.invalidate()
+        telemetryTimer = Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { [weak self] _ in
+            guard let self = self, self.isWorkoutRunning else { return }
             self.sendTelemetryToPhone()
         }
         
@@ -190,6 +197,8 @@ public class WatchWorkoutManager: NSObject, ObservableObject {
         restTimer = nil
         workoutTimer?.invalidate()
         workoutTimer = nil
+        telemetryTimer?.invalidate()
+        telemetryTimer = nil
         stopMotionSensorMonitoring()
         endHealthKitWorkoutSession()
         
@@ -276,13 +285,15 @@ public class WatchWorkoutManager: NSObject, ObservableObject {
     
     private func startMotionSensorMonitoring() {
         guard motionManager.isDeviceMotionAvailable else { return }
-        motionManager.deviceMotionUpdateInterval = 0.2
+        motionManager.deviceMotionUpdateInterval = 0.033
         motionManager.startDeviceMotionUpdates(to: .main) { [weak self] motion, _ in
             guard let self = self, let motion = motion else { return }
             let rotation = motion.rotationRate
             let mag = sqrt(rotation.x*rotation.x + rotation.y*rotation.y + rotation.z*rotation.z)
             self.gyroAmplitude = mag
-            if mag > 3.8 && self.isWorkoutRunning && !self.isResting {
+            let now = Date()
+            if mag > 3.8 && self.isWorkoutRunning && !self.isResting && now.timeIntervalSince(self.lastRepDetectTime) > 1.1 {
+                self.lastRepDetectTime = now
                 self.adjustRepCount(by: 1)
             }
         }
