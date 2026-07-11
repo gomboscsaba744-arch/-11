@@ -119,7 +119,7 @@ public struct TrainingHeaderView: View {
                         Image(systemName: "heart.fill")
                             .foregroundColor(.red)
                             .font(.caption)
-                        Text("\(session.currentHeartRate)")
+                        Text(session.currentHeartRate > 0 ? "\(session.currentHeartRate)" : "--")
                             .font(.subheadline)
                             .fontWeight(.bold)
                             .monospacedDigit()

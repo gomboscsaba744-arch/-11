@@ -10,13 +10,13 @@ public class WatchConnectivityService: NSObject, ObservableObject {
     @Published public var isWatchReachable: Bool = false
     @Published public var isWatchAppInstalled: Bool = false
     
-    // 实时遥测指标（默认初始对齐模拟初值，收到表端实时包后平滑更新）
-    @Published public var currentHeartRate: Int = 124
-    @Published public var activeEnergyBurnedKcal: Int = 186
-    @Published public var detectedRepCount: Int = 10
-    @Published public var repConfidence: Double = 0.98
-    @Published public var gyroAmplitude: Double = 42.6
-    @Published public var motionStability: String = "优 (发力向心稳定)"
+    // 实时遥测指标（初始设为 0，收到 Apple Watch 真实传感器包后动态驱动更新）
+    @Published public var currentHeartRate: Int = 0
+    @Published public var activeEnergyBurnedKcal: Int = 0
+    @Published public var detectedRepCount: Int = 0
+    @Published public var repConfidence: Double = 0.0
+    @Published public var gyroAmplitude: Double = 0.0
+    @Published public var motionStability: String = "等待表端连入"
     
     private var wcSession: WCSession?
     
