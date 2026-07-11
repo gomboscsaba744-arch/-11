@@ -87,9 +87,33 @@ public class WatchConnectivityService: NSObject, ObservableObject {
         }
     }
     
+    @Published public var syncedExerciseIndex: Int = 1
+    @Published public var syncedIsResting: Bool = false
+    @Published public var syncedRestSeconds: Int = 60
+    @Published public var syncedIsWorkoutEnded: Bool = false
+
     /// 解析表端遥测字典
     private func applyIncomingTelemetry(_ userInfo: [String: Any]) {
         DispatchQueue.main.async {
+            if let action = userInfo["action"] as? String {
+                switch action {
+                case "CHANGE_EXERCISE":
+                    if let index = userInfo["exerciseIndex"] as? Int {
+                        self.syncedExerciseIndex = index
+                    }
+                case "START_REST":
+                    self.syncedIsResting = true
+                    if let sec = userInfo["seconds"] as? Int {
+                        self.syncedRestSeconds = sec
+                    }
+                case "FINISH_REST":
+                    self.syncedIsResting = false
+                case "END_WORKOUT":
+                    self.syncedIsWorkoutEnded = true
+                default:
+                    break
+                }
+            }
             if let heartRate = userInfo["heartRate"] as? Int {
                 self.currentHeartRate = heartRate
             }

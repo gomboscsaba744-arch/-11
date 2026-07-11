@@ -269,6 +269,20 @@ public struct TrainingView: View {
             .onReceive(watchService.$activeEnergyBurnedKcal) { kcal in
                 session.currentCalories = kcal
             }
+            .onReceive(watchService.$syncedIsResting) { resting in
+                if resting {
+                    restTimer.totalDuration = watchService.syncedRestSeconds
+                    restTimer.remainingTime = Double(watchService.syncedRestSeconds)
+                    restTimer.start()
+                } else {
+                    restTimer.reset()
+                }
+            }
+            .onReceive(watchService.$syncedExerciseIndex) { index in
+                guard index != session.currentExerciseIndex else { return }
+                session.currentExerciseIndex = index
+                syncSessionWithActivePlan()
+            }
             .onReceive(watchService.$detectedRepCount) { rep in
                 session.watchTelemetry.detectedRepCount = rep
             }

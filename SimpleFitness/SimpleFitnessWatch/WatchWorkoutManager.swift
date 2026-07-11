@@ -107,6 +107,7 @@ public class WatchWorkoutManager: NSObject, ObservableObject {
         guard exerciseIndex > 1 else { return }
         exerciseIndex -= 1
         WKInterfaceDevice.current().play(.click)
+        sendSyncEvent("CHANGE_EXERCISE", extra: ["exerciseIndex": exerciseIndex])
     }
     
     /// 切换下一动作
@@ -114,6 +115,7 @@ public class WatchWorkoutManager: NSObject, ObservableObject {
         guard exerciseIndex < exercises.count else { return }
         exerciseIndex += 1
         WKInterfaceDevice.current().play(.click)
+        sendSyncEvent("CHANGE_EXERCISE", extra: ["exerciseIndex": exerciseIndex])
     }
     
     private func setupWatchConnectivity() {
@@ -198,6 +200,11 @@ public class WatchWorkoutManager: NSObject, ObservableObject {
         showWorkoutSummary = true
         
         WKInterfaceDevice.current().play(.success)
+        sendSyncEvent("END_WORKOUT", extra: [
+            "duration": summaryDurationString,
+            "totalKcal": summaryTotalKcal,
+            "completedSets": summaryCompletedSets
+        ])
     }
     
     public func dismissSummary() {
@@ -229,6 +236,7 @@ public class WatchWorkoutManager: NSObject, ObservableObject {
         restTimeRemaining = seconds
         isResting = true
         showTargetReachedModal = false
+        sendSyncEvent("START_REST", extra: ["seconds": seconds, "currentSet": currentSet])
         
         restTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             guard let self = self else { return }
@@ -259,6 +267,7 @@ public class WatchWorkoutManager: NSObject, ObservableObject {
         isResting = false
         detectedRepCount = 0
         WKInterfaceDevice.current().play(.start)
+        sendSyncEvent("FINISH_REST")
     }
     
     private func startMotionSensorMonitoring() {
@@ -275,6 +284,18 @@ public class WatchWorkoutManager: NSObject, ObservableObject {
         }
     }
     
+    public func sendSyncEvent(_ action: String, extra: [String: Any] = [:]) {
+        guard let session = wcSession, session.activationState == .activated else { return }
+        var payload = extra
+        payload["action"] = action
+        payload["timestamp"] = Date().timeIntervalSince1970
+        if session.isReachable {
+            session.sendMessage(payload, replyHandler: nil, errorHandler: nil)
+        } else {
+            try? session.updateApplicationContext(payload)
+        }
+    }
+    
     private func stopMotionSensorMonitoring() {
         motionManager.stopDeviceMotionUpdates()
     }
@@ -284,6 +305,23 @@ extension WatchWorkoutManager: WCSessionDelegate {
     public func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {}
     public func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
         DispatchQueue.main.async {
+            if let action = message["action"] as? String {
+                switch action {
+                case "CHANGE_EXERCISE":
+                    if let index = message["exerciseIndex"] as? Int, index >= 1 && index <= self.exercises.count {
+                        self.exerciseIndex = index
+                    }
+                case "START_REST":
+                    let seconds = message["seconds"] as? Int ?? 60
+                    self.startRestPeriod(seconds: seconds)
+                case "FINISH_REST":
+                    self.skipRestPeriod()
+                case "END_WORKOUT":
+                    self.endWorkoutSession()
+                default:
+                    break
+                }
+            }
             if let plan = message["planTitle"] as? String { self.planTitle = plan }
             if let ex = message["exerciseName"] as? String { self.exerciseName = ex }
             if let reps = message["targetReps"] as? Int { self.targetReps = reps }
