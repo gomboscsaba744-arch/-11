@@ -2,6 +2,7 @@ import SwiftUI
 
 public struct TrainingView: View {
     @ObservedObject private var libraryStore = TrainingPlanLibraryStore.shared
+    @ObservedObject private var watchService = WatchConnectivityService.shared
     @State private var session = TrainingSessionMock()
     @State private var restTimer = RestTimerModel(defaultDuration: 90)
     
@@ -262,6 +263,24 @@ public struct TrainingView: View {
             .onAppear {
                 syncSessionWithActivePlan()
             }
+            .onReceive(watchService.$currentHeartRate) { hr in
+                session.currentHeartRate = hr
+            }
+            .onReceive(watchService.$activeEnergyBurnedKcal) { kcal in
+                session.currentCalories = kcal
+            }
+            .onReceive(watchService.$detectedRepCount) { rep in
+                session.watchTelemetry.detectedRepCount = rep
+            }
+            .onReceive(watchService.$repConfidence) { conf in
+                session.watchTelemetry.repDetectionConfidence = conf
+            }
+            .onReceive(watchService.$gyroAmplitude) { gyro in
+                session.watchTelemetry.gyroscopeAmplitudeDegPerSec = gyro
+            }
+            .onReceive(watchService.$isWatchReachable) { connected in
+                session.watchTelemetry.isWatchConnected = connected
+            }
             .onChange(of: session.currentReps) { _, newReps in
                 let exercises = currentRoutineExercises
                 let idx = max(0, min(exercises.count - 1, session.currentExerciseIndex - 1))
@@ -431,5 +450,14 @@ public struct TrainingView: View {
         restTimer.defaultDuration = currentItem.restSeconds
         restTimer.totalDuration = currentItem.restSeconds
         restTimer.remainingTime = Double(currentItem.restSeconds)
+        
+        watchService.syncWorkoutStateToWatch(
+            exerciseName: currentItem.name,
+            currentSet: session.currentSet,
+            totalSets: currentItem.sets,
+            targetReps: session.currentReps,
+            targetWeightKg: currentItem.targetWeightKg,
+            isResting: restTimer.isRunning
+        )
     }
 }

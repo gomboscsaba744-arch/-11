@@ -14,11 +14,9 @@
 		110000052E1E0005 /* TrainingMockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000052E1E0005 /* TrainingMockData.swift */; };
 		110000062E1E0006 /* TrainingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000062E1E0006 /* TrainingView.swift */; };
 		110000072E1E0007 /* TrainingHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000072E1E0007 /* TrainingHeaderView.swift */; };
-		110000372E1E0037 /* TrainingGlassModalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000372E1E0037 /* TrainingGlassModalsView.swift */; };
 		110000082E1E0008 /* RepCounterCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000082E1E0008 /* RepCounterCardView.swift */; };
 		110000092E1E0009 /* TrainingActionButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000092E1E0009 /* TrainingActionButtonsView.swift */; };
 		110000102E1E0010 /* PlanMockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000102E1E0010 /* PlanMockData.swift */; };
-		110000352E1E0035 /* TrainingPlanLibraryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000352E1E0035 /* TrainingPlanLibraryStore.swift */; };
 		110000112E1E0011 /* PlanCustomizationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000112E1E0011 /* PlanCustomizationView.swift */; };
 		110000122E1E0012 /* PlanExerciseRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000122E1E0012 /* PlanExerciseRowView.swift */; };
 		110000132E1E0013 /* ExerciseMockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000132E1E0013 /* ExerciseMockData.swift */; };
@@ -34,7 +32,21 @@
 		110000322E1E0032 /* WatchSensorTelemetryCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000322E1E0032 /* WatchSensorTelemetryCardView.swift */; };
 		110000332E1E0033 /* RestTimerCompactPreviewCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000332E1E0033 /* RestTimerCompactPreviewCardView.swift */; };
 		110000342E1E0034 /* ExerciseSelectionSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000342E1E0034 /* ExerciseSelectionSheetView.swift */; };
+		110000352E1E0035 /* TrainingPlanLibraryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000352E1E0035 /* TrainingPlanLibraryStore.swift */; };
 		110000362E1E0036 /* ExerciseConfigModalSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000362E1E0036 /* ExerciseConfigModalSheetView.swift */; };
+		110000372E1E0037 /* TrainingGlassModalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000372E1E0037 /* TrainingGlassModalsView.swift */; };
+		110000402E1E0040 /* WatchConnectivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000402E1E0040 /* WatchConnectivityService.swift */; };
+		110000602E1E0060 /* UserProfileAndSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000602E1E0060 /* UserProfileAndSettingsView.swift */; };
+		110000802E1E0080 /* WatchTrainingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000702E1E0070 /* WatchTrainingView.swift */; };
+		110000812E1E0081 /* WatchWorkoutManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000712E1E0071 /* WatchWorkoutManager.swift */; };
+		110000822E1E0082 /* SimpleFitnessWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000722E1E0072 /* SimpleFitnessWatchApp.swift */; };
+		110000852E1E0085 /* WatchLongPressEndButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000752E1E0075 /* WatchLongPressEndButton.swift */; };
+		110000862E1E0086 /* WatchPreWorkoutTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000762E1E0076 /* WatchPreWorkoutTabView.swift */; };
+		110000872E1E0087 /* WatchActiveWorkoutTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000772E1E0077 /* WatchActiveWorkoutTabView.swift */; };
+		110000882E1E0088 /* WatchCountdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000782E1E0078 /* WatchCountdownView.swift */; };
+		110000892E1E0089 /* WatchRestTimerOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000792E1E0079 /* WatchRestTimerOverlay.swift */; };
+		1100008A2E1E008A /* WatchTargetReachedOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1000007A2E1E007A /* WatchTargetReachedOverlay.swift */; };
+		1100008B2E1E008B /* WatchPostWorkoutSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1000007B2E1E007B /* WatchPostWorkoutSummaryView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,11 +57,9 @@
 		100000052E1E0005 /* TrainingMockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingMockData.swift; sourceTree = "<group>"; };
 		100000062E1E0006 /* TrainingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingView.swift; sourceTree = "<group>"; };
 		100000072E1E0007 /* TrainingHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingHeaderView.swift; sourceTree = "<group>"; };
-		100000372E1E0037 /* TrainingGlassModalsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingGlassModalsView.swift; sourceTree = "<group>"; };
 		100000082E1E0008 /* RepCounterCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepCounterCardView.swift; sourceTree = "<group>"; };
 		100000092E1E0009 /* TrainingActionButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingActionButtonsView.swift; sourceTree = "<group>"; };
 		100000102E1E0010 /* PlanMockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanMockData.swift; sourceTree = "<group>"; };
-		100000352E1E0035 /* TrainingPlanLibraryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingPlanLibraryStore.swift; sourceTree = "<group>"; };
 		100000112E1E0011 /* PlanCustomizationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanCustomizationView.swift; sourceTree = "<group>"; };
 		100000122E1E0012 /* PlanExerciseRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanExerciseRowView.swift; sourceTree = "<group>"; };
 		100000132E1E0013 /* ExerciseMockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseMockData.swift; sourceTree = "<group>"; };
@@ -65,8 +75,23 @@
 		100000322E1E0032 /* WatchSensorTelemetryCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchSensorTelemetryCardView.swift; sourceTree = "<group>"; };
 		100000332E1E0033 /* RestTimerCompactPreviewCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestTimerCompactPreviewCardView.swift; sourceTree = "<group>"; };
 		100000342E1E0034 /* ExerciseSelectionSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseSelectionSheetView.swift; sourceTree = "<group>"; };
+		100000352E1E0035 /* TrainingPlanLibraryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingPlanLibraryStore.swift; sourceTree = "<group>"; };
 		100000362E1E0036 /* ExerciseConfigModalSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseConfigModalSheetView.swift; sourceTree = "<group>"; };
+		100000372E1E0037 /* TrainingGlassModalsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingGlassModalsView.swift; sourceTree = "<group>"; };
+		100000402E1E0040 /* WatchConnectivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchConnectivityService.swift; sourceTree = "<group>"; };
+		100000602E1E0060 /* UserProfileAndSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileAndSettingsView.swift; sourceTree = "<group>"; };
+		100000702E1E0070 /* WatchTrainingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchTrainingView.swift; sourceTree = "<group>"; };
+		100000712E1E0071 /* WatchWorkoutManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchWorkoutManager.swift; sourceTree = "<group>"; };
+		100000722E1E0072 /* SimpleFitnessWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleFitnessWatchApp.swift; sourceTree = "<group>"; };
+		100000752E1E0075 /* WatchLongPressEndButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modules/Components/WatchLongPressEndButton.swift; sourceTree = "<group>"; };
+		100000762E1E0076 /* WatchPreWorkoutTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modules/PreWorkout/WatchPreWorkoutTabView.swift; sourceTree = "<group>"; };
+		100000772E1E0077 /* WatchActiveWorkoutTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modules/ActiveWorkout/WatchActiveWorkoutTabView.swift; sourceTree = "<group>"; };
+		100000782E1E0078 /* WatchCountdownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modules/PreWorkout/WatchCountdownView.swift; sourceTree = "<group>"; };
+		100000792E1E0079 /* WatchRestTimerOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modules/ActiveWorkout/WatchRestTimerOverlay.swift; sourceTree = "<group>"; };
+		1000007A2E1E007A /* WatchTargetReachedOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modules/ActiveWorkout/WatchTargetReachedOverlay.swift; sourceTree = "<group>"; };
+		1000007B2E1E007B /* WatchPostWorkoutSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modules/PostWorkout/WatchPostWorkoutSummaryView.swift; sourceTree = "<group>"; };
 		990000002E1E0000 /* SimpleFitness.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleFitness.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		990000502E1E0050 /* SimpleFitnessWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleFitnessWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -76,7 +101,9 @@
 				200000012E1E0001 /* App */,
 				200000022E1E0002 /* Shared */,
 				200000032E1E0003 /* Modules */,
+				200000702E1E0070 /* SimpleFitnessWatch */,
 				990000002E1E0000 /* SimpleFitness.app */,
+				990000502E1E0050 /* SimpleFitnessWatch.app */,
 			);
 			sourceTree = "<group>";
 		};
@@ -104,6 +131,7 @@
 				200000062E1E0006 /* PlanCustomization */,
 				200000072E1E0007 /* ExerciseLibrary */,
 				200000082E1E0008 /* History */,
+				200000602E1E0060 /* Profile */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
@@ -122,6 +150,7 @@
 			children = (
 				200000092E1E0009 /* Models */,
 				200000102E1E0010 /* Views */,
+				200000402E1E0040 /* Services */,
 			);
 			path = Training;
 			sourceTree = "<group>";
@@ -233,6 +262,47 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		200000402E1E0040 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				100000402E1E0040 /* WatchConnectivityService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		200000602E1E0060 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				200000612E1E0061 /* Views */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
+		200000612E1E0061 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				100000602E1E0060 /* UserProfileAndSettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		200000702E1E0070 /* SimpleFitnessWatch */ = {
+			isa = PBXGroup;
+			children = (
+				100000702E1E0070 /* WatchTrainingView.swift */,
+				100000712E1E0071 /* WatchWorkoutManager.swift */,
+				100000722E1E0072 /* SimpleFitnessWatchApp.swift */,
+				100000752E1E0075 /* WatchLongPressEndButton.swift */,
+				100000762E1E0076 /* WatchPreWorkoutTabView.swift */,
+				100000772E1E0077 /* WatchActiveWorkoutTabView.swift */,
+				100000782E1E0078 /* WatchCountdownView.swift */,
+				100000792E1E0079 /* WatchRestTimerOverlay.swift */,
+				1000007A2E1E007A /* WatchTargetReachedOverlay.swift */,
+				1000007B2E1E007B /* WatchPostWorkoutSummaryView.swift */,
+			);
+			path = SimpleFitnessWatch;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -251,14 +321,30 @@
 			productReference = 990000002E1E0000 /* SimpleFitness.app */;
 			productType = "com.apple.product-type.application";
 		};
+		300000502E1E0050 /* SimpleFitnessWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 400000502E1E0050 /* Build configuration list for PBXNativeTarget "SimpleFitnessWatch" */;
+			buildPhases = (
+				300000512E1E0051 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SimpleFitnessWatch;
+			productName = SimpleFitnessWatch;
+			productReference = 990000502E1E0050 /* SimpleFitnessWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		500000002E1E0000 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1500;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 2700;
 			};
 			buildConfigurationList = 400000012E1E0001 /* Build configuration list for PBXProject "SimpleFitness" */;
 			compatibilityVersion = "Xcode 14.0";
@@ -274,6 +360,7 @@
 			projectRoot = "";
 			targets = (
 				300000002E1E0000 /* SimpleFitness */,
+				300000502E1E0050 /* SimpleFitnessWatch */,
 			);
 		};
 /* End PBXProject section */
@@ -288,6 +375,7 @@
 				110000032E1E0003 /* AppColors.swift in Sources */,
 				110000042E1E0004 /* AppStyles.swift in Sources */,
 				110000052E1E0005 /* TrainingMockData.swift in Sources */,
+				110000402E1E0040 /* WatchConnectivityService.swift in Sources */,
 				110000062E1E0006 /* TrainingView.swift in Sources */,
 				110000072E1E0007 /* TrainingHeaderView.swift in Sources */,
 				110000372E1E0037 /* TrainingGlassModalsView.swift in Sources */,
@@ -307,10 +395,28 @@
 				110000162E1E0016 /* ExerciseCardView.swift in Sources */,
 				110000172E1E0017 /* HistoryMockData.swift in Sources */,
 				110000182E1E0018 /* HistoryView.swift in Sources */,
+				110000602E1E0060 /* UserProfileAndSettingsView.swift in Sources */,
 				110000192E1E0019 /* WeeklySummaryView.swift in Sources */,
 				110000202E1E0020 /* HistoryRecordRowView.swift in Sources */,
 				110000212E1E0021 /* RestTimerModel.swift in Sources */,
 				110000222E1E0022 /* RestTimerCardView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		300000512E1E0051 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				110000822E1E0082 /* SimpleFitnessWatchApp.swift in Sources */,
+				110000802E1E0080 /* WatchTrainingView.swift in Sources */,
+				110000812E1E0081 /* WatchWorkoutManager.swift in Sources */,
+				110000852E1E0085 /* WatchLongPressEndButton.swift in Sources */,
+				110000862E1E0086 /* WatchPreWorkoutTabView.swift in Sources */,
+				110000872E1E0087 /* WatchActiveWorkoutTabView.swift in Sources */,
+				110000882E1E0088 /* WatchCountdownView.swift in Sources */,
+				110000892E1E0089 /* WatchRestTimerOverlay.swift in Sources */,
+				1100008A2E1E008A /* WatchTargetReachedOverlay.swift in Sources */,
+				1100008B2E1E008B /* WatchPostWorkoutSummaryView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -322,6 +428,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGNING_REQUIRED = NO;
 				CODE_SIGN_IDENTITY = "";
 				CURRENT_PROJECT_VERSION = 1;
@@ -329,6 +436,8 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOX = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "需要读取您的心率与卡路里燃烧数据以在训练界面实时展示";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "需要将您的运动记录写入Apple健康活动卡路里";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -348,11 +457,14 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGNING_REQUIRED = NO;
 				CODE_SIGN_IDENTITY = "";
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_USER_SCRIPT_SANDBOX = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "需要读取您的心率与卡路里燃烧数据以在训练界面实时展示";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "需要将您的运动记录写入Apple健康活动卡路里";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -369,16 +481,128 @@
 		600000032E1E0003 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				ENABLE_DEBUG_DYLIB = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 			};
 			name = Debug;
 		};
 		600000042E1E0004 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		600000512E1E0051 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "";
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "需要读取您的心率与卡路里燃烧数据以在训练界面实时展示";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "需要将您的运动记录写入Apple健康活动卡路里";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.simplefitness.app;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.simplefitness.app.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		600000522E1E0052 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "";
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "需要读取您的心率与卡路里燃烧数据以在训练界面实时展示";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "需要将您的运动记录写入Apple健康活动卡路里";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.simplefitness.app;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.simplefitness.app.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Release;
 		};
@@ -399,6 +623,15 @@
 			buildConfigurations = (
 				600000032E1E0003 /* Debug */,
 				600000042E1E0004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		400000502E1E0050 /* Build configuration list for PBXNativeTarget "SimpleFitnessWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				600000512E1E0051 /* Debug */,
+				600000522E1E0052 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
