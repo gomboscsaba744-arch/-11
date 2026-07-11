@@ -612,8 +612,10 @@
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "需要读取您的心率与卡路里燃烧数据以在训练界面实时展示";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "需要将您的运动记录写入Apple健康活动卡路里";
 				INFOPLIST_KEY_NSMotionUsageDescription = "需要使用设备动作传感器与陀螺仪进行力量训练动作识别与自动计次";
+				INFOPLIST_KEY_WKApplication = YES;
 				INFOPLIST_KEY_WKBackgroundModes = "workout-processing";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.simplefitness.app;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.simplefitness.app.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -642,8 +644,10 @@
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "需要读取您的心率与卡路里燃烧数据以在训练界面实时展示";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "需要将您的运动记录写入Apple健康活动卡路里";
 				INFOPLIST_KEY_NSMotionUsageDescription = "需要使用设备动作传感器与陀螺仪进行力量训练动作识别与自动计次";
+				INFOPLIST_KEY_WKApplication = YES;
 				INFOPLIST_KEY_WKBackgroundModes = "workout-processing";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.simplefitness.app;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.simplefitness.app.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
