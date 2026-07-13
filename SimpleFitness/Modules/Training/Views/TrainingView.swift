@@ -18,243 +18,59 @@ public struct TrainingView: View {
     @AppStorage("autoRestBufferSeconds") private var autoRestBufferSeconds: Int = 10
     @State private var isAutoBufferActive: Bool = false
     @State private var autoBufferRemaining: Int = 10
+    @State private var isWorkoutActive: Bool = false
     
     public init() {}
     
     public var body: some View {
         NavigationStack {
-            ZStack {
-                AppColors.background
-                    .ignoresSafeArea()
-                
-                // 自动进阶提示顶部横幅提示 (防止多做动作)
-                if let notice = completedExerciseNotice {
-                    VStack {
-                        HStack(spacing: 12) {
-                            ZStack {
-                                Circle()
-                                    .fill(Color.green)
-                                    .frame(width: 34, height: 34)
-                                Image(systemName: "checkmark")
-                                    .font(.headline.weight(.bold))
-                                    .foregroundColor(.white)
-                            }
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text("动作完成 · 自动进阶")
-                                    .font(.caption.weight(.bold))
-                                    .foregroundColor(Color.green)
-                                Text(notice)
-                                    .font(.subheadline.weight(.heavy))
-                                    .foregroundColor(AppColors.primaryText)
-                            }
-                            Spacer()
-                            Button(action: {
-                                withAnimation { completedExerciseNotice = nil }
-                            }) {
-                                ZStack {
-                                    Circle()
-                                        .fill(.ultraThinMaterial)
-                                        .frame(width: 26, height: 26)
-                                    Circle()
-                                        .strokeBorder(Color.white.opacity(0.35), lineWidth: 0.5)
-                                        .frame(width: 26, height: 26)
-                                    Image(systemName: "xmark")
-                                        .font(.system(size: 11, weight: .bold))
-                                        .foregroundColor(AppColors.primaryText.opacity(0.85))
-                                }
-                            }
-                            .buttonStyle(.plain)
-                        }
-                        .padding(16)
-                        .background(
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                    .fill(.ultraThinMaterial)
-                                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                    .fill(Color.white.opacity(0.85))
-                            }
-                            .shadow(color: Color.black.opacity(0.15), radius: 16, x: 0, y: 8)
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                .stroke(Color.green.opacity(0.45), lineWidth: 1.5)
-                        )
-                        .padding(.horizontal, 16)
-                        .padding(.top, 10)
-                        .transition(.move(edge: .top).combined(with: .opacity))
-                        
-                        Spacer()
-                    }
-                    .zIndex(200)
+            TrainingHomeDashboardView(
+                session: session,
+                currentRoutineExercises: currentRoutineExercises,
+                onStartWorkout: {
+                    withAnimation { isWorkoutActive = true }
+                },
+                onSelectRoutine: {
+                    showingRoutinePicker = true
                 }
-                
-                // 主体训练内容
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 16) {
-                        TrainingHeaderView(
-                            session: session,
-                            isRestPhase: restTimer.isRunning,
-                            onSelectRoutine: {
-                                showingRoutinePicker = true
-                            },
-                            onTapExerciseListModal: {
-                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                    showingExerciseListModal = true
-                                }
-                            },
-                            onTapSetListModal: {
-                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                    showingSetListModal = true
-                                }
-                            }
-                        )
-                        .padding(.top, 8)
-                        
-                        if restTimer.isRunning || restTimer.isPaused {
-                            RestTimerCardView(timerModel: $restTimer)
-                                .transition(.move(edge: .top).combined(with: .opacity))
-                            
-                            VStack(spacing: 14) {
-                                RepCounterCardView(
-                                    recordedReps: $recordedReps,
-                                    targetReps: $session.currentReps,
-                                    isAutoMode: $isAutoFlowModeEnabled,
-                                    isBufferActive: isAutoBufferActive,
-                                    bufferRemaining: autoBufferRemaining,
-                                    onCancelBuffer: {
-                                        withAnimation {
-                                            isAutoBufferActive = false
-                                            isAutoFlowModeEnabled = false
-                                        }
-                                    },
-                                    onImmediateRest: {
-                                        isAutoBufferActive = false
-                                        completeCurrentSet()
-                                    }
-                                )
-                                
-                                TrainingActionButtonsView(
-                                    currentSet: session.currentSet,
-                                    onCompleteSet: { completeCurrentSet() },
-                                    onPrevExercise: { prevExercise() },
-                                    onNextExercise: { nextExercise() }
-                                )
-                            }
-                        } else {
-                            VStack(spacing: 14) {
-                                RepCounterCardView(
-                                    recordedReps: $recordedReps,
-                                    targetReps: $session.currentReps,
-                                    isAutoMode: $isAutoFlowModeEnabled,
-                                    isBufferActive: isAutoBufferActive,
-                                    bufferRemaining: autoBufferRemaining,
-                                    onCancelBuffer: {
-                                        withAnimation {
-                                            isAutoBufferActive = false
-                                            isAutoFlowModeEnabled = false
-                                        }
-                                    },
-                                    onImmediateRest: {
-                                        isAutoBufferActive = false
-                                        completeCurrentSet()
-                                    }
-                                )
-                                
-                                TrainingActionButtonsView(
-                                    currentSet: session.currentSet,
-                                    onCompleteSet: { completeCurrentSet() },
-                                    onPrevExercise: { prevExercise() },
-                                    onNextExercise: { nextExercise() }
-                                )
-                            }
-                            
-                            RestTimerCompactPreviewCardView(timerModel: $restTimer)
-                                .transition(.move(edge: .bottom).combined(with: .opacity))
-                        }
-                        
-                        WatchSensorTelemetryCardView(telemetry: session.watchTelemetry)
-                        
-                        Spacer(minLength: 120)
-                    }
-                    .padding(.horizontal, 20)
-                    .animation(.spring(response: 0.38, dampingFraction: 0.82), value: restTimer.isRunning || restTimer.isPaused)
-                }
-                .blur(radius: restTimer.isPrecisionZoomed || showingExerciseListModal || showingSetListModal ? 12 : 0)
-                .animation(.easeInOut(duration: 0.25), value: restTimer.isPrecisionZoomed)
-                
-                // 1. 巨型无边界悬浮倒计时表盘（高阶清爽白色调磨砂感，全底模糊背景）
-                if restTimer.isPrecisionZoomed {
-                    Color.white.opacity(0.32)
-                        .ignoresSafeArea()
-                        .onTapGesture {
-                            withAnimation(.spring(response: 0.38, dampingFraction: 0.78)) {
-                                restTimer.isPrecisionZoomed = false
-                            }
-                        }
-                    
-                    GiantFloatingTimerDialView(timerModel: $restTimer)
-                        .transition(.opacity.combined(with: .scale(scale: 0.9)))
-                        .zIndex(100)
-                }
-                
-                // 2. 动作列表圆盘式模糊遮罩弹窗
-                if showingExerciseListModal {
-                    TrainingExerciseListGlassModalView(
-                        exercises: currentRoutineExercises,
-                        currentIndex: session.currentExerciseIndex,
-                        onClose: {
-                            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                showingExerciseListModal = false
-                            }
-                        },
-                        onSelectExerciseIndex: { newIdx in
-                            switchToExercise(at: newIdx)
-                        }
-                    )
-                    .transition(.opacity.combined(with: .scale(scale: 0.95)))
-                    .zIndex(101)
-                }
-                
-                // 3. 当前动作组数明细圆盘式模糊遮罩弹窗
-                if showingSetListModal {
-                    let exercises = currentRoutineExercises
-                    let idx = max(0, min(exercises.count - 1, session.currentExerciseIndex - 1))
-                    let activeItem = idx < exercises.count ? exercises[idx] : nil
-                    
-                    TrainingSetListGlassModalView(
-                        exerciseName: session.exerciseName,
-                        totalSets: session.totalSets,
-                        currentSet: session.currentSet,
-                        targetWeightKg: session.targetWeightKg,
-                        targetReps: session.currentReps,
-                        exerciseItem: activeItem,
-                        onClose: {
-                            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                showingSetListModal = false
-                            }
-                        },
-                        onSelectSet: { targetSet in
-                            withAnimation {
-                                session.currentSet = targetSet
-                                if let item = activeItem {
-                                    session.currentReps = item.getTargetReps(forSet: targetSet)
-                                }
-                            }
-                        },
-                        onAdjustSetReps: { setNum, newReps in
-                            guard var item = activeItem else { return }
-                            item.setTargetReps(newReps, forSet: setNum)
-                            libraryStore.updateActivePlanExercise(item, at: idx)
-                            if setNum == session.currentSet {
-                                session.currentReps = newReps
-                            }
-                        }
-                    )
-                    .transition(.opacity.combined(with: .scale(scale: 0.95)))
-                    .zIndex(102)
-                }
-            }
+            )
             .toolbar(.hidden, for: .navigationBar)
+            .fullScreenCover(isPresented: $isWorkoutActive) {
+                ActiveTrainingSessionContainerView(
+                    session: $session,
+                    restTimer: $restTimer,
+                    recordedReps: $recordedReps,
+                    isAutoFlowModeEnabled: $isAutoFlowModeEnabled,
+                    isAutoBufferActive: $isAutoBufferActive,
+                    autoBufferRemaining: $autoBufferRemaining,
+                    completedExerciseNotice: $completedExerciseNotice,
+                    showingExerciseListModal: $showingExerciseListModal,
+                    showingSetListModal: $showingSetListModal,
+                    currentRoutineExercises: currentRoutineExercises,
+                    onEndWorkout: {
+                        withAnimation {
+                            isWorkoutActive = false
+                            restTimer.reset()
+                        }
+                    },
+                    onSelectRoutine: {
+                        showingRoutinePicker = true
+                    },
+                    onCompleteSet: {
+                        completeCurrentSet()
+                    },
+                    onPrevExercise: {
+                        prevExercise()
+                    },
+                    onNextExercise: {
+                        nextExercise()
+                    },
+                    onSwitchExercise: { newIdx in
+                        switchToExercise(at: newIdx)
+                    }
+                )
+                .interactiveDismissDisabled(true)
+            }
             .sheet(isPresented: $showingRoutinePicker) {
                 TrainingRoutinePickerGlassModalView { selectedRoutine in
                     switchRoutine(selectedRoutine)

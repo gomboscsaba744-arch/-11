@@ -13,6 +13,8 @@
 		110000042E1E0004 /* AppStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000042E1E0004 /* AppStyles.swift */; };
 		110000052E1E0005 /* TrainingMockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000052E1E0005 /* TrainingMockData.swift */; };
 		110000062E1E0006 /* TrainingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000062E1E0006 /* TrainingView.swift */; };
+		110000912E1E0091 /* TrainingHomeDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000912E1E0091 /* TrainingHomeDashboardView.swift */; };
+		110000922E1E0092 /* ActiveTrainingSessionContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000922E1E0092 /* ActiveTrainingSessionContainerView.swift */; };
 		110000072E1E0007 /* TrainingHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000072E1E0007 /* TrainingHeaderView.swift */; };
 		110000082E1E0008 /* RepCounterCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000082E1E0008 /* RepCounterCardView.swift */; };
 		110000092E1E0009 /* TrainingActionButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000092E1E0009 /* TrainingActionButtonsView.swift */; };
@@ -81,6 +83,8 @@
 		100000042E1E0004 /* AppStyles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStyles.swift; sourceTree = "<group>"; };
 		100000052E1E0005 /* TrainingMockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingMockData.swift; sourceTree = "<group>"; };
 		100000062E1E0006 /* TrainingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingView.swift; sourceTree = "<group>"; };
+		100000912E1E0091 /* TrainingHomeDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingHomeDashboardView.swift; sourceTree = "<group>"; };
+		100000922E1E0092 /* ActiveTrainingSessionContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveTrainingSessionContainerView.swift; sourceTree = "<group>"; };
 		100000072E1E0007 /* TrainingHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingHeaderView.swift; sourceTree = "<group>"; };
 		100000082E1E0008 /* RepCounterCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepCounterCardView.swift; sourceTree = "<group>"; };
 		100000092E1E0009 /* TrainingActionButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingActionButtonsView.swift; sourceTree = "<group>"; };
@@ -219,6 +223,8 @@
 			isa = PBXGroup;
 			children = (
 				100000062E1E0006 /* TrainingView.swift */,
+				100000912E1E0091 /* TrainingHomeDashboardView.swift */,
+				100000922E1E0092 /* ActiveTrainingSessionContainerView.swift */,
 				100000072E1E0007 /* TrainingHeaderView.swift */,
 				100000372E1E0037 /* TrainingGlassModalsView.swift */,
 				100000322E1E0032 /* WatchSensorTelemetryCardView.swift */,
@@ -404,6 +410,8 @@
 				110000052E1E0005 /* TrainingMockData.swift in Sources */,
 				110000402E1E0040 /* WatchConnectivityService.swift in Sources */,
 				110000062E1E0006 /* TrainingView.swift in Sources */,
+				110000912E1E0091 /* TrainingHomeDashboardView.swift in Sources */,
+				110000922E1E0092 /* ActiveTrainingSessionContainerView.swift in Sources */,
 				110000072E1E0007 /* TrainingHeaderView.swift in Sources */,
 				110000372E1E0037 /* TrainingGlassModalsView.swift in Sources */,
 				110000322E1E0032 /* WatchSensorTelemetryCardView.swift in Sources */,
