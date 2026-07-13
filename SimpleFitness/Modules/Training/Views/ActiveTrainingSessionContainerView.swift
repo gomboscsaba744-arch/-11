@@ -22,15 +22,18 @@ public struct ActiveTrainingSessionContainerView: View {
     
     @ObservedObject private var libraryStore = TrainingPlanLibraryStore.shared
     
-    // 左右滑动分页选择 (0: 专注打卡主视角, 1: 监测遥测与全部动作计划)
+    // 左右滑动分页选择：
+    // 0: 核心打卡页（极简，专注打卡与动作控制）
+    // 1: 计时器与休息控制页
+    // 2: 监测数据与计划明细页
     @State private var selectedPageIndex: Int = 0
     
-    // 进场仪式感准备倒计时 3 -> 2 -> 1 -> GO!
+    // 进场 3 2 1 GO 仪式感倒计时
     @State private var isPrepCountdownActive: Bool = true
     @State private var prepCountdownValue: Int = 3
     @State private var prepTimerSubscription: AnyCancellable? = nil
     
-    // 长按结束运动进度圈 (0.0 ~ 1.0)
+    // 长按结束运动进度 (0.0 ~ 1.0)
     @State private var holdToEndProgress: CGFloat = 0.0
     @State private var isHoldingToEnd: Bool = false
     @State private var holdTimerSubscription: AnyCancellable? = nil
@@ -78,27 +81,30 @@ public struct ActiveTrainingSessionContainerView: View {
             
             VStack(spacing: 0) {
                 TabView(selection: $selectedPageIndex) {
-                    coreFocusWorkoutPage()
+                    pageZeroCoreWorkout()
                         .tag(0)
                     
-                    secondaryTelemetryAndSchedulePage()
+                    pageOneRestTimer()
                         .tag(1)
+                    
+                    pageTwoTelemetryAndSchedule()
+                        .tag(2)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 
-                bottomMinimalistHoldToEndBar()
+                bottomHoldToEndBar()
             }
-            .blur(radius: isPrepCountdownActive || restTimer.isPrecisionZoomed || showingExerciseListModal || showingSetListModal ? 16 : 0)
-            .animation(.easeInOut(duration: 0.28), value: restTimer.isPrecisionZoomed)
-            .animation(.easeInOut(duration: 0.28), value: showingExerciseListModal || showingSetListModal)
+            // 严格恢复最原始的模糊参数：12
+            .blur(radius: isPrepCountdownActive || restTimer.isPrecisionZoomed || showingExerciseListModal || showingSetListModal ? 12 : 0)
+            .animation(.easeInOut(duration: 0.25), value: restTimer.isPrecisionZoomed)
             
-            // 顶部自动进阶打卡提示横幅
+            // 顶部横幅提示
             completionNoticeOverlay()
             
-            // 悬浮表盘（带高阶毛玻璃背景模糊）与动作/组数选择玻璃弹窗
+            // 悬浮表盘与弹窗（严格恢复最初原始样式）
             modalsAndFloatingDialsOverlay()
             
-            // 进场 3 2 1 GO! 倒计时仪式感全屏遮罩
+            // 进场 3 2 1 GO 倒计时全屏遮罩
             if isPrepCountdownActive {
                 prepCountdownOverlay()
                     .zIndex(300)
@@ -114,12 +120,11 @@ public struct ActiveTrainingSessionContainerView: View {
         }
     }
     
-    // MARK: - Page 0: 极致精简与高层级排版的专注打卡页 (主界面)
+    // MARK: - Page 0: 核心专注打卡主页 (极简清晰，毫无冗余卡片堆砌)
     @ViewBuilder
-    private func coreFocusWorkoutPage() -> some View {
+    private func pageZeroCoreWorkout() -> some View {
         ScrollView(showsIndicators: false) {
-            VStack(spacing: 20) {
-                // 1. 顶栏训练进度与快速动作菜单 (严格原样调用既有组件)
+            VStack(spacing: 18) {
                 TrainingHeaderView(
                     session: session,
                     isRestPhase: restTimer.isRunning,
@@ -135,70 +140,37 @@ public struct ActiveTrainingSessionContainerView: View {
                         }
                     }
                 )
-                .padding(.top, 6)
+                .padding(.top, 10)
                 
-                // 2. 主次分明核心排版：休息状态高亮休息卡片，非休息状态优先高亮打卡及操作键
                 if restTimer.isRunning || restTimer.isPaused {
                     RestTimerCardView(timerModel: $restTimer)
                         .transition(.move(edge: .top).combined(with: .opacity))
-                    
-                    VStack(spacing: 14) {
-                        RepCounterCardView(
-                            recordedReps: $recordedReps,
-                            targetReps: $session.currentReps,
-                            isAutoMode: $isAutoFlowModeEnabled,
-                            isBufferActive: isAutoBufferActive,
-                            bufferRemaining: autoBufferRemaining,
-                            onCancelBuffer: {
-                                withAnimation {
-                                    isAutoBufferActive = false
-                                    isAutoFlowModeEnabled = false
-                                }
-                            },
-                            onImmediateRest: {
-                                isAutoBufferActive = false
-                                onCompleteSet()
-                            }
-                        )
-                        
-                        TrainingActionButtonsView(
-                            currentSet: session.currentSet,
-                            onCompleteSet: { onCompleteSet() },
-                            onPrevExercise: { onPrevExercise() },
-                            onNextExercise: { onNextExercise() }
-                        )
-                    }
-                } else {
-                    VStack(spacing: 16) {
-                        RepCounterCardView(
-                            recordedReps: $recordedReps,
-                            targetReps: $session.currentReps,
-                            isAutoMode: $isAutoFlowModeEnabled,
-                            isBufferActive: isAutoBufferActive,
-                            bufferRemaining: autoBufferRemaining,
-                            onCancelBuffer: {
-                                withAnimation {
-                                    isAutoBufferActive = false
-                                    isAutoFlowModeEnabled = false
-                                }
-                            },
-                            onImmediateRest: {
-                                isAutoBufferActive = false
-                                onCompleteSet()
-                            }
-                        )
-                        
-                        TrainingActionButtonsView(
-                            currentSet: session.currentSet,
-                            onCompleteSet: { onCompleteSet() },
-                            onPrevExercise: { onPrevExercise() },
-                            onNextExercise: { onNextExercise() }
-                        )
-                    }
-                    
-                    RestTimerCompactPreviewCardView(timerModel: $restTimer)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
+                
+                RepCounterCardView(
+                    recordedReps: $recordedReps,
+                    targetReps: $session.currentReps,
+                    isAutoMode: $isAutoFlowModeEnabled,
+                    isBufferActive: isAutoBufferActive,
+                    bufferRemaining: autoBufferRemaining,
+                    onCancelBuffer: {
+                        withAnimation {
+                            isAutoBufferActive = false
+                            isAutoFlowModeEnabled = false
+                        }
+                    },
+                    onImmediateRest: {
+                        isAutoBufferActive = false
+                        onCompleteSet()
+                    }
+                )
+                
+                TrainingActionButtonsView(
+                    currentSet: session.currentSet,
+                    onCompleteSet: { onCompleteSet() },
+                    onPrevExercise: { onPrevExercise() },
+                    onNextExercise: { onNextExercise() }
+                )
                 
                 Spacer(minLength: 140)
             }
@@ -207,19 +179,40 @@ public struct ActiveTrainingSessionContainerView: View {
         }
     }
     
-    // MARK: - Page 1: 左右滑动展出的辅助遥测与计划全景页 (次要界面)
+    // MARK: - Page 1: 计时与休息管理页 (左滑切换)
     @ViewBuilder
-    private func secondaryTelemetryAndSchedulePage() -> some View {
+    private func pageOneRestTimer() -> some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 20) {
-                // 手表运动健康实时遥测大卡片
-                WatchSensorTelemetryCardView(telemetry: session.watchTelemetry)
-                    .padding(.top, 6)
+                HStack {
+                    Text("组间休息计时控制")
+                        .font(.system(size: 18, weight: .heavy))
+                        .foregroundColor(AppColors.primaryText)
+                    Spacer()
+                }
+                .padding(.top, 14)
                 
-                // 本次完整计划动作列表一览
+                RestTimerCardView(timerModel: $restTimer)
+                
+                RestTimerCompactPreviewCardView(timerModel: $restTimer)
+                
+                Spacer(minLength: 140)
+            }
+            .padding(.horizontal, 20)
+        }
+    }
+    
+    // MARK: - Page 2: 手表传感器数据监测与全场计划页 (左滑切换)
+    @ViewBuilder
+    private func pageTwoTelemetryAndSchedule() -> some View {
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 20) {
+                WatchSensorTelemetryCardView(telemetry: session.watchTelemetry)
+                    .padding(.top, 14)
+                
                 VStack(alignment: .leading, spacing: 14) {
                     HStack {
-                        Text("全场动作进度")
+                        Text("今日训练全部动作")
                             .font(.system(size: 17, weight: .heavy))
                             .foregroundColor(AppColors.primaryText)
                         Spacer()
@@ -268,29 +261,26 @@ public struct ActiveTrainingSessionContainerView: View {
         }
     }
     
-    // MARK: - 精致且克制的底栏：极简分页指示点 & 沉浸锁屏长按结束胶囊
+    // MARK: - 底部精致分页点与长按结束控制条
     @ViewBuilder
-    private func bottomMinimalistHoldToEndBar() -> some View {
+    private func bottomHoldToEndBar() -> some View {
         VStack(spacing: 10) {
-            // 精致极简分页微指示
-            HStack(spacing: 6) {
-                Circle()
-                    .fill(selectedPageIndex == 0 ? AppColors.primaryText : Color.black.opacity(0.18))
-                    .frame(width: 6, height: 6)
-                Circle()
-                    .fill(selectedPageIndex == 1 ? AppColors.primaryText : Color.black.opacity(0.18))
-                    .frame(width: 6, height: 6)
+            // 分页指示
+            HStack(spacing: 7) {
+                ForEach(0..<3) { idx in
+                    Circle()
+                        .fill(selectedPageIndex == idx ? AppColors.primaryText : Color.black.opacity(0.18))
+                        .frame(width: 6, height: 6)
+                }
             }
             
-            // 精致内敛的长按结束训练按钮（避免大面积红色对运动者的视觉干扰）
+            // 长按 1.8 秒结束训练按钮
             ZStack {
-                Capsule()
-                    .fill(Color.white.opacity(0.92))
-                    .shadow(color: Color.black.opacity(0.08), radius: 10, x: 0, y: 4)
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(Color.red.opacity(0.1))
                 
-                // 红色按压填墨进度条
                 GeometryReader { geo in
-                    Capsule()
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
                         .fill(Color.red)
                         .frame(width: geo.size.width * holdToEndProgress)
                         .animation(.linear(duration: 0.04), value: holdToEndProgress)
@@ -299,14 +289,14 @@ public struct ActiveTrainingSessionContainerView: View {
                 HStack(spacing: 8) {
                     Image(systemName: isHoldingToEnd ? "lock.open.fill" : "lock.fill")
                         .font(.system(size: 13, weight: .bold))
-                    Text(isHoldingToEnd ? "松开取消 · 继续长按结束..." : "长按此按键结束运动")
+                    Text(isHoldingToEnd ? "继续长按结束运动..." : "长按此按键 1.8 秒结束训练")
                         .font(.system(size: 13, weight: .bold))
                 }
-                .foregroundColor(holdToEndProgress > 0.45 ? .white : Color(red: 0.8, green: 0.2, blue: 0.2))
+                .foregroundColor(holdToEndProgress > 0.45 ? .white : Color.red)
             }
-            .frame(height: 42)
-            .padding(.horizontal, 48)
-            .contentShape(Capsule())
+            .frame(height: 44)
+            .padding(.horizontal, 32)
+            .contentShape(Rectangle())
             .gesture(
                 DragGesture(minimumDistance: 0)
                     .onChanged { _ in
@@ -319,36 +309,29 @@ public struct ActiveTrainingSessionContainerView: View {
                     }
             )
         }
-        .padding(.top, 10)
+        .padding(.top, 8)
         .padding(.bottom, 24)
         .background(
-            Color.white.opacity(0.72)
+            Color.white.opacity(0.85)
                 .ignoresSafeArea()
         )
     }
     
-    // MARK: - 悬浮表盘（恢复高阶全屏背景模糊）与动作/组数弹窗
+    // MARK: - 悬浮表盘与弹窗（完全修复到最原始样貌：Color.white.opacity(0.32) + blur 12）
     @ViewBuilder
     private func modalsAndFloatingDialsOverlay() -> some View {
         ZStack {
             if restTimer.isPrecisionZoomed {
-                // 彻底恢复高阶沉浸毛玻璃与遮罩
-                ZStack {
-                    Rectangle()
-                        .fill(.ultraThinMaterial)
-                        .ignoresSafeArea()
-                    
-                    Color.black.opacity(0.28)
-                        .ignoresSafeArea()
-                }
-                .onTapGesture {
-                    withAnimation(.spring(response: 0.38, dampingFraction: 0.78)) {
-                        restTimer.isPrecisionZoomed = false
+                Color.white.opacity(0.32)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation(.spring(response: 0.38, dampingFraction: 0.78)) {
+                            restTimer.isPrecisionZoomed = false
+                        }
                     }
-                }
                 
                 GiantFloatingTimerDialView(timerModel: $restTimer)
-                    .transition(.opacity.combined(with: .scale(scale: 0.92)))
+                    .transition(.opacity.combined(with: .scale(scale: 0.9)))
                     .zIndex(100)
             }
             
@@ -409,7 +392,7 @@ public struct ActiveTrainingSessionContainerView: View {
         }
     }
     
-    // MARK: - 动作完成顶部横幅
+    // MARK: - 顶部完成提示横幅
     @ViewBuilder
     private func completionNoticeOverlay() -> some View {
         if let notice = completedExerciseNotice {
@@ -473,7 +456,7 @@ public struct ActiveTrainingSessionContainerView: View {
         }
     }
     
-    // MARK: - 进场 3 2 1 GO 仪式感倒计时
+    // MARK: - 进场 3 2 1 GO 倒计时遮罩
     @ViewBuilder
     private func prepCountdownOverlay() -> some View {
         ZStack {
@@ -500,7 +483,7 @@ public struct ActiveTrainingSessionContainerView: View {
         }
     }
     
-    // MARK: - 定时器相关管理
+    // MARK: - 计时器管理
     private func startPrepCountdown() {
         prepCountdownValue = 3
         isPrepCountdownActive = true
