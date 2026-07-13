@@ -22,18 +22,19 @@ public struct ActiveTrainingSessionContainerView: View {
     
     @ObservedObject private var libraryStore = TrainingPlanLibraryStore.shared
     
-    // 左右滑动分页选择 (0: 极致核心训练主页, 1: 数据监测与计划明细页)
+    // 页面分屏标签
     @State private var selectedPageIndex: Int = 0
     
-    // 进场准备倒计时 3 -> 2 -> 1 -> GO!
+    // 3 2 1 GO 倒计时
     @State private var isPrepCountdownActive: Bool = true
     @State private var prepCountdownValue: Int = 3
     @State private var prepTimerSubscription: AnyCancellable? = nil
     
-    // 长按结束运动进度 (0.0 ~ 1.0)
+    // 长按结束训练动画属性
     @State private var holdToEndProgress: CGFloat = 0.0
     @State private var isHoldingToEnd: Bool = false
     @State private var holdTimerSubscription: AnyCancellable? = nil
+    @State private var isPulseAnimating: Bool = false
     
     public init(
         session: Binding<TrainingSessionMock>,
@@ -73,32 +74,43 @@ public struct ActiveTrainingSessionContainerView: View {
     
     public var body: some View {
         ZStack {
-            AppColors.background
-                .ignoresSafeArea()
+            // 背景层：轻微高级渐变烘托立体训练舱感
+            LinearGradient(
+                colors: [
+                    Color(red: 0.93, green: 0.94, blue: 0.96),
+                    Color(red: 0.96, green: 0.97, blue: 0.98)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                topMinimalStatusBar()
+                // 1. 顶部座舱状态条与精致模式选择切签
+                premiumCockpitHeader()
                 
+                // 2. 核心双分屏滑页区
                 TabView(selection: $selectedPageIndex) {
-                    coreMinimalWorkoutPage()
+                    coreFocusCockpitPage()
                         .tag(0)
                     
-                    detailsAndTelemetryPage()
+                    telemetryAndTimelinePage()
                         .tag(1)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 
-                pageIndicatorAndHoldToEndBar()
+                // 3. 底部立体按压式防误触长按舱控区
+                premiumHoldToFinishDock()
             }
-            .blur(radius: isPrepCountdownActive ? 16 : 0)
+            .blur(radius: isPrepCountdownActive ? 18 : 0)
             
-            // 顶部横幅提示：动作完成进阶
+            // 顶层横幅通知
             completionNoticeOverlay()
             
-            // 悬浮放大表盘与圆盘弹窗
+            // 全屏模态与倒计时表盘
             modalsAndFloatingDialsOverlay()
             
-            // 进场 3 2 1 GO! 倒计时全屏遮罩
+            // 进场全屏 3 2 1 GO!
             if isPrepCountdownActive {
                 prepCountdownOverlay()
                     .zIndex(300)
@@ -107,6 +119,9 @@ public struct ActiveTrainingSessionContainerView: View {
         }
         .onAppear {
             startPrepCountdown()
+            withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
+                isPulseAnimating = true
+            }
         }
         .onDisappear {
             prepTimerSubscription?.cancel()
@@ -114,42 +129,82 @@ public struct ActiveTrainingSessionContainerView: View {
         }
     }
     
-    // MARK: - 极简顶栏状态栏 (无突兀结束按钮)
+    // MARK: - 1. 顶部座舱状态条 (精简高端)
     @ViewBuilder
-    private func topMinimalStatusBar() -> some View {
-        HStack {
-            HStack(spacing: 8) {
+    private func premiumCockpitHeader() -> some View {
+        HStack(spacing: 14) {
+            // 左侧指示：LIVE 呼吸绿点
+            HStack(spacing: 6) {
                 Circle()
                     .fill(Color.green)
-                    .frame(width: 8, height: 8)
-                Text(selectedPageIndex == 0 ? "专注训练页 · 左右滑动看数据" : "手表传感器遥测 · 计划明细")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(AppColors.secondaryText)
+                    .frame(width: 7, height: 7)
+                    .scaleEffect(isPulseAnimating ? 1.25 : 0.85)
+                    .opacity(isPulseAnimating ? 1.0 : 0.6)
+                
+                Text("LIVE WORKOUT")
+                    .font(.system(size: 11, weight: .black))
+                    .tracking(1.4)
+                    .foregroundColor(AppColors.primaryText.opacity(0.85))
             }
+            
             Spacer()
             
-            HStack(spacing: 4) {
-                Image(systemName: "hand.draw.fill")
-                    .font(.system(size: 11))
-                Text("左右滑动切换")
-                    .font(.system(size: 11, weight: .bold))
+            // 右侧分屏切签胶囊：轻触或滑动即可切换
+            HStack(spacing: 2) {
+                Button(action: {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.78)) {
+                        selectedPageIndex = 0
+                    }
+                }) {
+                    Text("专注训练")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(selectedPageIndex == 0 ? .white : AppColors.secondaryText)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(
+                            selectedPageIndex == 0 ? Color(red: 0.1, green: 0.1, blue: 0.12) : Color.clear
+                        )
+                        .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                
+                Button(action: {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.78)) {
+                        selectedPageIndex = 1
+                    }
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "applewatch")
+                            .font(.system(size: 11, weight: .bold))
+                        Text("手表 & 进度")
+                            .font(.system(size: 12, weight: .bold))
+                    }
+                    .foregroundColor(selectedPageIndex == 1 ? .white : AppColors.secondaryText)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(
+                        selectedPageIndex == 1 ? Color(red: 0.1, green: 0.1, blue: 0.12) : Color.clear
+                    )
+                    .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
             }
-            .foregroundColor(AppColors.secondaryText.opacity(0.8))
-            .padding(.horizontal, 10)
-            .padding(.vertical, 4)
-            .background(Color.black.opacity(0.05))
+            .padding(3)
+            .background(Color.white.opacity(0.8))
             .clipShape(Capsule())
+            .shadow(color: Color.black.opacity(0.04), radius: 8, x: 0, y: 3)
         }
         .padding(.horizontal, 20)
-        .padding(.top, 12)
-        .padding(.bottom, 4)
+        .padding(.top, 14)
+        .padding(.bottom, 8)
     }
     
-    // MARK: - Page 0: 绝对精简的核心训练页 (绝对不杂乱)
+    // MARK: - 2. Page 0: 核心专注驾驶舱页面 (告别干瘪平铺，重塑空间焦点)
     @ViewBuilder
-    private func coreMinimalWorkoutPage() -> some View {
+    private func coreFocusCockpitPage() -> some View {
         ScrollView(showsIndicators: false) {
-            VStack(spacing: 16) {
+            VStack(spacing: 18) {
+                // 动作头部信息
                 TrainingHeaderView(
                     session: session,
                     isRestPhase: restTimer.isRunning,
@@ -166,171 +221,202 @@ public struct ActiveTrainingSessionContainerView: View {
                     }
                 )
                 
+                // 根据当前是否正在组间休息进行空间焦点聚焦
                 if restTimer.isRunning || restTimer.isPaused {
                     RestTimerCardView(timerModel: $restTimer)
                         .transition(.move(edge: .top).combined(with: .opacity))
-                    
-                    VStack(spacing: 14) {
-                        RepCounterCardView(
-                            recordedReps: $recordedReps,
-                            targetReps: $session.currentReps,
-                            isAutoMode: $isAutoFlowModeEnabled,
-                            isBufferActive: isAutoBufferActive,
-                            bufferRemaining: autoBufferRemaining,
-                            onCancelBuffer: {
-                                withAnimation {
-                                    isAutoBufferActive = false
-                                    isAutoFlowModeEnabled = false
-                                }
-                            },
-                            onImmediateRest: {
+                }
+                
+                // 核心表现台组合 (将打卡计数卡片与控制按钮组合在一个呼吸感的性能矩阵容器中)
+                VStack(spacing: 14) {
+                    RepCounterCardView(
+                        recordedReps: $recordedReps,
+                        targetReps: $session.currentReps,
+                        isAutoMode: $isAutoFlowModeEnabled,
+                        isBufferActive: isAutoBufferActive,
+                        bufferRemaining: autoBufferRemaining,
+                        onCancelBuffer: {
+                            withAnimation {
                                 isAutoBufferActive = false
-                                onCompleteSet()
+                                isAutoFlowModeEnabled = false
                             }
-                        )
-                        
-                        TrainingActionButtonsView(
-                            currentSet: session.currentSet,
-                            onCompleteSet: { onCompleteSet() },
-                            onPrevExercise: { onPrevExercise() },
-                            onNextExercise: { onNextExercise() }
-                        )
-                    }
-                } else {
-                    VStack(spacing: 14) {
-                        RepCounterCardView(
-                            recordedReps: $recordedReps,
-                            targetReps: $session.currentReps,
-                            isAutoMode: $isAutoFlowModeEnabled,
-                            isBufferActive: isAutoBufferActive,
-                            bufferRemaining: autoBufferRemaining,
-                            onCancelBuffer: {
-                                withAnimation {
-                                    isAutoBufferActive = false
-                                    isAutoFlowModeEnabled = false
-                                }
-                            },
-                            onImmediateRest: {
-                                isAutoBufferActive = false
-                                onCompleteSet()
-                            }
-                        )
-                        
-                        TrainingActionButtonsView(
-                            currentSet: session.currentSet,
-                            onCompleteSet: { onCompleteSet() },
-                            onPrevExercise: { onPrevExercise() },
-                            onNextExercise: { onNextExercise() }
-                        )
-                    }
+                        },
+                        onImmediateRest: {
+                            isAutoBufferActive = false
+                            onCompleteSet()
+                        }
+                    )
                     
+                    TrainingActionButtonsView(
+                        currentSet: session.currentSet,
+                        onCompleteSet: { onCompleteSet() },
+                        onPrevExercise: { onPrevExercise() },
+                        onNextExercise: { onNextExercise() }
+                    )
+                }
+                
+                if !restTimer.isRunning && !restTimer.isPaused {
                     RestTimerCompactPreviewCardView(timerModel: $restTimer)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
                 
-                Spacer(minLength: 120)
+                Spacer(minLength: 130)
             }
             .padding(.horizontal, 20)
-            .padding(.top, 8)
+            .padding(.top, 6)
             .animation(.spring(response: 0.38, dampingFraction: 0.82), value: restTimer.isRunning || restTimer.isPaused)
         }
     }
     
-    // MARK: - Page 1: 次要信息滑动展示页 (手表遥测 & 计划全览)
+    // MARK: - 3. Page 1: 手表传感器实时数据 & 动作进度轴 (专业杂志级排版)
     @ViewBuilder
-    private func detailsAndTelemetryPage() -> some View {
+    private func telemetryAndTimelinePage() -> some View {
         ScrollView(showsIndicators: false) {
-            VStack(spacing: 18) {
+            VStack(spacing: 20) {
+                // 手表传感器卡片
                 WatchSensorTelemetryCardView(telemetry: session.watchTelemetry)
                 
+                // 动作执行进度轴
                 VStack(alignment: .leading, spacing: 14) {
                     HStack {
-                        Text("全场动作一览")
+                        Text("全计划动作执行表")
                             .font(.system(size: 16, weight: .heavy))
                             .foregroundColor(AppColors.primaryText)
                         Spacer()
-                        Text("共 \(currentRoutineExercises.count) 个动作")
-                            .font(.system(size: 12, weight: .semibold))
+                        Text("第 \(session.currentExerciseIndex) / \(currentRoutineExercises.count) 项")
+                            .font(.system(size: 12, weight: .bold))
                             .foregroundColor(AppColors.secondaryText)
                     }
                     
                     VStack(spacing: 10) {
                         ForEach(Array(currentRoutineExercises.enumerated()), id: \.offset) { index, item in
-                            HStack(spacing: 14) {
-                                Circle()
-                                    .fill(index + 1 == session.currentExerciseIndex ? Color.green : Color.black.opacity(0.06))
-                                    .frame(width: 32, height: 32)
-                                    .overlay(
-                                        Text("\(index + 1)")
-                                            .font(.system(size: 13, weight: .bold))
-                                            .foregroundColor(index + 1 == session.currentExerciseIndex ? .white : AppColors.primaryText)
-                                    )
-                                
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(item.name)
-                                        .font(.system(size: 15, weight: .bold))
-                                        .foregroundColor(AppColors.primaryText)
-                                    Text("\(item.sets) 组 · 约 \(item.reps) 次")
-                                        .font(.system(size: 12, weight: .medium))
-                                        .foregroundColor(AppColors.secondaryText)
-                                }
-                                Spacer()
-                                Text("\(Int(item.targetWeightKg)) kg")
-                                    .font(.system(size: 14, weight: .heavy))
-                                    .foregroundColor(AppColors.primaryText)
-                            }
-                            .padding(14)
-                            .background(
-                                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                    .fill(Color.white.opacity(0.75))
-                            )
+                            timelineRowView(for: item, at: index)
                         }
                     }
                 }
                 
-                Spacer(minLength: 120)
+                Spacer(minLength: 130)
             }
             .padding(.horizontal, 20)
-            .padding(.top, 8)
+            .padding(.top, 6)
         }
     }
     
-    // MARK: - 底部指示点与长按结束按钮
     @ViewBuilder
-    private func pageIndicatorAndHoldToEndBar() -> some View {
-        VStack(spacing: 10) {
-            // 分页圆点指示
-            HStack(spacing: 8) {
+    private func timelineRowView(for item: PlanExerciseItemMock, at index: Int) -> some View {
+        let isCurrent = (index + 1 == session.currentExerciseIndex)
+        let isCompleted = (index + 1 < session.currentExerciseIndex)
+        
+        HStack(spacing: 14) {
+            ZStack {
                 Circle()
-                    .fill(selectedPageIndex == 0 ? AppColors.primaryText : Color.black.opacity(0.2))
-                    .frame(width: 7, height: 7)
-                Circle()
-                    .fill(selectedPageIndex == 1 ? AppColors.primaryText : Color.black.opacity(0.2))
-                    .frame(width: 7, height: 7)
+                    .fill(isCurrent ? Color.black : (isCompleted ? Color.green.opacity(0.15) : Color.black.opacity(0.05)))
+                    .frame(width: 34, height: 34)
+                
+                if isCompleted {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundColor(.green)
+                } else {
+                    Text("\(index + 1)")
+                        .font(.system(size: 13, weight: .heavy))
+                        .foregroundColor(isCurrent ? .white : AppColors.primaryText)
+                }
             }
             
-            // 长按结束按钮 (Hold to End Workout)
-            ZStack {
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .fill(Color.red.opacity(0.12))
-                
-                // 红色进度填充
-                GeometryReader { geo in
-                    RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .fill(Color.red.opacity(0.75))
-                        .frame(width: geo.size.width * holdToEndProgress)
+            VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: 6) {
+                    Text(item.name)
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundColor(AppColors.primaryText)
+                    if isCurrent {
+                        Text("当前进行中")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 7)
+                            .padding(.vertical, 2)
+                            .background(Color.green)
+                            .clipShape(Capsule())
+                    }
                 }
-                
-                HStack(spacing: 8) {
-                    Image(systemName: isHoldingToEnd ? "hand.tap.fill" : "lock.open.fill")
-                        .font(.system(size: 14, weight: .bold))
-                    Text(isHoldingToEnd ? "正在长按解锁结束..." : "长按此键 1.8 秒结束当前训练")
-                        .font(.system(size: 14, weight: .heavy))
-                }
-                .foregroundColor(holdToEndProgress > 0.45 ? .white : Color.red)
+                Text("\(item.sets) 组 · 每组约 \(item.reps) 次")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(AppColors.secondaryText)
             }
-            .frame(height: 48)
-            .padding(.horizontal, 24)
+            
+            Spacer()
+            
+            Text("\(Int(item.targetWeightKg)) kg")
+                .font(.system(size: 14, weight: .heavy))
+                .foregroundColor(AppColors.primaryText)
+        }
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(isCurrent ? Color.white : Color.white.opacity(0.65))
+                .shadow(color: isCurrent ? Color.black.opacity(0.08) : Color.clear, radius: 10, x: 0, y: 4)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(isCurrent ? Color.black.opacity(0.8) : Color.clear, lineWidth: 1.5)
+        )
+    }
+    
+    // MARK: - 4. 底部高奢工业感按压式安全舱底座 (Hold-to-Finish Dock)
+    @ViewBuilder
+    private func premiumHoldToFinishDock() -> some View {
+        VStack(spacing: 8) {
+            // 极简两页指示圆点
+            HStack(spacing: 6) {
+                Circle()
+                    .fill(selectedPageIndex == 0 ? Color.black : Color.black.opacity(0.18))
+                    .frame(width: 5, height: 5)
+                Circle()
+                    .fill(selectedPageIndex == 1 ? Color.black : Color.black.opacity(0.18))
+                    .frame(width: 5, height: 5)
+            }
+            
+            // 工业奢华感防误触长按结束键
+            ZStack {
+                // 底部槽位底色
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .fill(Color(red: 0.11, green: 0.11, blue: 0.13))
+                
+                // 红色液化推进进度栏
+                GeometryReader { geo in
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [Color(red: 0.9, green: 0.2, blue: 0.25), Color(red: 0.78, green: 0.12, blue: 0.18)],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .frame(width: geo.size.width * holdToEndProgress)
+                        .animation(.linear(duration: 0.05), value: holdToEndProgress)
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                
+                // 图标与重磅排版文字
+                HStack(spacing: 10) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.white.opacity(0.15))
+                            .frame(width: 28, height: 28)
+                        Image(systemName: isHoldingToEnd ? "checkmark.circle.fill" : "lock.fill")
+                            .font(.system(size: 13, weight: .bold))
+                    }
+                    
+                    Text(isHoldingToEnd ? "正在安全解锁... 保持按压" : "长按此键 1.8 秒安全结束训练")
+                        .font(.system(size: 14, weight: .heavy))
+                        .tracking(0.5)
+                }
+                .foregroundColor(.white)
+            }
+            .frame(height: 54)
+            .scaleEffect(isHoldingToEnd ? 0.98 : 1.0)
+            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHoldingToEnd)
+            .padding(.horizontal, 20)
             .contentShape(Rectangle())
             .gesture(
                 DragGesture(minimumDistance: 0)
@@ -344,14 +430,19 @@ public struct ActiveTrainingSessionContainerView: View {
                     }
             )
         }
-        .padding(.bottom, 20)
+        .padding(.top, 10)
+        .padding(.bottom, 24)
         .background(
-            Color.white.opacity(0.85)
-                .ignoresSafeArea()
+            ZStack {
+                Color.white.opacity(0.88)
+                Color.white.opacity(0.4)
+            }
+            .ignoresSafeArea()
+            .shadow(color: Color.black.opacity(0.06), radius: 14, x: 0, y: -6)
         )
     }
     
-    // MARK: - 横幅与弹窗等叠加层
+    // MARK: - 5. 顶部完成动作横幅
     @ViewBuilder
     private func completionNoticeOverlay() -> some View {
         if let notice = completedExerciseNotice {
@@ -415,6 +506,7 @@ public struct ActiveTrainingSessionContainerView: View {
         }
     }
     
+    // MARK: - 6. 模态与悬浮表盘
     @ViewBuilder
     private func modalsAndFloatingDialsOverlay() -> some View {
         ZStack {
@@ -489,17 +581,26 @@ public struct ActiveTrainingSessionContainerView: View {
         }
     }
     
-    // MARK: - 3 2 1 GO 准备倒计时全屏遮罩
+    // MARK: - 7. 3 2 1 GO 仪式感倒计时
     @ViewBuilder
     private func prepCountdownOverlay() -> some View {
         ZStack {
-            Color.black.opacity(0.85)
+            Color.black.opacity(0.88)
                 .ignoresSafeArea()
             
-            VStack(spacing: 20) {
-                Text("准备就绪 · 开启沉浸训练")
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(.white.opacity(0.8))
+            VStack(spacing: 24) {
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(Color.green)
+                        .frame(width: 8, height: 8)
+                    Text("专注训练即将展开")
+                        .font(.system(size: 15, weight: .heavy))
+                        .foregroundColor(.white.opacity(0.85))
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(Color.white.opacity(0.12))
+                .clipShape(Capsule())
                 
                 ZStack {
                     Circle()
@@ -509,14 +610,14 @@ public struct ActiveTrainingSessionContainerView: View {
                     Text(prepCountdownValue > 0 ? "\(prepCountdownValue)" : "GO!")
                         .font(.system(size: 78, weight: .black, design: .rounded))
                         .foregroundColor(prepCountdownValue > 0 ? .white : .green)
-                        .scaleEffect(prepCountdownValue > 0 ? 1.0 : 1.2)
+                        .scaleEffect(prepCountdownValue > 0 ? 1.0 : 1.25)
                         .animation(.spring(response: 0.3, dampingFraction: 0.6), value: prepCountdownValue)
                 }
             }
         }
     }
     
-    // MARK: - 计时器控制逻辑
+    // MARK: - 定时器相关逻辑
     private func startPrepCountdown() {
         prepCountdownValue = 3
         isPrepCountdownActive = true
@@ -546,7 +647,6 @@ public struct ActiveTrainingSessionContainerView: View {
         holdToEndProgress = 0.0
         holdTimerSubscription?.cancel()
         
-        // 经过 1.8 秒完成长按结束
         let tick: CGFloat = 0.05 / 1.8
         holdTimerSubscription = Timer.publish(every: 0.05, on: .main, in: .common)
             .autoconnect()
