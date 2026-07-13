@@ -96,6 +96,8 @@ public struct RestTimerCardView: View {
                     .font(.system(size: 42, weight: .black, design: .rounded))
                     .monospacedDigit()
                     .foregroundColor(AppColors.primaryText)
+                    .contentTransition(.numericText(value: timerModel.remainingTime))
+                    .animation(.spring(response: 0.28, dampingFraction: 0.82), value: timerModel.remainingTime)
                 
                 Text(timerModel.isRunning ? "计时中" : "长按展开表盘")
                     .font(.caption)
@@ -350,6 +352,7 @@ public struct GiantFloatingTimerDialView: View {
                                 .font(.system(size: 58, weight: .black, design: .rounded))
                                 .monospacedDigit()
                                 .foregroundColor(AppColors.primaryText.opacity(is60SecondPrecisionDial ? 0.65 : 1.0))
+                                .contentTransition(.numericText(value: Double(mins)))
                             
                             Text(":")
                                 .font(.system(size: 54, weight: .black, design: .rounded))
@@ -361,9 +364,9 @@ public struct GiantFloatingTimerDialView: View {
                                 .foregroundColor(is60SecondPrecisionDial ? AppColors.accentBlue : AppColors.primaryText)
                                 .scaleEffect(is60SecondPrecisionDial ? 1.08 : 1.0)
                                 .animation(.spring(response: 0.3, dampingFraction: 0.7), value: is60SecondPrecisionDial)
+                                .contentTransition(.numericText(value: Double(secs)))
                         }
-                        .contentTransition(.numericText(value: Double(timerModel.totalDuration)))
-                        .animation(.spring(response: 0.28, dampingFraction: 0.82), value: timerModel.totalDuration)
+                        .animation(.spring(response: 0.28, dampingFraction: 0.82), value: timerModel.remainingTime)
                         
                         Text(is60SecondPrecisionDial ? "1 圈 = 60 秒" : "1 圈 = 5 分钟")
                             .font(.subheadline)
