@@ -42,7 +42,7 @@ public struct RestTimerCompactPreviewCardView: View {
                     .lineLimit(1)
                     .fixedSize(horizontal: true, vertical: false)
                     .foregroundColor(AppColors.accentBlue)
-                    .contentTransition(.numericText())
+                    .contentTransition(.numericText(value: Double(timerModel.totalDuration)))
                 
                 Button(action: { timerModel.adjustDuration(by: 15) }) {
                     Text("+15s")
@@ -56,7 +56,7 @@ public struct RestTimerCompactPreviewCardView: View {
                         .clipShape(Capsule())
                 }
             }
-            .animation(.spring(response: 0.3, dampingFraction: 0.82), value: "\(timerModel.totalDuration)s".count)
+            .animation(.spring(response: 0.28, dampingFraction: 0.82), value: timerModel.totalDuration)
             
             Button(action: {
                 let impact = UIImpactFeedbackGenerator(style: .medium)
