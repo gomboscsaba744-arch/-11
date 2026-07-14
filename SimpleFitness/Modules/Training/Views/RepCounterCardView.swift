@@ -27,35 +27,66 @@ public struct RepCounterCardView: View {
         self.onImmediateRest = onImmediateRest
     }
     
+    @State private var buttonScale: CGFloat = 1.0
+    @State private var pulseAura: Bool = false
+    
     public var body: some View {
         VStack(spacing: 16) {
-            // 顶部行：精炼中央微光状态条，统一展示 Watch 自动计次与自动流转模式
+            // 顶部行：精炼中央微光状态条，带有 Apple Watch 动效呼吸感与触感回弹
             Button(action: {
                 let impact = UIImpactFeedbackGenerator(style: .medium)
                 impact.impactOccurred()
-                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                    isAutoMode.toggle()
+                
+                withAnimation(.spring(response: 0.22, dampingFraction: 0.55)) {
+                    buttonScale = 0.92
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.65)) {
+                        buttonScale = 1.0
+                        isAutoMode.toggle()
+                    }
                 }
             }) {
                 HStack(spacing: 6) {
                     Image(systemName: "applewatch")
                         .foregroundColor(AppColors.accentBlue)
+                        .scaleEffect(isAutoMode ? (pulseAura ? 1.08 : 0.96) : 1.0)
                     Text("Watch自动计次")
                         .foregroundColor(AppColors.secondaryText)
                     Text("·")
                         .foregroundColor(AppColors.secondaryText.opacity(0.5))
-                    Image(systemName: isAutoMode ? "bolt.fill" : "hand.tap.fill")
-                        .foregroundColor(isAutoMode ? .orange : AppColors.primaryText)
-                    Text(isAutoMode ? "自动流转开" : "手动流转")
-                        .foregroundColor(isAutoMode ? .orange : AppColors.primaryText)
+                    
+                    HStack(spacing: 4) {
+                        Image(systemName: isAutoMode ? "bolt.fill" : "hand.tap.fill")
+                            .foregroundColor(isAutoMode ? .orange : AppColors.primaryText)
+                            .transition(.scale.combined(with: .opacity))
+                            .id("icon_\(isAutoMode)")
+                        Text(isAutoMode ? "自动流转开" : "手动流转")
+                            .foregroundColor(isAutoMode ? .orange : AppColors.primaryText)
+                            .transition(.opacity)
+                            .id("text_\(isAutoMode)")
+                    }
                 }
                 .font(.caption.weight(.semibold))
                 .padding(.horizontal, 14)
                 .padding(.vertical, 6)
-                .background(AppColors.pillBackground)
-                .clipShape(Capsule())
+                .background(
+                    Capsule()
+                        .fill(isAutoMode ? Color.orange.opacity(0.18) : AppColors.pillBackground)
+                )
+                .overlay(
+                    Capsule()
+                        .strokeBorder(isAutoMode ? Color.orange.opacity(pulseAura ? 0.65 : 0.25) : Color.clear, lineWidth: 1)
+                )
+                .shadow(color: isAutoMode ? Color.orange.opacity(pulseAura ? 0.35 : 0.1) : Color.clear, radius: 8, y: 2)
+                .scaleEffect(buttonScale)
             }
             .buttonStyle(.plain)
+            .onAppear {
+                withAnimation(.easeInOut(duration: 1.8).repeatForever(autoreverses: true)) {
+                    pulseAura = true
+                }
+            }
              
              // 达标提示与 10s 倒计时缓冲横幅
              // 达标提示与 10s 倒计时缓冲横幅
