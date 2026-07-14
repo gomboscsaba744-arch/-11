@@ -287,7 +287,7 @@ public struct ActiveTrainingSessionContainerView: View {
         .animation(.spring(response: 0.38, dampingFraction: 0.82), value: restTimer.isRunning || restTimer.isPaused)
     }
     
-    // MARK: - Page 1: 计时与休息管理页 (原生苹果 Health/Fitness 精美悬浮卡片审美，绝不堆砌冗余信息)
+    // MARK: - Page 1: 纯粹休息与倒计时管理页 (专属计时核心功能，绝不重复首部分动作打卡与建议数据)
     @ViewBuilder
     private func pageOneRestTimer() -> some View {
         VStack(spacing: 0) {
@@ -308,88 +308,17 @@ public struct ActiveTrainingSessionContainerView: View {
             )
             .padding(.top, 6)
             
-            Spacer(minLength: 16)
+            Spacer(minLength: 20)
             
-            // 核心休息与计次表盘（去框浑然一体设计，呼吸感通透）
+            // 专一核心功能：休息倒计时与表盘控制区（开阔通透，零干扰）
             RestTimerCardView(timerModel: $restTimer)
             
-            Spacer(minLength: 12)
-            
-            // 纯粹无界沉浸设计：建议负荷 & 推荐次数（无白底方框、无阴影割裂，与画布浑然天成）
-            HStack(spacing: 0) {
-                // 左半区：建议负荷
-                HStack(spacing: 12) {
-                    ZStack {
-                        Circle()
-                            .fill(Color.orange.opacity(0.12))
-                            .frame(width: 36, height: 36)
-                        Image(systemName: "scalemass.fill")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(.orange)
-                    }
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("下组建议负荷")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(AppColors.secondaryText)
-                        HStack(alignment: .firstTextBaseline, spacing: 2) {
-                            Text("\(Int(session.targetWeightKg))")
-                                .font(.system(size: 22, weight: .bold, design: .rounded))
-                                .foregroundColor(AppColors.primaryText)
-                            Text("kg")
-                                .font(.system(size: 13, weight: .bold, design: .rounded))
-                                .foregroundColor(AppColors.secondaryText)
-                        }
-                    }
-                    Spacer()
-                }
-                
-                Divider()
-                    .frame(height: 32)
-                    .padding(.horizontal, 16)
-                
-                // 右半区：建议次数
-                HStack(spacing: 12) {
-                    ZStack {
-                        Circle()
-                            .fill(AppColors.accentBlue.opacity(0.12))
-                            .frame(width: 36, height: 36)
-                        Image(systemName: "flame.fill")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(AppColors.accentBlue)
-                    }
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("推荐目标次数")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(AppColors.secondaryText)
-                        HStack(alignment: .firstTextBaseline, spacing: 2) {
-                            Text("\(session.currentReps)")
-                                .font(.system(size: 22, weight: .bold, design: .rounded))
-                                .foregroundColor(AppColors.primaryText)
-                            Text("次")
-                                .font(.system(size: 13, weight: .bold, design: .rounded))
-                                .foregroundColor(AppColors.secondaryText)
-                        }
-                    }
-                    Spacer()
-                }
-            }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 8)
-            
-            Spacer(minLength: 12)
-            
-            TrainingActionButtonsView(
-                currentSet: session.currentSet,
-                onCompleteSet: { onCompleteSet() },
-                onPrevExercise: { onPrevExercise() },
-                onNextExercise: { onNextExercise() }
-            )
-            .padding(.bottom, 6)
+            Spacer(minLength: 20)
             
             // 统一全局分页指示点
             pageIndicatorDots()
             
-            // 第一页同样保留完整的锁屏与结束按键操作区
+            // 底部标准防误触锁与长按结束按键条
             if !isScreenLocked {
                 HStack(spacing: 12) {
                     Button(action: {
@@ -508,7 +437,7 @@ public struct ActiveTrainingSessionContainerView: View {
         .padding(.vertical, 6)
     }
     
-    // MARK: - 长按结束训练胶囊条 (严格单行，绝不折行)
+    // MARK: - 长按结束训练胶囊条 (严格单行，绝不折行，长按 1.2 秒渐进填充)
     @ViewBuilder
     private func longPressEndWorkoutBar() -> some View {
         ZStack(alignment: .leading) {
@@ -518,6 +447,7 @@ public struct ActiveTrainingSessionContainerView: View {
                 Rectangle()
                     .fill(Color(red: 0.95, green: 0.22, blue: 0.32))
                     .frame(width: max(0, geo.size.width * holdToEndProgress))
+                    .animation(isHoldingToEnd ? .linear(duration: 1.2) : .spring(response: 0.25, dampingFraction: 0.8), value: holdToEndProgress)
             }
             
             HStack(spacing: 10) {
@@ -552,7 +482,6 @@ public struct ActiveTrainingSessionContainerView: View {
         )
         .shadow(color: Color.black.opacity(0.14), radius: 8, x: 0, y: 4)
         .scaleEffect(isHoldingToEnd ? 0.98 : 1.0)
-        .animation(.easeInOut(duration: 0.2), value: isHoldingToEnd)
         .gesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { _ in
