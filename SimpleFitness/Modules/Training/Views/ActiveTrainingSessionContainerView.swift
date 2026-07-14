@@ -45,6 +45,10 @@ public struct ActiveTrainingSessionContainerView: View {
     @State private var isHoldingUnlock: Bool = false
     @State private var unlockWorkItem: DispatchWorkItem? = nil
     
+    // 手动切换动作二次确认状态
+    @State private var showingSwitchConfirmAlert: Bool = false
+    @State private var targetSwitchExerciseIndex: Int? = nil
+    
     public init(
         session: Binding<TrainingSessionMock>,
         restTimer: Binding<RestTimerModel>,
@@ -97,9 +101,18 @@ public struct ActiveTrainingSessionContainerView: View {
                     .tag(2)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
-            // 严格恢复最原始的模糊参数：12
             .blur(radius: isPrepCountdownActive || restTimer.isPrecisionZoomed || showingExerciseListModal || showingSetListModal ? 12 : 0)
             .animation(.easeInOut(duration: 0.25), value: restTimer.isPrecisionZoomed)
+            .alert("切换训练动作确认", isPresented: $showingSwitchConfirmAlert) {
+                Button("确认切换", role: .destructive) {
+                    if let target = targetSwitchExerciseIndex {
+                        onSwitchExercise(target)
+                    }
+                }
+                Button("取消", role: .cancel) {}
+            } message: {
+                Text("即将跳转至新的训练动作。当前未保存的组数进度和间歇状态将重置，是否继续？")
+            }
             
             // 顶部横幅提示
             completionNoticeOverlay()
@@ -250,8 +263,8 @@ public struct ActiveTrainingSessionContainerView: View {
             // 统一全局分页指示点 (位置绝对固定，绝不遮挡底部操作区)
             pageIndicatorDots()
             
-            // 锁屏防误触按键 与 长按结束训练条（第一页与第二页均显示，严格单行绝不折行）
-            if !isScreenLocked {
+            // 锁屏防误触按键 与 长按结束训练条（仅出现在首页/第一页 Page 0，其他页面保持纯净）
+            if selectedPageIndex == 0 && !isScreenLocked {
                 HStack(spacing: 12) {
                     Button(action: {
                         let impact = UIImpactFeedbackGenerator(style: .medium)
@@ -279,7 +292,7 @@ public struct ActiveTrainingSessionContainerView: View {
                 }
                 .padding(.bottom, 14)
                 .transition(.opacity.combined(with: .move(edge: .bottom)))
-            } else {
+            } else if selectedPageIndex == 0 {
                 Color.clear.frame(height: 64)
             }
         }
@@ -390,38 +403,6 @@ public struct ActiveTrainingSessionContainerView: View {
             // 统一全局分页指示点
             pageIndicatorDots()
             
-            // 底部标准防误触锁与长按结束按键条
-            if !isScreenLocked {
-                HStack(spacing: 12) {
-                    Button(action: {
-                        let impact = UIImpactFeedbackGenerator(style: .medium)
-                        impact.impactOccurred()
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                            isScreenLocked = true
-                        }
-                    }) {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 25, style: .continuous)
-                                .fill(Color(white: 0.15))
-                            Image(systemName: "lock.fill")
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundColor(.white)
-                        }
-                        .frame(width: 50, height: 50)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 25, style: .continuous)
-                                .strokeBorder(Color.white.opacity(0.16), lineWidth: 1)
-                        )
-                    }
-                    .buttonStyle(.plain)
-                    
-                    longPressEndWorkoutBar()
-                }
-                .padding(.bottom, 14)
-                .transition(.opacity.combined(with: .move(edge: .bottom)))
-            } else {
-                Color.clear.frame(height: 64)
-            }
         }
         .padding(.horizontal, 20)
     }
@@ -432,24 +413,34 @@ public struct ActiveTrainingSessionContainerView: View {
         VStack(spacing: 0) {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 22) {
-                    // 1. 全场实时综合能耗控制卡 (Apple Studio Live Command Center)
-                    VStack(alignment: .leading, spacing: 12) {
+                    // 1. 浑然一体的 Apple Fitness Studio 全场监测与能耗枢纽卡片
+                    VStack(spacing: 14) {
                         HStack {
-                            Image(systemName: "bolt.heart.fill")
-                                .font(.system(size: 13, weight: .bold))
-                                .foregroundColor(.orange)
-                            Text("本场训练动态能耗总览")
-                                .font(.system(size: 12, weight: .heavy))
-                                .foregroundColor(AppColors.secondaryText)
-                                .tracking(0.8)
+                            HStack(spacing: 6) {
+                                Image(systemName: "applewatch.side.right")
+                                    .font(.system(size: 13, weight: .bold))
+                                    .foregroundColor(AppColors.accentBlue)
+                                Text("全场遥测与表端协同")
+                                    .font(.system(size: 12, weight: .heavy))
+                                    .foregroundColor(AppColors.secondaryText)
+                            }
                             Spacer()
-                            Text(session.workoutTitle)
-                                .font(.system(size: 12, weight: .bold))
-                                .foregroundColor(AppColors.accentBlue)
+                            HStack(spacing: 5) {
+                                Circle()
+                                    .fill(session.watchTelemetry.isWatchConnected ? Color.green : Color.orange)
+                                    .frame(width: 6, height: 6)
+                                Text(session.watchTelemetry.isWatchConnected ? "Watch 已联动" : "表端待联动")
+                                    .font(.system(size: 11, weight: .bold))
+                                    .foregroundColor(session.watchTelemetry.isWatchConnected ? .green : .orange)
+                            }
+                            .padding(.horizontal, 9)
+                            .padding(.vertical, 4)
+                            .background(Color.white.opacity(0.12))
+                            .clipShape(Capsule())
                         }
                         
                         HStack(spacing: 0) {
-                            // 当前进度
+                            // 完成组数
                             VStack(spacing: 4) {
                                 Text("\(session.currentSet)/\(session.totalSets)")
                                     .font(.system(size: 20, weight: .heavy, design: .rounded))
@@ -462,7 +453,7 @@ public struct ActiveTrainingSessionContainerView: View {
                             
                             Divider().frame(height: 28)
                             
-                            // 心率极值
+                            // 实时心率
                             VStack(spacing: 4) {
                                 Text(session.currentHeartRate > 0 ? "\(session.currentHeartRate)" : "--")
                                     .font(.system(size: 20, weight: .heavy, design: .rounded))
@@ -475,7 +466,7 @@ public struct ActiveTrainingSessionContainerView: View {
                             
                             Divider().frame(height: 28)
                             
-                            // 动态消耗
+                            // 活跃能耗
                             VStack(spacing: 4) {
                                 Text("\(session.currentCalories)")
                                     .font(.system(size: 20, weight: .heavy, design: .rounded))
@@ -486,29 +477,28 @@ public struct ActiveTrainingSessionContainerView: View {
                             }
                             .frame(maxWidth: .infinity)
                         }
+                        
+                        // 底部微光感知状态带（精炼融合，省去大面积冗余灰框）
+                        HStack(spacing: 8) {
+                            Image(systemName: "gyroscope")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(AppColors.accentBlue)
+                            Text("动作检测与峰值振幅同步 · AI 计数实时护航")
+                                .font(.system(size: 11, weight: .medium))
+                                .foregroundColor(AppColors.secondaryText)
+                            Spacer()
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 7)
+                        .background(Color.black.opacity(0.12))
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     }
                     .padding(14)
                     .background(AppColors.pillBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                     .padding(.top, 14)
                     
-                    // 2. Apple Watch 传感器遥测专区
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack {
-                            Image(systemName: "applewatch")
-                                .font(.system(size: 13, weight: .bold))
-                                .foregroundColor(AppColors.accentBlue)
-                            Text("APPLE WATCH 实时感应")
-                                .font(.system(size: 12, weight: .heavy))
-                                .foregroundColor(AppColors.secondaryText)
-                                .tracking(0.8)
-                            Spacer()
-                        }
-                        
-                        WatchSensorTelemetryCardView(telemetry: session.watchTelemetry)
-                    }
-                    
-                    // 3. 今日全场训练动作序列与进度追踪
+                    // 2. 今日全场训练动作序列与进度追踪
                     VStack(alignment: .leading, spacing: 14) {
                         HStack {
                             Text("全场训练序列")
@@ -520,7 +510,7 @@ public struct ActiveTrainingSessionContainerView: View {
                                 .foregroundColor(AppColors.secondaryText)
                         }
                         
-                        // 苹果原生阶梯序列卡片列表（直观区分已完成/正在进行/待开始）
+                        // 苹果原生阶梯序列卡片列表（支持二次确认防误删/切断）
                         VStack(spacing: 8) {
                             ForEach(Array(currentRoutineExercises.enumerated()), id: \.offset) { index, item in
                                 let isCurrent = index + 1 == session.currentExerciseIndex
@@ -529,8 +519,13 @@ public struct ActiveTrainingSessionContainerView: View {
                                 Button(action: {
                                     let impact = UIImpactFeedbackGenerator(style: .light)
                                     impact.impactOccurred()
-                                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                        showingExerciseListModal = true
+                                    if index + 1 == session.currentExerciseIndex {
+                                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                            showingExerciseListModal = true
+                                        }
+                                    } else {
+                                        targetSwitchExerciseIndex = index + 1
+                                        showingSwitchConfirmAlert = true
                                     }
                                 }) {
                                     HStack(spacing: 14) {
@@ -572,10 +567,16 @@ public struct ActiveTrainingSessionContainerView: View {
                                         Spacer()
                                         
                                         VStack(alignment: .trailing, spacing: 2) {
-                                            Text("\(Int(item.targetWeightKg)) kg")
-                                                .font(.system(size: 15, weight: .heavy, design: .rounded))
-                                                .foregroundColor(AppColors.primaryText)
-                                            Text(isCompleted ? "已完成" : (isCurrent ? "训练中" : "待训练"))
+                                            if item.targetWeightKg <= 0 {
+                                                Text("自重")
+                                                    .font(.system(size: 15, weight: .heavy, design: .rounded))
+                                                    .foregroundColor(AppColors.accentBlue)
+                                            } else {
+                                                Text("\(Int(item.targetWeightKg)) kg")
+                                                    .font(.system(size: 15, weight: .heavy, design: .rounded))
+                                                    .foregroundColor(AppColors.primaryText)
+                                            }
+                                            Text(isCompleted ? "已完成" : (isCurrent ? "训练中" : "点击切换"))
                                                 .font(.system(size: 11, weight: .semibold))
                                                 .foregroundColor(isCompleted ? .green : (isCurrent ? .green : AppColors.secondaryText))
                                         }
