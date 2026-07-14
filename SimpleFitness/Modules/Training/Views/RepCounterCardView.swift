@@ -61,7 +61,7 @@ public struct RepCounterCardView: View {
                             .foregroundColor(isAutoMode ? .orange : AppColors.primaryText)
                             .transition(.scale.combined(with: .opacity))
                             .id("icon_\(isAutoMode)")
-                        Text(isAutoMode ? "自动流转开" : "手动流转")
+                        Text(isAutoMode ? "自动开" : "手动")
                             .foregroundColor(isAutoMode ? .orange : AppColors.primaryText)
                             .transition(.opacity)
                             .id("text_\(isAutoMode)")

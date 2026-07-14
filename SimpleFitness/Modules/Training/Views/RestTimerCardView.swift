@@ -150,7 +150,7 @@ public struct RestTimerCardView: View {
                         HStack(spacing: 8) {
                             Image(systemName: timerModel.isRunning ? "pause.fill" : "play.fill")
                                 .font(.system(size: 15, weight: .black))
-                            Text(timerModel.isRunning ? "暂停倒计时" : "开始 / 继续计时")
+                            Text(timerModel.isRunning ? "暂停倒计时" : (timerModel.isPaused ? "继续倒计时" : "开始倒计时"))
                                 .font(.system(size: 16, weight: .heavy))
                         }
                         .foregroundColor(timerModel.isRunning ? .orange : .white)

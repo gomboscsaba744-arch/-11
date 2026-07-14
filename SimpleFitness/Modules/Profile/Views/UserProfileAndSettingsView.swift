@@ -204,10 +204,10 @@ public struct UserProfileAndSettingsView: View {
             
             Toggle(isOn: $isAutoFlowModeEnabled) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("组间无缝自动流转 (智能连携)")
+                    Text("自动进入组间休息")
                         .font(.subheadline.weight(.bold))
                         .foregroundColor(AppColors.primaryText)
-                    Text("计次达标后立刻触发缓冲，超时未按关掉自动进入休息倒计时。")
+                    Text("组数完成时自动倒计时缓冲并进入组间休息。")
                         .font(.caption2)
                         .foregroundColor(AppColors.secondaryText)
                 }
