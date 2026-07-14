@@ -246,39 +246,44 @@ public struct ActiveTrainingSessionContainerView: View {
             )
             .padding(.bottom, 12)
             
-            // 锁屏防误触按键 与 长按结束运动按键（仅限在第一页底部呈现）
-            HStack(spacing: 12) {
-                Button(action: {
-                    let impact = UIImpactFeedbackGenerator(style: .medium)
-                    impact.impactOccurred()
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                        isScreenLocked = true
+            // 锁屏防误触按键 与 长按结束运动按键（上锁后自动隐藏，换为长按解锁条，避免重叠）
+            if !isScreenLocked {
+                HStack(spacing: 12) {
+                    Button(action: {
+                        let impact = UIImpactFeedbackGenerator(style: .medium)
+                        impact.impactOccurred()
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                            isScreenLocked = true
+                        }
+                    }) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 25, style: .continuous)
+                                .fill(Color(white: 0.15))
+                            Image(systemName: "lock.fill")
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(.white)
+                        }
+                        .frame(width: 50, height: 50)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 25, style: .continuous)
+                                .strokeBorder(Color.white.opacity(0.16), lineWidth: 1)
+                        )
                     }
-                }) {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 25, style: .continuous)
-                            .fill(Color(white: 0.15))
-                        Image(systemName: "lock.fill")
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundColor(.white)
-                    }
-                    .frame(width: 50, height: 50)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 25, style: .continuous)
-                            .strokeBorder(Color.white.opacity(0.16), lineWidth: 1)
-                    )
+                    .buttonStyle(.plain)
+                    
+                    bottomHoldToEndBar()
                 }
-                .buttonStyle(.plain)
-                
-                bottomHoldToEndBar()
+                .padding(.bottom, 14)
+                .transition(.opacity.combined(with: .move(edge: .bottom)))
+            } else {
+                Color.clear.frame(height: 64)
             }
-            .padding(.bottom, 14)
         }
         .padding(.horizontal, 20)
         .animation(.spring(response: 0.38, dampingFraction: 0.82), value: restTimer.isRunning || restTimer.isPaused)
     }
     
-    // MARK: - Page 1: 计时与休息管理页 (高端苹果审美 Studio 级视觉架构，绝不改动原组件内部逻辑)
+    // MARK: - Page 1: 计时与休息管理页 (遵循苹果 Health/Fitness 原生精美卡片审美，彻底删除重复标题栏与黑块)
     @ViewBuilder
     private func pageOneRestTimer() -> some View {
         VStack(spacing: 0) {
@@ -299,124 +304,83 @@ public struct ActiveTrainingSessionContainerView: View {
             )
             .padding(.top, 6)
             
-            Spacer(minLength: 12)
+            Spacer(minLength: 16)
             
-            // Studio 级极简黑金焦点导览舱
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 6) {
-                        Circle()
-                            .fill(AppColors.accentBlue)
-                            .frame(width: 6, height: 6)
-                        Text("REST & CADENCE")
-                            .font(.system(size: 11, weight: .heavy, design: .rounded))
-                            .foregroundColor(AppColors.accentBlue)
-                            .tracking(1.2)
-                    }
-                    Text(session.exerciseName)
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(AppColors.primaryText)
-                        .lineLimit(1)
-                }
-                
-                Spacer()
-                
-                HStack(spacing: 6) {
-                    Image(systemName: "flame.fill")
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(.orange)
-                    Text("第 \(session.currentSet)/\(session.totalSets) 组")
-                        .font(.system(size: 12, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(Color.white.opacity(0.08))
-                .clipShape(Capsule())
-                .overlay(Capsule().strokeBorder(Color.white.opacity(0.12), lineWidth: 0.8))
-            }
-            .padding(.horizontal, 18)
-            .padding(.vertical, 14)
-            .background(
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .fill(Color(white: 0.09))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            .strokeBorder(Color.white.opacity(0.1), lineWidth: 0.8)
-                    )
-            )
-            
-            Spacer(minLength: 14)
-            
-            // 核心休息与计次圆盘（原先设计的组件保持百分百完整不可变）
+            // 核心休息与计次表盘卡片（原设计的组件保持百分百完整不可变）
             RestTimerCardView(timerModel: $restTimer)
             
-            Spacer(minLength: 14)
+            Spacer(minLength: 16)
             
-            // Apple Fitness+ 风格双列指标数据看板
-            HStack(spacing: 12) {
-                // 左数据块：建议负荷
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack {
-                        Text("下组负荷")
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundColor(AppColors.secondaryText)
-                        Spacer()
+            // 纯粹苹果审美卡片：建议负荷 & 推荐次数（亮色悬浮卡片，柔和阴影，细致分割线）
+            HStack(spacing: 0) {
+                // 左半区：建议负荷
+                HStack(spacing: 12) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.orange.opacity(0.12))
+                            .frame(width: 40, height: 40)
                         Image(systemName: "scalemass.fill")
-                            .font(.system(size: 11))
+                            .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(.orange)
                     }
-                    HStack(alignment: .firstTextBaseline, spacing: 3) {
-                        Text("\(Int(session.targetWeightKg))")
-                            .font(.system(size: 24, weight: .heavy, design: .rounded))
-                            .foregroundColor(.white)
-                        Text("KG")
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundColor(.orange)
-                    }
-                }
-                .padding(14)
-                .background(
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .fill(Color(white: 0.09))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                                .strokeBorder(Color.white.opacity(0.09), lineWidth: 0.8)
-                        )
-                )
-                
-                // 右数据块：建议目标次数
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack {
-                        Text("推荐目标")
-                            .font(.system(size: 11, weight: .bold))
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("下组建议负荷")
+                            .font(.system(size: 12, weight: .medium))
                             .foregroundColor(AppColors.secondaryText)
-                        Spacer()
-                        Image(systemName: "repeat.circle.fill")
-                            .font(.system(size: 11))
-                            .foregroundColor(AppColors.accentBlue)
+                        HStack(alignment: .firstTextBaseline, spacing: 2) {
+                            Text("\(Int(session.targetWeightKg))")
+                                .font(.system(size: 22, weight: .bold, design: .rounded))
+                                .foregroundColor(AppColors.primaryText)
+                            Text("kg")
+                                .font(.system(size: 13, weight: .bold, design: .rounded))
+                                .foregroundColor(AppColors.secondaryText)
+                        }
                     }
-                    HStack(alignment: .firstTextBaseline, spacing: 3) {
-                        Text("\(session.currentReps)")
-                            .font(.system(size: 24, weight: .heavy, design: .rounded))
-                            .foregroundColor(.white)
-                        Text("REPS")
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundColor(AppColors.accentBlue)
-                    }
+                    Spacer()
                 }
-                .padding(14)
-                .background(
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .fill(Color(white: 0.09))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                                .strokeBorder(Color.white.opacity(0.09), lineWidth: 0.8)
-                        )
-                )
+                
+                Divider()
+                    .frame(height: 38)
+                    .padding(.horizontal, 12)
+                
+                // 右半区：建议次数
+                HStack(spacing: 12) {
+                    ZStack {
+                        Circle()
+                            .fill(AppColors.accentBlue.opacity(0.12))
+                            .frame(width: 40, height: 40)
+                        Image(systemName: "flame.fill")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(AppColors.accentBlue)
+                    }
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("推荐目标次数")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(AppColors.secondaryText)
+                        HStack(alignment: .firstTextBaseline, spacing: 2) {
+                            Text("\(session.currentReps)")
+                                .font(.system(size: 22, weight: .bold, design: .rounded))
+                                .foregroundColor(AppColors.primaryText)
+                            Text("次")
+                                .font(.system(size: 13, weight: .bold, design: .rounded))
+                                .foregroundColor(AppColors.secondaryText)
+                        }
+                    }
+                    Spacer()
+                }
             }
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .fill(Color.white)
+                    .shadow(color: Color.black.opacity(0.06), radius: 10, x: 0, y: 4)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .strokeBorder(Color.black.opacity(0.04), lineWidth: 1)
+            )
             
-            Spacer(minLength: 14)
+            Spacer(minLength: 16)
             
             TrainingActionButtonsView(
                 currentSet: session.currentSet,
@@ -559,7 +523,7 @@ public struct ActiveTrainingSessionContainerView: View {
         }
     }
     
-    // MARK: - 锁屏全透明防护层与长按解锁条 (完全透明不遮挡训练内容，仅拦截触控以防误触)
+    // MARK: - 锁屏全透明防护层与长按解锁条 (完全透明不遮挡训练内容，底部无缝置换正常按键条)
     @ViewBuilder
     private func screenLockOverlay() -> some View {
         ZStack {
@@ -573,34 +537,11 @@ public struct ActiveTrainingSessionContainerView: View {
                 }
             
             VStack(spacing: 0) {
-                // 顶部胶囊指示标签：精炼单行，绝不遮挡或挤压
-                HStack(spacing: 6) {
-                    Image(systemName: "lock.fill")
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(.orange)
-                    Text("屏幕已锁定 · 防误触保护中")
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundColor(.white)
-                        .lineLimit(1)
-                }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 6)
-                .background(
-                    Capsule()
-                        .fill(Color(white: 0.12).opacity(0.92))
-                        .shadow(color: Color.black.opacity(0.35), radius: 8, x: 0, y: 3)
-                )
-                .overlay(
-                    Capsule()
-                        .strokeBorder(Color.orange.opacity(0.4), lineWidth: 1)
-                )
-                .padding(.top, 8)
-                
                 Spacer()
                 
-                // 底部单行高级质感解锁条（单行自适应，长按 1 秒解锁）
+                // 底部单行高级质感解锁条（精准替换原底部栏位置，无叠加、无重影）
                 ZStack(alignment: .leading) {
-                    Color(white: 0.13)
+                    Color(white: 0.14)
                     
                     GeometryReader { geo in
                         Rectangle()
@@ -612,16 +553,16 @@ public struct ActiveTrainingSessionContainerView: View {
                         ZStack {
                             Circle()
                                 .fill(Color.white.opacity(0.18))
-                                .frame(width: 32, height: 32)
+                                .frame(width: 34, height: 34)
                             Image(systemName: "lock.open.fill")
-                                .font(.system(size: 13, weight: .bold))
+                                .font(.system(size: 14, weight: .bold))
                                 .foregroundColor(.white)
                         }
                         .padding(.leading, 8)
                         
                         Spacer(minLength: 4)
                         
-                        Text(isHoldingUnlock ? "正在解锁..." : "长按 1 秒解锁")
+                        Text(isHoldingUnlock ? "正在解锁..." : "长按 1 秒解锁屏幕")
                             .font(.system(size: 15, weight: .bold))
                             .foregroundColor(.white)
                             .lineLimit(1)
@@ -629,18 +570,18 @@ public struct ActiveTrainingSessionContainerView: View {
                         
                         Spacer(minLength: 4)
                         
-                        Color.clear.frame(width: 40, height: 32)
+                        Color.clear.frame(width: 42, height: 34)
                     }
                 }
-                .frame(height: 48)
-                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                .frame(height: 50)
+                .clipShape(RoundedRectangle(cornerRadius: 25, style: .continuous))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .strokeBorder(Color.orange.opacity(0.5), lineWidth: 1.5)
+                    RoundedRectangle(cornerRadius: 25, style: .continuous)
+                        .strokeBorder(Color.orange.opacity(0.55), lineWidth: 1.5)
                 )
-                .shadow(color: Color.black.opacity(0.35), radius: 10, x: 0, y: 4)
-                .padding(.horizontal, 28)
-                .padding(.bottom, 24)
+                .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 4)
+                .padding(.horizontal, 20)
+                .padding(.bottom, 14)
                 .scaleEffect(isHoldingUnlock ? 0.98 : 1.0)
                 .animation(.easeInOut(duration: 0.2), value: isHoldingUnlock)
                 .gesture(
