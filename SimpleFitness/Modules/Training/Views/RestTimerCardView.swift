@@ -14,8 +14,8 @@ public struct RestTimerCardView: View {
             centerWatchDialSection
             standardQuickActionButtons
         }
-        .padding(20)
-        .standardCardStyle()
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
         .onReceive(Timer.publish(every: 0.03, on: .main, in: .common).autoconnect()) { _ in
             timerModel.tick()
         }

@@ -105,7 +105,7 @@ public struct WatchSensorTelemetryCardView: View {
                 .cornerRadius(12)
             }
         }
-        .padding(16)
-        .standardCardStyle()
+        .padding(.horizontal, 4)
+        .padding(.vertical, 8)
     }
 }

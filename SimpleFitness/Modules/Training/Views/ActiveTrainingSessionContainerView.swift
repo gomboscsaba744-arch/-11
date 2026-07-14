@@ -310,21 +310,21 @@ public struct ActiveTrainingSessionContainerView: View {
             
             Spacer(minLength: 16)
             
-            // 核心休息与计次表盘卡片（原设计的组件保持百分百完整不可变）
+            // 核心休息与计次表盘（去框浑然一体设计，呼吸感通透）
             RestTimerCardView(timerModel: $restTimer)
             
-            Spacer(minLength: 16)
+            Spacer(minLength: 12)
             
-            // 纯粹苹果审美卡片：建议负荷 & 推荐次数（亮色悬浮卡片，柔和阴影，细致分割线）
+            // 纯粹无界沉浸设计：建议负荷 & 推荐次数（无白底方框、无阴影割裂，与画布浑然天成）
             HStack(spacing: 0) {
                 // 左半区：建议负荷
                 HStack(spacing: 12) {
                     ZStack {
                         Circle()
                             .fill(Color.orange.opacity(0.12))
-                            .frame(width: 40, height: 40)
+                            .frame(width: 36, height: 36)
                         Image(systemName: "scalemass.fill")
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.system(size: 15, weight: .semibold))
                             .foregroundColor(.orange)
                     }
                     VStack(alignment: .leading, spacing: 2) {
@@ -344,17 +344,17 @@ public struct ActiveTrainingSessionContainerView: View {
                 }
                 
                 Divider()
-                    .frame(height: 38)
-                    .padding(.horizontal, 12)
+                    .frame(height: 32)
+                    .padding(.horizontal, 16)
                 
                 // 右半区：建议次数
                 HStack(spacing: 12) {
                     ZStack {
                         Circle()
                             .fill(AppColors.accentBlue.opacity(0.12))
-                            .frame(width: 40, height: 40)
+                            .frame(width: 36, height: 36)
                         Image(systemName: "flame.fill")
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.system(size: 15, weight: .semibold))
                             .foregroundColor(AppColors.accentBlue)
                     }
                     VStack(alignment: .leading, spacing: 2) {
@@ -373,18 +373,10 @@ public struct ActiveTrainingSessionContainerView: View {
                     Spacer()
                 }
             }
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .fill(Color.white)
-                    .shadow(color: Color.black.opacity(0.06), radius: 10, x: 0, y: 4)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .strokeBorder(Color.black.opacity(0.04), lineWidth: 1)
-            )
+            .padding(.horizontal, 8)
+            .padding(.vertical, 8)
             
-            Spacer(minLength: 16)
+            Spacer(minLength: 12)
             
             TrainingActionButtonsView(
                 currentSet: session.currentSet,
@@ -433,7 +425,7 @@ public struct ActiveTrainingSessionContainerView: View {
         .padding(.horizontal, 20)
     }
     
-    // MARK: - Page 2: 手表传感器数据监测与全场计划页 (苹果高级卡片排版)
+    // MARK: - Page 2: 手表传感器数据监测与全场计划页 (苹果高级无框排版·浑然一体)
     @ViewBuilder
     private func pageTwoTelemetryAndSchedule() -> some View {
         VStack(spacing: 0) {
@@ -453,36 +445,41 @@ public struct ActiveTrainingSessionContainerView: View {
                                 .foregroundColor(AppColors.secondaryText)
                         }
                         
-                        VStack(spacing: 10) {
+                        // 苹果原生连续列表形式（抛弃大白方框割裂感，轻盈极简分隔）
+                        VStack(spacing: 0) {
                             ForEach(Array(currentRoutineExercises.enumerated()), id: \.offset) { index, item in
-                                HStack(spacing: 14) {
-                                    Circle()
-                                        .fill(index + 1 == session.currentExerciseIndex ? Color.green : Color.black.opacity(0.06))
-                                        .frame(width: 32, height: 32)
-                                        .overlay(
-                                            Text("\(index + 1)")
-                                                .font(.system(size: 13, weight: .bold))
-                                                .foregroundColor(index + 1 == session.currentExerciseIndex ? .white : AppColors.primaryText)
-                                        )
-                                    
-                                    VStack(alignment: .leading, spacing: 3) {
-                                        Text(item.name)
-                                            .font(.system(size: 15, weight: .bold))
+                                VStack(spacing: 0) {
+                                    HStack(spacing: 14) {
+                                        Circle()
+                                            .fill(index + 1 == session.currentExerciseIndex ? Color.green : Color.black.opacity(0.06))
+                                            .frame(width: 32, height: 32)
+                                            .overlay(
+                                                Text("\(index + 1)")
+                                                    .font(.system(size: 13, weight: .bold))
+                                                    .foregroundColor(index + 1 == session.currentExerciseIndex ? .white : AppColors.primaryText)
+                                            )
+                                        
+                                        VStack(alignment: .leading, spacing: 3) {
+                                            Text(item.name)
+                                                .font(.system(size: 15, weight: .bold))
+                                                .foregroundColor(AppColors.primaryText)
+                                            Text("\(item.sets) 组 · 约 \(item.reps) 次")
+                                                .font(.system(size: 12, weight: .medium))
+                                                .foregroundColor(AppColors.secondaryText)
+                                        }
+                                        Spacer()
+                                        Text("\(Int(item.targetWeightKg)) kg")
+                                            .font(.system(size: 15, weight: .heavy, design: .rounded))
                                             .foregroundColor(AppColors.primaryText)
-                                        Text("\(item.sets) 组 · 约 \(item.reps) 次")
-                                            .font(.system(size: 12, weight: .medium))
-                                            .foregroundColor(AppColors.secondaryText)
                                     }
-                                    Spacer()
-                                    Text("\(Int(item.targetWeightKg)) kg")
-                                        .font(.system(size: 14, weight: .heavy))
-                                        .foregroundColor(AppColors.primaryText)
+                                    .padding(.vertical, 12)
+                                    .padding(.horizontal, 4)
+                                    
+                                    if index < currentRoutineExercises.count - 1 {
+                                        Divider()
+                                            .padding(.leading, 46)
+                                    }
                                 }
-                                .padding(14)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                        .fill(Color.white.opacity(0.75))
-                                )
                             }
                         }
                     }
