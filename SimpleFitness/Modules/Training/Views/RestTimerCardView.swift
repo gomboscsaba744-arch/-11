@@ -20,9 +20,14 @@ public struct RestTimerCardView: View {
         }
     }
     
-    // MARK: - 首页圆形表盘 (236x236 极致沉浸悬浮表盘)
+    // MARK: - 首页圆形表盘 (260x260 极致沉浸悬浮光环表盘)
     private var centerWatchDialSection: some View {
         ZStack {
+            // 氛围感光晕底背
+            Circle()
+                .fill(lapGradient(for: timerModel.currentLap).opacity(0.08))
+                .blur(radius: 24)
+            
             Circle()
                 .stroke(Color.secondary.opacity(0.12), lineWidth: 16)
             
@@ -37,7 +42,7 @@ public struct RestTimerCardView: View {
             
             VStack(spacing: 6) {
                 Text(timerModel.formattedTimeString)
-                    .font(.system(size: 52, weight: .black, design: .rounded))
+                    .font(.system(size: 58, weight: .black, design: .rounded))
                     .monospacedDigit()
                     .foregroundColor(AppColors.primaryText)
                     .contentTransition(.numericText(value: timerModel.remainingTime))
@@ -48,8 +53,8 @@ public struct RestTimerCardView: View {
                     .foregroundColor(AppColors.secondaryText)
             }
         }
-        .frame(width: 236, height: 236)
-        .padding(.vertical, 6)
+        .frame(width: 260, height: 260)
+        .padding(.vertical, 8)
         .contentShape(Circle())
         .onLongPressGesture(minimumDuration: 0.3) {
             let impact = UIImpactFeedbackGenerator(style: .medium)
