@@ -22,46 +22,47 @@ public struct TrainingHeaderView: View {
     }
     
     public var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            // 1. 全局训练路径进度栏 (可点击左侧切换训练日，可点击右侧弹窗浏览全部动作)
-            HStack(alignment: .center, spacing: 6) {
+        VStack(alignment: .leading, spacing: 12) {
+            // 1. 顶层导航栏：所属训练日切换 + 动作进度点阵
+            HStack(alignment: .center, spacing: 8) {
                 Button(action: onSelectRoutine) {
-                    HStack(alignment: .center, spacing: 5) {
+                    HStack(alignment: .center, spacing: 4) {
                         Image(systemName: "figure.strengthtraining.traditional")
-                            .font(.body.weight(.bold))
+                            .font(.subheadline.weight(.bold))
                             .foregroundColor(AppColors.accentBlue)
                         
                         Text(session.workoutTitle)
-                            .font(.system(size: 21, weight: .heavy))
+                            .font(.system(size: 17, weight: .bold))
                             .foregroundColor(AppColors.primaryText)
                             .lineLimit(1)
-                            .minimumScaleFactor(0.65)
+                            .minimumScaleFactor(0.7)
                         
-                        Image(systemName: "chevron.down.circle.fill")
-                            .font(.subheadline)
+                        Image(systemName: "chevron.down")
+                            .font(.caption2.weight(.bold))
                             .foregroundColor(AppColors.accentBlue)
                     }
                 }
                 .buttonStyle(.plain)
-                .layoutPriority(2)
+                .layoutPriority(1)
                 
-                Spacer(minLength: 6)
+                Spacer(minLength: 4)
                 
-                // 当前动作进度指示条 (绝对禁止折行被挤压，强制保持横向精致单行胶囊)
+                // 动作点阵导航 (绝对单行防止 1/4 换行压缩)
                 Button(action: onTapExerciseListModal) {
-                    HStack(spacing: 6) {
+                    HStack(spacing: 5) {
                         Text("动作 \(session.currentExerciseIndex)/\(session.totalExercises)")
-                            .font(.footnote.weight(.bold))
+                            .font(.caption.weight(.bold))
                             .foregroundColor(AppColors.accentBlue)
                             .lineLimit(1)
+                            .fixedSize(horizontal: true, vertical: false)
                         
                         ExerciseProgressDotsView(
                             current: session.currentExerciseIndex,
                             total: session.totalExercises
                         )
                     }
-                    .padding(.horizontal, 11)
-                    .padding(.vertical, 6)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
                     .background(AppColors.pillBackground)
                     .clipShape(Capsule())
                 }
@@ -70,83 +71,100 @@ public struct TrainingHeaderView: View {
                 .layoutPriority(10)
             }
             
-            // 2. 当前阶段状态横幅 (可点击右侧第X/Y组展开组数明细浮层)
-            HStack(spacing: 8) {
-                HStack(spacing: 6) {
-                    Circle()
-                        .fill(isRestPhase ? Color.orange : Color.green)
-                        .frame(width: 8, height: 8)
-                    Text(isRestPhase ? "组间休息" : "训练进行中")
-                        .font(.caption)
-                        .fontWeight(.bold)
-                        .foregroundColor(isRestPhase ? .orange : .green)
-                }
-                Spacer()
+            // 2. 动作主标题 + 右侧当前组数入口
+            HStack(alignment: .center) {
+                Text(session.exerciseName)
+                    .font(.system(size: 28, weight: .black, design: .rounded))
+                    .foregroundColor(AppColors.primaryText)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
                 
-                Button(action: onTapSetListModal) {
+                if isRestPhase {
                     HStack(spacing: 4) {
-                        Text("第 \(session.currentSet)/\(session.totalSets) 组")
-                            .font(.footnote)
-                            .fontWeight(.black)
-                        Image(systemName: "chevron.right")
+                        Circle()
+                            .fill(Color.orange)
+                            .frame(width: 6, height: 6)
+                        Text("休息中")
                             .font(.caption2.weight(.bold))
+                            .foregroundColor(.orange)
                     }
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 5)
-                    .background((isRestPhase ? Color.orange : Color.green).opacity(0.12))
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 3)
+                    .background(Color.orange.opacity(0.12))
+                    .clipShape(Capsule())
+                }
+                
+                Spacer(minLength: 8)
+                
+                // 组数明细导航
+                Button(action: onTapSetListModal) {
+                    HStack(spacing: 3) {
+                        Text("第 \(session.currentSet)/\(session.totalSets) 组")
+                            .font(.caption.weight(.heavy))
+                            .lineLimit(1)
+                            .fixedSize(horizontal: true, vertical: false)
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 9, weight: .bold))
+                    }
+                    .padding(.horizontal, 11)
+                    .padding(.vertical, 6)
+                    .background((isRestPhase ? Color.orange : Color.green).opacity(0.14))
                     .foregroundColor(isRestPhase ? .orange : .green)
                     .clipShape(Capsule())
                 }
+                .buttonStyle(.plain)
+                .fixedSize(horizontal: true, vertical: false)
+                .layoutPriority(10)
             }
-            
-            // 3. 动作主体与体征信息
-            HStack(alignment: .bottom) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(session.exerciseName)
-                        .font(.system(size: 26, weight: .black, design: .rounded))
-                        .foregroundColor(AppColors.primaryText)
+                
+                // 体征与目标负重集成指标带 (精炼水平对齐)
+                HStack(spacing: 10) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "scalemass.fill")
+                            .font(.caption2)
+                            .foregroundColor(AppColors.secondaryText)
+                        Text(String(format: "目标 %.1f kg", session.targetWeightKg))
+                            .font(.caption.weight(.bold))
+                            .foregroundColor(AppColors.primaryText)
+                    }
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 5)
+                    .background(AppColors.pillBackground)
+                    .clipShape(Capsule())
                     
-                    Text(String(format: "目标负重 %.1f kg", session.targetWeightKg))
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(AppColors.secondaryText)
-                }
-                
-                Spacer()
-                
-                HStack(spacing: 8) {
-                    HStack(spacing: 3) {
+                    HStack(spacing: 4) {
                         Image(systemName: "heart.fill")
                             .foregroundColor(.red)
-                            .font(.caption)
-                        Text(session.currentHeartRate > 0 ? "\(session.currentHeartRate)" : "--")
-                            .font(.subheadline)
-                            .fontWeight(.bold)
+                            .font(.caption2)
+                        Text(session.currentHeartRate > 0 ? "\(session.currentHeartRate) bpm" : "--")
+                            .font(.caption.weight(.bold))
                             .monospacedDigit()
                     }
                     .padding(.horizontal, 9)
-                    .padding(.vertical, 6)
+                    .padding(.vertical, 5)
                     .background(AppColors.pillBackground)
                     .clipShape(Capsule())
                     
-                    HStack(spacing: 3) {
+                    HStack(spacing: 4) {
                         Image(systemName: "flame.fill")
                             .foregroundColor(.orange)
-                            .font(.caption)
-                        Text("\(session.currentCalories)")
-                            .font(.subheadline)
-                            .fontWeight(.bold)
+                            .font(.caption2)
+                        Text("\(session.currentCalories) kcal")
+                            .font(.caption.weight(.bold))
                             .monospacedDigit()
+                            .contentTransition(.numericText(value: Double(session.currentCalories)))
+                            .animation(.spring(response: 0.28, dampingFraction: 0.82), value: session.currentCalories)
                     }
                     .padding(.horizontal, 9)
-                    .padding(.vertical, 6)
+                    .padding(.vertical, 5)
                     .background(AppColors.pillBackground)
                     .clipShape(Capsule())
+                    
+                    Spacer()
                 }
             }
-        }
-        .padding(16)
-        .standardCardStyle()
+        .padding(.horizontal, 4)
+        .padding(.vertical, 4)
     }
 }
 

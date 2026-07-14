@@ -38,6 +38,7 @@
 		110000362E1E0036 /* ExerciseConfigModalSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000362E1E0036 /* ExerciseConfigModalSheetView.swift */; };
 		110000372E1E0037 /* TrainingGlassModalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000372E1E0037 /* TrainingGlassModalsView.swift */; };
 		110000402E1E0040 /* WatchConnectivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000402E1E0040 /* WatchConnectivityService.swift */; };
+		110000412E1E0041 /* MotionSensorLogManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000412E1E0041 /* MotionSensorLogManager.swift */; };
 		110000602E1E0060 /* UserProfileAndSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000602E1E0060 /* UserProfileAndSettingsView.swift */; };
 		110000802E1E0080 /* WatchTrainingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000702E1E0070 /* WatchTrainingView.swift */; };
 		110000812E1E0081 /* WatchWorkoutManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000712E1E0071 /* WatchWorkoutManager.swift */; };
@@ -108,6 +109,7 @@
 		100000362E1E0036 /* ExerciseConfigModalSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseConfigModalSheetView.swift; sourceTree = "<group>"; };
 		100000372E1E0037 /* TrainingGlassModalsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingGlassModalsView.swift; sourceTree = "<group>"; };
 		100000402E1E0040 /* WatchConnectivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchConnectivityService.swift; sourceTree = "<group>"; };
+		100000412E1E0041 /* MotionSensorLogManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotionSensorLogManager.swift; sourceTree = "<group>"; };
 		100000602E1E0060 /* UserProfileAndSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileAndSettingsView.swift; sourceTree = "<group>"; };
 		100000702E1E0070 /* WatchTrainingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchTrainingView.swift; sourceTree = "<group>"; };
 		100000712E1E0071 /* WatchWorkoutManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchWorkoutManager.swift; sourceTree = "<group>"; };
@@ -297,6 +299,7 @@
 			isa = PBXGroup;
 			children = (
 				100000402E1E0040 /* WatchConnectivityService.swift */,
+				100000412E1E0041 /* MotionSensorLogManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -409,6 +412,7 @@
 				110000042E1E0004 /* AppStyles.swift in Sources */,
 				110000052E1E0005 /* TrainingMockData.swift in Sources */,
 				110000402E1E0040 /* WatchConnectivityService.swift in Sources */,
+				110000412E1E0041 /* MotionSensorLogManager.swift in Sources */,
 				110000062E1E0006 /* TrainingView.swift in Sources */,
 				110000912E1E0091 /* TrainingHomeDashboardView.swift in Sources */,
 				110000922E1E0092 /* ActiveTrainingSessionContainerView.swift in Sources */,

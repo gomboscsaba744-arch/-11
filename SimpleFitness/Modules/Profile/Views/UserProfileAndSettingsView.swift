@@ -14,6 +14,8 @@ public struct UserProfileAndSettingsView: View {
     
     @State private var showingEditProfileModal: Bool = false
     @State private var showingAccountNotice: Bool = false
+    @StateObject private var motionLogManager = MotionSensorLogManager.shared
+    @State private var shareURLWrapper: ShareSheetURLWrapper? = nil
     
     private let bufferOptions: [Int] = [5, 10, 15, 20, 30]
     
@@ -49,6 +51,9 @@ public struct UserProfileAndSettingsView: View {
                         // 5. Apple Watch 联动与传感器集成
                         watchIntegrationCard
                         
+                        // 5.1 动作陀螺仪与运动学日志下载中心 (独立文件导出)
+                        motionSensorLogsExportCard
+                        
                         // 6. 触觉反馈与系统提示声音
                         hapticsAndSoundCard
                         
@@ -65,6 +70,9 @@ public struct UserProfileAndSettingsView: View {
                 Button("知道了", role: .cancel) { }
             } message: {
                 Text("我们正在开发全端账号通行证与云同步体系。目前您所有设置与训练历史均已通过设备 iCloud 本地安全持久化保存。")
+            }
+            .sheet(item: $shareURLWrapper) { wrapper in
+                ShareSheetModalView(activityItems: [wrapper.url])
             }
         }
     }
@@ -307,6 +315,122 @@ public struct UserProfileAndSettingsView: View {
         .standardCardStyle()
     }
     
+    // MARK: - 动作陀螺仪与加速度传感器独立日志导出卡片
+    private var motionSensorLogsExportCard: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Image(systemName: "gyroscope")
+                    .foregroundColor(AppColors.accentBlue)
+                    .font(.subheadline)
+                Text("动作陀螺仪与运动学日志库")
+                    .font(.headline)
+                    .foregroundColor(AppColors.primaryText)
+                Spacer()
+                Text("\(motionLogManager.logFiles.count) 份动作文件")
+                    .font(.caption.weight(.bold))
+                    .foregroundColor(AppColors.secondaryText)
+            }
+            
+            Text("开始训练后每个动作自动记录并保存专属 3 轴陀螺仪与加速度计数据，生成标准化 CSV 文件可供分析研究。")
+                .font(.caption)
+                .foregroundColor(AppColors.secondaryText)
+            
+            // 操作排：测试数据 / 批量导出 / 清空
+            HStack(spacing: 12) {
+                Button(action: {
+                    let sampleExercises = ["杠铃平板卧推", "引体向上", "罗马尼亚硬拉", "深蹲", "杠铃划船"]
+                    let name = sampleExercises.randomElement() ?? "杠铃平板卧推"
+                    motionLogManager.startRecording(exerciseName: name, setNumber: Int.random(in: 1...4))
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                        motionLogManager.stopRecording()
+                    }
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "plus.circle.fill")
+                        Text("测试生成动作日志")
+                    }
+                    .font(.caption.weight(.bold))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(AppColors.pillBackground)
+                    .foregroundColor(AppColors.accentBlue)
+                    .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                
+                Spacer()
+                
+                if !motionLogManager.logFiles.isEmpty {
+                    Button(action: {
+                        motionLogManager.deleteAllLogs()
+                    }) {
+                        Text("清空全部")
+                            .font(.caption.weight(.semibold))
+                            .foregroundColor(.red.opacity(0.85))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            
+            if motionLogManager.logFiles.isEmpty {
+                VStack(spacing: 8) {
+                    Image(systemName: "doc.text.magnifyingglass")
+                        .font(.title2)
+                        .foregroundColor(AppColors.secondaryText.opacity(0.6))
+                    Text("暂无记录文件。训练开始后会自动为每一个动作建档。")
+                        .font(.caption2)
+                        .foregroundColor(AppColors.secondaryText)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+            } else {
+                VStack(spacing: 10) {
+                    ForEach(motionLogManager.logFiles.prefix(6)) { fileInfo in
+                        HStack(spacing: 10) {
+                            Image(systemName: "doc.text.fill")
+                                .foregroundColor(AppColors.accentBlue)
+                                .font(.subheadline)
+                            
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(fileInfo.fileName)
+                                    .font(.system(size: 13, weight: .bold))
+                                    .foregroundColor(AppColors.primaryText)
+                                    .lineLimit(1)
+                                Text(String(format: "%@ · 约 %.1f KB", fileInfo.exerciseName, fileInfo.fileSizeKB))
+                                    .font(.caption2)
+                                    .foregroundColor(AppColors.secondaryText)
+                            }
+                            
+                            Spacer(minLength: 8)
+                            
+                            // 下载 / 导出按钮
+                            Button(action: {
+                                shareURLWrapper = ShareSheetURLWrapper(url: fileInfo.url)
+                            }) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "arrow.down.doc.fill")
+                                    Text("下载导出")
+                                }
+                                .font(.caption2.weight(.bold))
+                                .padding(.horizontal, 11)
+                                .padding(.vertical, 6)
+                                .background(AppColors.accentBlue)
+                                .foregroundColor(.white)
+                                .clipShape(Capsule())
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        .padding(10)
+                        .background(AppColors.pillBackground.opacity(0.65))
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    }
+                }
+            }
+        }
+        .padding(20)
+        .standardCardStyle()
+    }
+    
     // MARK: - 账号与版本底部
     private var accountFooterSection: some View {
         VStack(spacing: 8) {
@@ -320,6 +444,27 @@ public struct UserProfileAndSettingsView: View {
         .frame(maxWidth: .infinity)
         .padding(.top, 8)
     }
+}
+
+// MARK: - 文件分享下载与系统导出支持组件
+public struct ShareSheetURLWrapper: Identifiable {
+    public let id = UUID()
+    public let url: URL
+}
+
+public struct ShareSheetModalView: UIViewControllerRepresentable {
+    public let activityItems: [Any]
+    
+    public init(activityItems: [Any]) {
+        self.activityItems = activityItems
+    }
+    
+    public func makeUIViewController(context: Context) -> UIActivityViewController {
+        let vc = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+        return vc
+    }
+    
+    public func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
 #Preview {

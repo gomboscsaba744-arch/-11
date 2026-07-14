@@ -19,6 +19,7 @@ public struct TrainingView: View {
     @State private var isAutoBufferActive: Bool = false
     @State private var autoBufferRemaining: Int = 10
     @State private var isWorkoutActive: Bool = false
+    @State private var elapsedTrainingSeconds: Int = 0
     
     public init() {}
     
@@ -28,7 +29,11 @@ public struct TrainingView: View {
                 session: session,
                 currentRoutineExercises: currentRoutineExercises,
                 onStartWorkout: {
+                    session.currentCalories = 0
+                    elapsedTrainingSeconds = 0
+                    watchService.activeEnergyBurnedKcal = 0
                     withAnimation { isWorkoutActive = true }
+                    watchService.startWatchWorkoutSession(exerciseTitle: session.exerciseName)
                 },
                 onSelectRoutine: {
                     showingRoutinePicker = true
@@ -52,6 +57,7 @@ public struct TrainingView: View {
                             isWorkoutActive = false
                             restTimer.reset()
                         }
+                        watchService.endWatchWorkoutSession()
                     },
                     onSelectRoutine: {
                         showingRoutinePicker = true
@@ -80,10 +86,14 @@ public struct TrainingView: View {
                 syncSessionWithActivePlan()
             }
             .onReceive(watchService.$currentHeartRate) { hr in
-                session.currentHeartRate = hr
+                if hr > 0 {
+                    session.currentHeartRate = hr
+                }
             }
             .onReceive(watchService.$activeEnergyBurnedKcal) { kcal in
-                session.currentCalories = kcal
+                if kcal > 0 {
+                    session.currentCalories = kcal
+                }
             }
             .onReceive(watchService.$syncedIsResting) { resting in
                 if resting {
@@ -98,6 +108,14 @@ public struct TrainingView: View {
                 guard index != session.currentExerciseIndex else { return }
                 session.currentExerciseIndex = index
                 syncSessionWithActivePlan()
+            }
+            .onReceive(watchService.$syncedCurrentSet) { set in
+                guard set != session.currentSet, set >= 1 else { return }
+                session.currentSet = set
+            }
+            .onReceive(watchService.$syncedTotalSets) { total in
+                guard total != session.totalSets, total >= 1 else { return }
+                session.totalSets = total
             }
             .onReceive(watchService.$detectedRepCount) { rep in
                 session.watchTelemetry.detectedRepCount = rep
@@ -138,7 +156,36 @@ public struct TrainingView: View {
                     }
                 }
             }
+            .onChange(of: session.currentSet) { _, _ in
+                syncStateToWatch()
+            }
+            .onChange(of: session.currentExerciseIndex) { _, _ in
+                syncStateToWatch()
+            }
+            .onChange(of: watchService.syncedIsWorkoutStarted) { started in
+                if started && !isWorkoutActive {
+                    session.currentCalories = 0
+                    elapsedTrainingSeconds = 0
+                    watchService.activeEnergyBurnedKcal = 0
+                    withAnimation { isWorkoutActive = true }
+                }
+            }
+            .onChange(of: watchService.syncedIsWorkoutEnded) { ended in
+                if ended && isWorkoutActive {
+                    withAnimation {
+                        isWorkoutActive = false
+                        restTimer.reset()
+                    }
+                }
+            }
             .onReceive(Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()) { _ in
+                elapsedTrainingSeconds += 1
+                if watchService.activeEnergyBurnedKcal > 0 {
+                    session.currentCalories = watchService.activeEnergyBurnedKcal
+                } else {
+                    session.currentCalories = Int(Double(elapsedTrainingSeconds) * 0.125)
+                }
+                
                 if isAutoBufferActive {
                     if autoBufferRemaining > 1 {
                         autoBufferRemaining -= 1
@@ -287,6 +334,17 @@ public struct TrainingView: View {
             totalSets: currentItem.sets,
             targetReps: session.currentReps,
             targetWeightKg: currentItem.targetWeightKg,
+            isResting: restTimer.isRunning
+        )
+    }
+    
+    private func syncStateToWatch() {
+        watchService.syncWorkoutStateToWatch(
+            exerciseName: session.exerciseName,
+            currentSet: session.currentSet,
+            totalSets: session.totalSets,
+            targetReps: session.currentReps,
+            targetWeightKg: session.targetWeightKg,
             isResting: restTimer.isRunning
         )
     }

@@ -87,16 +87,37 @@ public class WatchConnectivityService: NSObject, ObservableObject {
         }
     }
     
+    /// 发送结束 Apple Watch 体能训练指令
+    public func endWatchWorkoutSession() {
+        guard let session = wcSession, session.activationState == .activated else { return }
+        let payload: [String: Any] = [
+            "command": "END_WORKOUT_SESSION",
+            "timestamp": Date().timeIntervalSince1970
+        ]
+        if session.isReachable {
+            session.sendMessage(payload, replyHandler: nil, errorHandler: nil)
+        } else {
+            try? session.updateApplicationContext(payload)
+        }
+    }
+    
     @Published public var syncedExerciseIndex: Int = 1
+    @Published public var syncedCurrentSet: Int = 1
+    @Published public var syncedTotalSets: Int = 4
     @Published public var syncedIsResting: Bool = false
     @Published public var syncedRestSeconds: Int = 60
+    @Published public var syncedIsWorkoutStarted: Bool = false
     @Published public var syncedIsWorkoutEnded: Bool = false
 
     /// 解析表端遥测字典
     private func applyIncomingTelemetry(_ userInfo: [String: Any]) {
         DispatchQueue.main.async {
-            if let action = userInfo["action"] as? String {
+            let actionOrCommand = (userInfo["action"] as? String) ?? (userInfo["command"] as? String)
+            if let action = actionOrCommand {
                 switch action {
+                case "START_WORKOUT", "START_WORKOUT_SESSION":
+                    self.syncedIsWorkoutStarted = true
+                    self.syncedIsWorkoutEnded = false
                 case "CHANGE_EXERCISE":
                     if let index = userInfo["exerciseIndex"] as? Int {
                         self.syncedExerciseIndex = index
@@ -108,8 +129,9 @@ public class WatchConnectivityService: NSObject, ObservableObject {
                     }
                 case "FINISH_REST":
                     self.syncedIsResting = false
-                case "END_WORKOUT":
+                case "END_WORKOUT", "END_WORKOUT_SESSION":
                     self.syncedIsWorkoutEnded = true
+                    self.syncedIsWorkoutStarted = false
                 default:
                     break
                 }
@@ -131,6 +153,12 @@ public class WatchConnectivityService: NSObject, ObservableObject {
             }
             if let stability = userInfo["motionStability"] as? String {
                 self.motionStability = stability
+            }
+            if let currentSet = userInfo["currentSet"] as? Int {
+                self.syncedCurrentSet = currentSet
+            }
+            if let totalSets = userInfo["totalSets"] as? Int {
+                self.syncedTotalSets = totalSets
             }
             self.isWatchReachable = true
         }
@@ -160,6 +188,10 @@ extension WatchConnectivityService: WCSessionDelegate {
     
     public func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
         applyIncomingTelemetry(applicationContext)
+    }
+    
+    public func session(_ session: WCSession, didReceive file: WCSessionFile) {
+        MotionSensorLogManager.shared.importExternalLogFile(at: file.fileURL)
     }
     
     #if os(iOS)

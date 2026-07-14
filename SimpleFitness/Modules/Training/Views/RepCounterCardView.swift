@@ -29,126 +29,143 @@ public struct RepCounterCardView: View {
     
     public var body: some View {
         VStack(spacing: 16) {
-             // 顶部行：标题 + 手动/自动模式切换按键（不干扰主页整体布局）
-             HStack {
-                 HStack(spacing: 6) {
-                     Image(systemName: "applewatch")
-                         .font(.subheadline)
-                         .foregroundColor(AppColors.accentBlue)
-                     Text("完成次数 (Watch自动记录)")
-                         .font(.subheadline.weight(.medium))
-                         .foregroundColor(AppColors.secondaryText)
-                 }
-                 
-                 Spacer()
-                 
-                 // 手动 / 自动模式精美切换胶囊
-                 Button(action: {
-                     let impact = UIImpactFeedbackGenerator(style: .medium)
-                     impact.impactOccurred()
-                     withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                         isAutoMode.toggle()
-                     }
-                 }) {
-                     HStack(spacing: 4) {
-                         Image(systemName: isAutoMode ? "bolt.fill" : "hand.tap.fill")
-                             .font(.caption2.weight(.bold))
-                         Text(isAutoMode ? "自动流转·开" : "手动确认·开")
-                             .font(.caption.weight(.bold))
-                     }
-                     .padding(.horizontal, 10)
-                     .padding(.vertical, 5)
-                     .background(isAutoMode ? Color.orange.opacity(0.18) : AppColors.pillBackground)
-                     .foregroundColor(isAutoMode ? .orange : AppColors.primaryText)
-                     .clipShape(Capsule())
-                 }
-             }
+            // 顶部行：精炼中央微光状态条，统一展示 Watch 自动计次与自动流转模式
+            Button(action: {
+                let impact = UIImpactFeedbackGenerator(style: .medium)
+                impact.impactOccurred()
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                    isAutoMode.toggle()
+                }
+            }) {
+                HStack(spacing: 6) {
+                    Image(systemName: "applewatch")
+                        .foregroundColor(AppColors.accentBlue)
+                    Text("Watch自动计次")
+                        .foregroundColor(AppColors.secondaryText)
+                    Text("·")
+                        .foregroundColor(AppColors.secondaryText.opacity(0.5))
+                    Image(systemName: isAutoMode ? "bolt.fill" : "hand.tap.fill")
+                        .foregroundColor(isAutoMode ? .orange : AppColors.primaryText)
+                    Text(isAutoMode ? "自动流转开" : "手动流转")
+                        .foregroundColor(isAutoMode ? .orange : AppColors.primaryText)
+                }
+                .font(.caption.weight(.semibold))
+                .padding(.horizontal, 14)
+                .padding(.vertical, 6)
+                .background(AppColors.pillBackground)
+                .clipShape(Capsule())
+            }
+            .buttonStyle(.plain)
              
              // 达标提示与 10s 倒计时缓冲横幅
-             if isBufferActive {
-                 HStack(spacing: 10) {
-                     Image(systemName: "timer")
-                         .foregroundColor(.orange)
-                         .font(.subheadline.weight(.bold))
-                     VStack(alignment: .leading, spacing: 2) {
-                         Text("已完成 \(targetReps) 次！达标反馈")
-                             .font(.caption.weight(.bold))
-                             .foregroundColor(AppColors.primaryText)
-                         Text("\(bufferRemaining)s 后自动进入休息倒计时")
-                             .font(.caption2)
-                             .foregroundColor(.orange)
-                     }
-                     Spacer(minLength: 4)
-                     Button("转为手动") {
-                         onCancelBuffer()
-                     }
-                     .font(.caption2.weight(.bold))
-                     .padding(.horizontal, 9)
-                     .padding(.vertical, 5)
-                     .background(AppColors.pillBackground)
-                     .clipShape(Capsule())
-                     
-                     Button("立即休息") {
-                         onImmediateRest()
-                     }
-                     .font(.caption2.weight(.bold))
-                     .padding(.horizontal, 9)
-                     .padding(.vertical, 5)
-                     .background(Color.orange)
-                     .foregroundColor(.white)
-                     .clipShape(Capsule())
-                 }
-                 .padding(12)
-                 .background(Color.orange.opacity(0.12))
-                 .cornerRadius(12)
-                 .transition(.move(edge: .top).combined(with: .opacity))
-             }
+             // 达标提示与 10s 倒计时缓冲横幅
+            if isBufferActive {
+                HStack(spacing: 10) {
+                    Image(systemName: "timer")
+                        .foregroundColor(.orange)
+                        .font(.subheadline.weight(.bold))
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("已完成 \(targetReps) 次！达标反馈")
+                            .font(.caption.weight(.bold))
+                            .foregroundColor(AppColors.primaryText)
+                        Text("\(bufferRemaining)s 后自动进入休息倒计时")
+                            .font(.caption2)
+                            .foregroundColor(.orange)
+                    }
+                    Spacer(minLength: 4)
+                    Button("转为手动") {
+                        onCancelBuffer()
+                    }
+                    .font(.caption2.weight(.bold))
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 5)
+                    .background(AppColors.pillBackground)
+                    .clipShape(Capsule())
+                    
+                    Button("立即休息") {
+                        onImmediateRest()
+                    }
+                    .font(.caption2.weight(.bold))
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 5)
+                    .background(Color.orange)
+                    .foregroundColor(.white)
+                    .clipShape(Capsule())
+                }
+                .padding(14)
+                .background(Color.orange.opacity(0.14))
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .transition(.move(edge: .top).combined(with: .opacity))
+            }
             
-            // 中间：x / 12 大字展示区域
-            HStack(spacing: 36) {
-                // 减次数按钮
-                Button(action: {
-                    let impact = UIImpactFeedbackGenerator(style: .light)
-                    impact.impactOccurred()
-                    if recordedReps > 0 { recordedReps -= 1 }
-                }) {
-                    Image(systemName: "minus")
-                        .font(.title3.weight(.bold))
-                        .foregroundColor(AppColors.primaryText)
-                        .frame(width: 48, height: 48)
-                        .background(AppColors.pillBackground)
-                        .clipShape(Circle())
-                }
+            // 雕塑感环形光晕 HUD 中央计次台 (无任何方框束缚)
+            ZStack {
+                // 背景微光环形渲染
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            gradient: Gradient(colors: [
+                                (recordedReps >= targetReps && targetReps > 0 ? Color.orange : AppColors.accentBlue).opacity(0.15),
+                                Color.clear
+                            ]),
+                            center: .center,
+                            startRadius: 20,
+                            endRadius: 150
+                        )
+                    )
+                    .frame(width: 280, height: 280)
                 
-                // 次数显示：x / 12 形式
-                HStack(alignment: .firstTextBaseline, spacing: 6) {
-                    Text("\(recordedReps)")
-                        .font(.system(size: 56, weight: .black, design: .rounded))
-                        .foregroundColor(recordedReps >= targetReps && targetReps > 0 ? .orange : AppColors.primaryText)
-                    Text("/ \(targetReps)")
-                        .font(.system(size: 28, weight: .bold, design: .rounded))
-                        .foregroundColor(AppColors.secondaryText)
-                }
-                .frame(minWidth: 130)
-                
-                // 加次数按钮
-                Button(action: {
-                    let impact = UIImpactFeedbackGenerator(style: .medium)
-                    impact.impactOccurred()
-                    recordedReps += 1
-                }) {
-                    Image(systemName: "plus")
-                        .font(.title3.weight(.bold))
-                        .foregroundColor(.white)
-                        .frame(width: 48, height: 48)
-                        .background(AppColors.accentBlue)
-                        .clipShape(Circle())
+                HStack(spacing: 28) {
+                    // 减次数大圆触控
+                    Button(action: {
+                        let impact = UIImpactFeedbackGenerator(style: .light)
+                        impact.impactOccurred()
+                        if recordedReps > 0 { recordedReps -= 1 }
+                    }) {
+                        Image(systemName: "minus")
+                            .font(.title.weight(.bold))
+                            .foregroundColor(AppColors.primaryText)
+                            .frame(width: 64, height: 64)
+                            .background(AppColors.pillBackground)
+                            .clipShape(Circle())
+                            .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 3)
+                    }
+                    
+                    // 核心数字 (96pt 视觉绝对主宰)
+                    HStack(alignment: .firstTextBaseline, spacing: 6) {
+                        Text("\(recordedReps)")
+                            .font(.system(size: 96, weight: .black, design: .rounded))
+                            .foregroundColor(recordedReps >= targetReps && targetReps > 0 ? .orange : AppColors.primaryText)
+                            .contentTransition(.numericText(value: Double(recordedReps)))
+                            .animation(.spring(response: 0.28, dampingFraction: 0.82), value: recordedReps)
+                        Text("/ \(targetReps)")
+                            .font(.system(size: 36, weight: .bold, design: .rounded))
+                            .foregroundColor(AppColors.secondaryText)
+                            .contentTransition(.numericText(value: Double(targetReps)))
+                            .animation(.spring(response: 0.28, dampingFraction: 0.82), value: targetReps)
+                    }
+                    .frame(minWidth: 170)
+                    
+                    // 加次数大圆触控
+                    Button(action: {
+                        let impact = UIImpactFeedbackGenerator(style: .medium)
+                        impact.impactOccurred()
+                        recordedReps += 1
+                    }) {
+                        Image(systemName: "plus")
+                            .font(.title.weight(.bold))
+                            .foregroundColor(.white)
+                            .frame(width: 64, height: 64)
+                            .background(AppColors.accentBlue)
+                            .clipShape(Circle())
+                            .shadow(color: AppColors.accentBlue.opacity(0.35), radius: 10, x: 0, y: 4)
+                    }
                 }
             }
+            .padding(.vertical, 24)
         }
-        .padding(.vertical, 20)
-        .padding(.horizontal, 20)
+        .padding(.vertical, 12)
+        .padding(.horizontal, 8)
         .frame(maxWidth: .infinity)
-        .standardCardStyle()
     }
 }

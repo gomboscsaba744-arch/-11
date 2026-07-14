@@ -9,11 +9,11 @@ import Combine
 /// 单个动作数据结构（支持多动作实时流转与联动）
 public struct WatchExerciseItem: Identifiable, Equatable {
     public let id = UUID()
-    public let name: String
+    public var name: String
     public var currentSet: Int
-    public let totalSets: Int
-    public let targetReps: Int
-    public let weightKg: Double
+    public var totalSets: Int
+    public var targetReps: Int
+    public var weightKg: Double
     
     public init(name: String, currentSet: Int = 1, totalSets: Int, targetReps: Int, weightKg: Double) {
         self.name = name
@@ -66,7 +66,7 @@ public class WatchWorkoutManager: NSObject, ObservableObject {
 
     @Published public var isWorkoutRunning: Bool = false
     @Published public var currentHeartRate: Int = 138
-    @Published public var activeEnergyKcal: Int = 45
+    @Published public var activeEnergyKcal: Int = 0
     @Published public var gyroAmplitude: Double = 0.0
     
     @Published public var isResting: Bool = false
@@ -77,6 +77,9 @@ public class WatchWorkoutManager: NSObject, ObservableObject {
     private var workoutTimer: Timer?
     private var telemetryTimer: Timer?
     private var lastRepDetectTime: Date = Date.distantPast
+    private var isRepCycleActive: Bool = false
+    private var currentRepStartTime: Date = Date.distantPast
+    private var smoothedEnergy: Double = 0.0
     
     private let healthStore = HKHealthStore()
     private var workoutSession: HKWorkoutSession?
@@ -157,13 +160,14 @@ public class WatchWorkoutManager: NSObject, ObservableObject {
     
     private var workoutStartTime: Date?
     
-    public func startWorkoutSession() {
+    public func startWorkoutSession(syncToPhone: Bool = true) {
         guard !isWorkoutRunning else { return }
         isWorkoutRunning = true
         showWorkoutSummary = false
         isResting = false
         exerciseIndex = 1
         detectedRepCount = 0
+        activeEnergyKcal = 0
         showTargetReachedModal = false
         workoutDurationSeconds = 0
         workoutStartTime = Date()
@@ -187,9 +191,12 @@ public class WatchWorkoutManager: NSObject, ObservableObject {
         }
         
         WKInterfaceDevice.current().play(.start)
+        if syncToPhone {
+            sendSyncEvent("START_WORKOUT", extra: ["exerciseName": exerciseName])
+        }
     }
     
-    public func endWorkoutSession() {
+    public func endWorkoutSession(syncToPhone: Bool = true) {
         isWorkoutRunning = false
         isResting = false
         showTargetReachedModal = false
@@ -213,11 +220,13 @@ public class WatchWorkoutManager: NSObject, ObservableObject {
         showWorkoutSummary = true
         
         WKInterfaceDevice.current().play(.success)
-        sendSyncEvent("END_WORKOUT", extra: [
-            "duration": summaryDurationString,
-            "totalKcal": summaryTotalKcal,
-            "completedSets": summaryCompletedSets
-        ])
+        if syncToPhone {
+            sendSyncEvent("END_WORKOUT", extra: [
+                "duration": summaryDurationString,
+                "totalKcal": summaryTotalKcal,
+                "completedSets": summaryCompletedSets
+            ])
+        }
     }
     
     public func dismissSummary() {
@@ -286,15 +295,45 @@ public class WatchWorkoutManager: NSObject, ObservableObject {
     private func startMotionSensorMonitoring() {
         guard motionManager.isDeviceMotionAvailable else { return }
         motionManager.deviceMotionUpdateInterval = 0.033
+        isRepCycleActive = false
+        smoothedEnergy = 0.0
+        
         motionManager.startDeviceMotionUpdates(to: .main) { [weak self] motion, _ in
             guard let self = self, let motion = motion else { return }
             let rotation = motion.rotationRate
-            let mag = sqrt(rotation.x*rotation.x + rotation.y*rotation.y + rotation.z*rotation.z)
-            self.gyroAmplitude = mag
+            let rotMag = sqrt(rotation.x*rotation.x + rotation.y*rotation.y + rotation.z*rotation.z)
+            let acc = motion.userAcceleration
+            let accMag = sqrt(acc.x*acc.x + acc.y*acc.y + acc.z*acc.z)
+            
+            // 结合角速度(转动)与线性加速度(推拉位移)构建复合动能信号
+            // 指数移动平均(EMA)平滑消除短暂手部抖动与小幅晃动毛刺
+            let rawEnergy = rotMag + accMag * 3.6
+            self.smoothedEnergy = self.smoothedEnergy * 0.72 + rawEnergy * 0.28
+            self.gyroAmplitude = self.smoothedEnergy
+            
+            guard self.isWorkoutRunning && !self.isResting else { return }
             let now = Date()
-            if mag > 3.8 && self.isWorkoutRunning && !self.isResting && now.timeIntervalSince(self.lastRepDetectTime) > 1.1 {
-                self.lastRepDetectTime = now
-                self.adjustRepCount(by: 1)
+            
+            // 双向迟滞波峰-波谷状态机判定：
+            // 1. 启动动作发力判定 (1.45 能量阈值) 且已过发力冷却期
+            if !self.isRepCycleActive {
+                if self.smoothedEnergy > 1.45 && now.timeIntervalSince(self.lastRepDetectTime) > 1.05 {
+                    self.isRepCycleActive = true
+                    self.currentRepStartTime = now
+                }
+            } else {
+                // 2. 动作收尾回归波谷 (能量降至 1.05 以下)
+                if self.smoothedEnergy < 1.05 {
+                    let repDuration = now.timeIntervalSince(self.currentRepStartTime)
+                    self.isRepCycleActive = false
+                    // 仅当动作发力持续时间在卧推/推拉有效区间 [0.6s, 5.0s] 计为有效 1 次，过滤短瞬时误触
+                    if repDuration >= 0.6 && repDuration <= 5.0 {
+                        self.lastRepDetectTime = now
+                        self.adjustRepCount(by: 1)
+                    }
+                } else if now.timeIntervalSince(self.currentRepStartTime) > 6.0 {
+                    self.isRepCycleActive = false
+                }
             }
         }
     }
@@ -347,6 +386,9 @@ public class WatchWorkoutManager: NSObject, ObservableObject {
             "calories": activeEnergyKcal,
             "detectedRepCount": detectedRepCount,
             "gyroAmplitude": gyroAmplitude,
+            "currentSet": currentSet,
+            "totalSets": totalSets,
+            "exerciseIndex": exerciseIndex,
             "timestamp": Date().timeIntervalSince1970
         ]
         if session.isReachable {
@@ -357,10 +399,22 @@ public class WatchWorkoutManager: NSObject, ObservableObject {
 
 extension WatchWorkoutManager: WCSessionDelegate {
     public func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {}
+    
     public func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
+        applyIncomingPayload(message)
+    }
+    
+    public func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
+        applyIncomingPayload(applicationContext)
+    }
+    
+    private func applyIncomingPayload(_ message: [String: Any]) {
         DispatchQueue.main.async {
-            if let action = message["action"] as? String {
-                switch action {
+            let actionOrCommand = (message["action"] as? String) ?? (message["command"] as? String)
+            if let cmd = actionOrCommand {
+                switch cmd {
+                case "START_WORKOUT_SESSION", "START_WORKOUT":
+                    self.startWorkoutSession(syncToPhone: false)
                 case "CHANGE_EXERCISE":
                     if let index = message["exerciseIndex"] as? Int, index >= 1 && index <= self.exercises.count {
                         self.exerciseIndex = index
@@ -370,15 +424,55 @@ extension WatchWorkoutManager: WCSessionDelegate {
                     self.startRestPeriod(seconds: seconds)
                 case "FINISH_REST":
                     self.skipRestPeriod()
-                case "END_WORKOUT":
-                    self.endWorkoutSession()
+                case "END_WORKOUT", "END_WORKOUT_SESSION", "STOP_WORKOUT_SESSION":
+                    self.endWorkoutSession(syncToPhone: false)
                 default:
                     break
                 }
             }
-            if let plan = message["planTitle"] as? String { self.planTitle = plan }
-            if let ex = message["exerciseName"] as? String { self.exerciseName = ex }
-            if let reps = message["targetReps"] as? Int { self.targetReps = reps }
+            
+            if let plan = message["planTitle"] as? String {
+                self.planTitle = plan
+            }
+            if let ex = message["exerciseName"] as? String {
+                self.exerciseName = ex
+                if let matchIndex = self.exercises.firstIndex(where: { $0.name == ex }) {
+                    self.exerciseIndex = matchIndex + 1
+                } else if self.exerciseIndex >= 1 && self.exerciseIndex <= self.exercises.count {
+                    self.exercises[self.exerciseIndex - 1].name = ex
+                }
+            }
+            if let reps = message["targetReps"] as? Int {
+                self.targetReps = reps
+                if self.exerciseIndex >= 1 && self.exerciseIndex <= self.exercises.count {
+                    self.exercises[self.exerciseIndex - 1].targetReps = reps
+                }
+            }
+            if let cSet = message["currentSet"] as? Int {
+                self.currentSet = cSet
+                if self.exerciseIndex >= 1 && self.exerciseIndex <= self.exercises.count {
+                    self.exercises[self.exerciseIndex - 1].currentSet = cSet
+                }
+            }
+            if let tSets = message["totalSets"] as? Int {
+                self.totalSets = tSets
+                if self.exerciseIndex >= 1 && self.exerciseIndex <= self.exercises.count {
+                    self.exercises[self.exerciseIndex - 1].totalSets = tSets
+                }
+            }
+            if let weight = message["targetWeightKg"] as? Double {
+                self.currentWeightKg = weight
+                if self.exerciseIndex >= 1 && self.exerciseIndex <= self.exercises.count {
+                    self.exercises[self.exerciseIndex - 1].weightKg = weight
+                }
+            }
+            if let isResting = message["isResting"] as? Bool {
+                if isResting && !self.isResting {
+                    self.startRestPeriod(seconds: message["restSeconds"] as? Int ?? 60)
+                } else if !isResting && self.isResting {
+                    self.skipRestPeriod()
+                }
+            }
         }
     }
 }

@@ -21,6 +21,7 @@ public struct ActiveTrainingSessionContainerView: View {
     var onSwitchExercise: (Int) -> Void
     
     @ObservedObject private var libraryStore = TrainingPlanLibraryStore.shared
+    @ObservedObject private var watchService = WatchConnectivityService.shared
     
     // 左右滑动分页选择：
     // 0: 核心打卡页（极简，专注打卡与动作控制）
@@ -33,10 +34,10 @@ public struct ActiveTrainingSessionContainerView: View {
     @State private var prepCountdownValue: Int = 3
     @State private var prepTimerSubscription: AnyCancellable? = nil
     
-    // 长按结束运动进度 (0.0 ~ 1.0)
+    // 长按与滑动结束运动进度
     @State private var holdToEndProgress: CGFloat = 0.0
     @State private var isHoldingToEnd: Bool = false
-    @State private var holdTimerSubscription: AnyCancellable? = nil
+    @State private var holdWorkItem: DispatchWorkItem? = nil
     
     public init(
         session: Binding<TrainingSessionMock>,
@@ -113,70 +114,132 @@ public struct ActiveTrainingSessionContainerView: View {
         }
         .onAppear {
             startPrepCountdown()
+            MotionSensorLogManager.shared.startRecording(
+                exerciseName: session.exerciseName,
+                setNumber: session.currentSet
+            )
+            syncFullStateToWatch()
         }
         .onDisappear {
             prepTimerSubscription?.cancel()
-            holdTimerSubscription?.cancel()
+            holdWorkItem?.cancel()
+            MotionSensorLogManager.shared.stopRecording()
         }
+        .onChange(of: session.currentSet) { newSet in
+            MotionSensorLogManager.shared.startRecording(
+                exerciseName: session.exerciseName,
+                setNumber: newSet
+            )
+            syncFullStateToWatch()
+        }
+        .onChange(of: session.totalSets) { _ in
+            syncFullStateToWatch()
+        }
+        .onChange(of: session.exerciseName) { newName in
+            MotionSensorLogManager.shared.startRecording(
+                exerciseName: newName,
+                setNumber: session.currentSet
+            )
+            syncFullStateToWatch()
+        }
+        .onChange(of: restTimer.isRunning) { _ in
+            syncFullStateToWatch()
+        }
+        // 表端数据实时遥测与双向同步绑定
+        .onChange(of: watchService.syncedCurrentSet) { newSet in
+            if newSet != session.currentSet {
+                session.currentSet = newSet
+            }
+        }
+        .onChange(of: watchService.syncedTotalSets) { newTotal in
+            if newTotal != session.totalSets {
+                session.totalSets = newTotal
+            }
+        }
+        .onChange(of: watchService.syncedExerciseIndex) { newIndex in
+            onSwitchExercise(newIndex)
+        }
+        .onChange(of: watchService.currentHeartRate) { hr in
+            if hr > 0 { session.currentHeartRate = hr }
+        }
+        .onChange(of: watchService.activeEnergyBurnedKcal) { kcal in
+            if kcal >= 0 { session.currentCalories = kcal }
+        }
+        .onChange(of: watchService.detectedRepCount) { reps in
+            if reps > 0 { recordedReps = reps }
+        }
+    }
+    
+    private func syncFullStateToWatch() {
+        watchService.syncWorkoutStateToWatch(
+            exerciseName: session.exerciseName,
+            currentSet: session.currentSet,
+            totalSets: session.totalSets,
+            targetReps: session.currentReps,
+            targetWeightKg: session.targetWeightKg,
+            isResting: restTimer.isRunning
+        )
     }
     
     // MARK: - Page 0: 核心专注打卡主页 (极简清晰，毫无冗余卡片堆砌)
     @ViewBuilder
     private func pageZeroCoreWorkout() -> some View {
-        ScrollView(showsIndicators: false) {
-            VStack(spacing: 18) {
-                TrainingHeaderView(
-                    session: session,
-                    isRestPhase: restTimer.isRunning,
-                    onSelectRoutine: onSelectRoutine,
-                    onTapExerciseListModal: {
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                            showingExerciseListModal = true
-                        }
-                    },
-                    onTapSetListModal: {
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                            showingSetListModal = true
-                        }
+        VStack(spacing: 0) {
+            TrainingHeaderView(
+                session: session,
+                isRestPhase: restTimer.isRunning,
+                onSelectRoutine: onSelectRoutine,
+                onTapExerciseListModal: {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                        showingExerciseListModal = true
                     }
-                )
-                .padding(.top, 10)
-                
-                if restTimer.isRunning || restTimer.isPaused {
-                    RestTimerCardView(timerModel: $restTimer)
-                        .transition(.move(edge: .top).combined(with: .opacity))
+                },
+                onTapSetListModal: {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                        showingSetListModal = true
+                    }
                 }
-                
-                RepCounterCardView(
-                    recordedReps: $recordedReps,
-                    targetReps: $session.currentReps,
-                    isAutoMode: $isAutoFlowModeEnabled,
-                    isBufferActive: isAutoBufferActive,
-                    bufferRemaining: autoBufferRemaining,
-                    onCancelBuffer: {
-                        withAnimation {
-                            isAutoBufferActive = false
-                            isAutoFlowModeEnabled = false
-                        }
-                    },
-                    onImmediateRest: {
-                        isAutoBufferActive = false
-                        onCompleteSet()
-                    }
-                )
-                
-                TrainingActionButtonsView(
-                    currentSet: session.currentSet,
-                    onCompleteSet: { onCompleteSet() },
-                    onPrevExercise: { onPrevExercise() },
-                    onNextExercise: { onNextExercise() }
-                )
-                
-                Spacer(minLength: 140)
+            )
+            .padding(.top, 6)
+            
+            Spacer(minLength: 12)
+            
+            if restTimer.isRunning || restTimer.isPaused {
+                RestTimerCardView(timerModel: $restTimer)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                Spacer(minLength: 12)
             }
-            .padding(.horizontal, 20)
-            .animation(.spring(response: 0.38, dampingFraction: 0.82), value: restTimer.isRunning || restTimer.isPaused)
+            
+            RepCounterCardView(
+                recordedReps: $recordedReps,
+                targetReps: $session.currentReps,
+                isAutoMode: $isAutoFlowModeEnabled,
+                isBufferActive: isAutoBufferActive,
+                bufferRemaining: autoBufferRemaining,
+                onCancelBuffer: {
+                    withAnimation {
+                        isAutoBufferActive = false
+                        isAutoFlowModeEnabled = false
+                    }
+                },
+                onImmediateRest: {
+                    isAutoBufferActive = false
+                    onCompleteSet()
+                }
+            )
+            
+            Spacer(minLength: 16)
+            
+            TrainingActionButtonsView(
+                currentSet: session.currentSet,
+                onCompleteSet: { onCompleteSet() },
+                onPrevExercise: { onPrevExercise() },
+                onNextExercise: { onNextExercise() }
+            )
+            .padding(.bottom, 12)
         }
+        .padding(.horizontal, 20)
+        .animation(.spring(response: 0.38, dampingFraction: 0.82), value: restTimer.isRunning || restTimer.isPaused)
     }
     
     // MARK: - Page 1: 计时与休息管理页 (左滑切换)
@@ -261,60 +324,78 @@ public struct ActiveTrainingSessionContainerView: View {
         }
     }
     
-    // MARK: - 底部精致分页点与长按结束控制条
+    // MARK: - 底部精致分页点与长按结束控制条（硬件加速平滑过渡·0卡顿）
     @ViewBuilder
     private func bottomHoldToEndBar() -> some View {
-        VStack(spacing: 10) {
-            // 分页指示
-            HStack(spacing: 7) {
+        VStack(spacing: 12) {
+            // 分页指示点
+            HStack(spacing: 6) {
                 ForEach(0..<3) { idx in
                     Circle()
-                        .fill(selectedPageIndex == idx ? AppColors.primaryText : Color.black.opacity(0.18))
+                        .fill(selectedPageIndex == idx ? AppColors.primaryText : Color.black.opacity(0.16))
                         .frame(width: 6, height: 6)
                 }
             }
             
-            // 长按 1.8 秒结束训练按钮
-            ZStack {
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(Color.red.opacity(0.1))
+            // 长按 1.2 秒结束本场训练
+            ZStack(alignment: .leading) {
+                // 底色
+                Color(white: 0.12)
                 
+                // 红色进度填充层（纯矩形从左向右平滑延伸，由最外层圆角严格裁切，左端圆角与外框绝对契合、绝不溢出或方形畸变）
                 GeometryReader { geo in
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .fill(Color.red)
-                        .frame(width: geo.size.width * holdToEndProgress)
-                        .animation(.linear(duration: 0.04), value: holdToEndProgress)
+                    Rectangle()
+                        .fill(Color(red: 0.95, green: 0.22, blue: 0.32))
+                        .frame(width: max(0, geo.size.width * holdToEndProgress))
                 }
                 
-                HStack(spacing: 8) {
-                    Image(systemName: isHoldingToEnd ? "lock.open.fill" : "lock.fill")
-                        .font(.system(size: 13, weight: .bold))
-                    Text(isHoldingToEnd ? "继续长按结束运动..." : "长按此按键 1.8 秒结束训练")
-                        .font(.system(size: 13, weight: .bold))
+                // 内容层：始终清晰居中对齐
+                HStack(spacing: 10) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.white.opacity(0.15))
+                            .frame(width: 32, height: 32)
+                        Image(systemName: "stop.fill")
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundColor(.white)
+                    }
+                    .padding(.leading, 10)
+                    
+                    Spacer()
+                    
+                    Text(isHoldingToEnd ? "正在结束... 松开取消" : "长按 1.2 秒结束本场训练")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(.white)
+                    
+                    Spacer()
+                    
+                    Color.clear.frame(width: 42, height: 32)
                 }
-                .foregroundColor(holdToEndProgress > 0.45 ? .white : Color.red)
             }
-            .frame(height: 44)
-            .padding(.horizontal, 32)
-            .contentShape(Rectangle())
+            .frame(height: 50)
+            .clipShape(RoundedRectangle(cornerRadius: 25, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 25, style: .continuous)
+                    .strokeBorder(Color.white.opacity(0.14), lineWidth: 1)
+            )
+            .shadow(color: Color.black.opacity(0.14), radius: 8, x: 0, y: 4)
+            .padding(.horizontal, 24)
+            .scaleEffect(isHoldingToEnd ? 0.98 : 1.0)
+            .animation(.easeInOut(duration: 0.2), value: isHoldingToEnd)
             .gesture(
                 DragGesture(minimumDistance: 0)
                     .onChanged { _ in
                         if !isHoldingToEnd {
-                            startHoldToEndTimer()
+                            startSmoothLongPress()
                         }
                     }
                     .onEnded { _ in
-                        cancelHoldToEndTimer()
+                        cancelSmoothLongPress()
                     }
             )
         }
-        .padding(.top, 8)
-        .padding(.bottom, 24)
-        .background(
-            Color.white.opacity(0.85)
-                .ignoresSafeArea()
-        )
+        .padding(.top, 4)
+        .padding(.bottom, 8)
     }
     
     // MARK: - 悬浮表盘与弹窗（完全修复到最原始样貌：Color.white.opacity(0.32) + blur 12）
@@ -501,37 +582,40 @@ public struct ActiveTrainingSessionContainerView: View {
                     }
                 } else {
                     withAnimation(.easeOut(duration: 0.3)) {
-                        isPrepCountdownActive = false
-                    }
-                    prepTimerSubscription?.cancel()
+                    isPrepCountdownActive = false
                 }
+                prepTimerSubscription?.cancel()
             }
+        }
     }
     
-    private func startHoldToEndTimer() {
+    private func startSmoothLongPress() {
         isHoldingToEnd = true
-        holdToEndProgress = 0.0
-        holdTimerSubscription?.cancel()
+        holdWorkItem?.cancel()
         
-        let tick: CGFloat = 0.05 / 1.8
-        holdTimerSubscription = Timer.publish(every: 0.05, on: .main, in: .common)
-            .autoconnect()
-            .sink { _ in
-                withAnimation(.linear(duration: 0.05)) {
-                    holdToEndProgress = min(1.0, holdToEndProgress + tick)
-                }
-                if holdToEndProgress >= 1.0 {
-                    holdTimerSubscription?.cancel()
-                    isHoldingToEnd = false
-                    onEndWorkout()
-                }
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        
+        withAnimation(.linear(duration: 1.2)) {
+            holdToEndProgress = 1.0
+        }
+        
+        let item = DispatchWorkItem { [self] in
+            if isHoldingToEnd {
+                isHoldingToEnd = false
+                UINotificationFeedbackGenerator().notificationOccurred(.success)
+                onEndWorkout()
             }
+        }
+        holdWorkItem = item
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2, execute: item)
     }
     
-    private func cancelHoldToEndTimer() {
-        holdTimerSubscription?.cancel()
+    private func cancelSmoothLongPress() {
+        holdWorkItem?.cancel()
+        holdWorkItem = nil
         isHoldingToEnd = false
-        withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+        
+        withAnimation(.spring(response: 0.32, dampingFraction: 0.8)) {
             holdToEndProgress = 0.0
         }
     }
