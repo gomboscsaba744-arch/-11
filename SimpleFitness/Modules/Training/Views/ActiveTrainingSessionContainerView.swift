@@ -242,27 +242,42 @@ public struct ActiveTrainingSessionContainerView: View {
         .animation(.spring(response: 0.38, dampingFraction: 0.82), value: restTimer.isRunning || restTimer.isPaused)
     }
     
-    // MARK: - Page 1: 计时与休息管理页 (左滑切换)
+    // MARK: - Page 1: 计时与休息管理页 (与第一页统一风格布局，不更改原组件内部动效逻辑)
     @ViewBuilder
     private func pageOneRestTimer() -> some View {
-        ScrollView(showsIndicators: false) {
-            VStack(spacing: 20) {
-                HStack {
-                    Text("组间休息计时控制")
-                        .font(.system(size: 18, weight: .heavy))
-                        .foregroundColor(AppColors.primaryText)
-                    Spacer()
+        VStack(spacing: 0) {
+            TrainingHeaderView(
+                session: session,
+                isRestPhase: restTimer.isRunning,
+                onSelectRoutine: onSelectRoutine,
+                onTapExerciseListModal: {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                        showingExerciseListModal = true
+                    }
+                },
+                onTapSetListModal: {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                        showingSetListModal = true
+                    }
                 }
-                .padding(.top, 14)
-                
-                RestTimerCardView(timerModel: $restTimer)
-                
-                RestTimerCompactPreviewCardView(timerModel: $restTimer)
-                
-                Spacer(minLength: 140)
-            }
-            .padding(.horizontal, 20)
+            )
+            .padding(.top, 6)
+            
+            Spacer(minLength: 12)
+            
+            RestTimerCardView(timerModel: $restTimer)
+            
+            Spacer(minLength: 16)
+            
+            TrainingActionButtonsView(
+                currentSet: session.currentSet,
+                onCompleteSet: { onCompleteSet() },
+                onPrevExercise: { onPrevExercise() },
+                onNextExercise: { onNextExercise() }
+            )
+            .padding(.bottom, 12)
         }
+        .padding(.horizontal, 20)
     }
     
     // MARK: - Page 2: 手表传感器数据监测与全场计划页 (左滑切换)
