@@ -418,6 +418,19 @@ public struct ActiveTrainingSessionContainerView: View {
                     let completedPrevSets = currentRoutineExercises.prefix(max(0, session.currentExerciseIndex - 1)).reduce(0) { $0 + max(1, $1.sets) }
                     let macroCompletedSets = completedPrevSets + max(0, session.currentSet - 1)
                     let macroProgressPercent = macroTotalSets > 0 ? Int((Double(macroCompletedSets) / Double(macroTotalSets)) * 100) : 0
+                    let macroTotalReps = currentRoutineExercises.reduce(0) { sum, item in
+                        sum + (1...max(1, item.sets)).reduce(0) { $0 + item.getTargetReps(forSet: $1) }
+                    }
+                    let prevExercisesReps = currentRoutineExercises.prefix(max(0, session.currentExerciseIndex - 1)).reduce(0) { sum, item in
+                        sum + (1...max(1, item.sets)).reduce(0) { $0 + item.getTargetReps(forSet: $1) }
+                    }
+                    let currentExerciseCompletedReps: Int = {
+                        guard session.currentExerciseIndex >= 1 && session.currentExerciseIndex <= currentRoutineExercises.count else { return 0 }
+                        let currentItem = currentRoutineExercises[session.currentExerciseIndex - 1]
+                        return (1 ..< max(1, session.currentSet)).reduce(0) { $0 + currentItem.getTargetReps(forSet: $1) }
+                    }()
+                    let macroCompletedReps = prevExercisesReps + currentExerciseCompletedReps
+                    let repsProgressPercent = macroTotalReps > 0 ? Int((Double(macroCompletedReps) / Double(macroTotalReps)) * 100) : 0
                     let formattedElapsed = String(format: "%02d:%02d", session.elapsedSeconds / 60, session.elapsedSeconds % 60)
                     
                     VStack(spacing: 14) {
@@ -463,12 +476,12 @@ public struct ActiveTrainingSessionContainerView: View {
                             
                             Divider().frame(height: 28)
                             
-                            // 推进动作进度
+                            // 总次数百分比
                             VStack(spacing: 4) {
-                                Text("\(session.currentExerciseIndex)/\(currentRoutineExercises.count)")
+                                Text("\(repsProgressPercent)%")
                                     .font(.system(size: 20, weight: .heavy, design: .rounded))
                                     .foregroundColor(AppColors.accentBlue)
-                                Text("推进动作")
+                                Text("总次数百分比")
                                     .font(.system(size: 11, weight: .semibold))
                                     .foregroundColor(AppColors.secondaryText)
                             }
