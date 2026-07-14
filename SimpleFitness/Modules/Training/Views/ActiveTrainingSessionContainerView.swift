@@ -96,6 +96,7 @@ public struct ActiveTrainingSessionContainerView: View {
                 pageTwoTelemetryAndSchedule()
                     .tag(2)
             }
+            .tabViewStyle(.page(indexDisplayMode: .never))
             // 严格恢复最原始的模糊参数：12
             .blur(radius: isPrepCountdownActive || restTimer.isPrecisionZoomed || showingExerciseListModal || showingSetListModal ? 12 : 0)
             .animation(.easeInOut(duration: 0.25), value: restTimer.isPrecisionZoomed)
@@ -249,7 +250,7 @@ public struct ActiveTrainingSessionContainerView: View {
             // 统一全局分页指示点 (位置绝对固定，绝不遮挡底部操作区)
             pageIndicatorDots()
             
-            // 锁屏防误触按键 与 长按结束训练条（仅第一页显示，严格限制单行绝不折行）
+            // 锁屏防误触按键 与 长按结束训练条（第一页与第二页均显示，严格单行绝不折行）
             if !isScreenLocked {
                 HStack(spacing: 12) {
                     Button(action: {
@@ -260,16 +261,16 @@ public struct ActiveTrainingSessionContainerView: View {
                         }
                     }) {
                         ZStack {
-                            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                                .fill(Color(white: 0.14))
+                            RoundedRectangle(cornerRadius: 25, style: .continuous)
+                                .fill(Color(white: 0.15))
                             Image(systemName: "lock.fill")
                                 .font(.system(size: 16, weight: .bold))
                                 .foregroundColor(.white)
                         }
-                        .frame(width: 48, height: 48)
+                        .frame(width: 50, height: 50)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                                .strokeBorder(Color.white.opacity(0.14), lineWidth: 1)
+                            RoundedRectangle(cornerRadius: 25, style: .continuous)
+                                .strokeBorder(Color.white.opacity(0.16), lineWidth: 1)
                         )
                     }
                     .buttonStyle(.plain)
@@ -279,7 +280,7 @@ public struct ActiveTrainingSessionContainerView: View {
                 .padding(.bottom, 14)
                 .transition(.opacity.combined(with: .move(edge: .bottom)))
             } else {
-                Color.clear.frame(height: 62)
+                Color.clear.frame(height: 64)
             }
         }
         .padding(.horizontal, 20)
@@ -396,7 +397,38 @@ public struct ActiveTrainingSessionContainerView: View {
             // 统一全局分页指示点
             pageIndicatorDots()
             
-            Color.clear.frame(height: 62)
+            // 第一页同样保留完整的锁屏与结束按键操作区
+            if !isScreenLocked {
+                HStack(spacing: 12) {
+                    Button(action: {
+                        let impact = UIImpactFeedbackGenerator(style: .medium)
+                        impact.impactOccurred()
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                            isScreenLocked = true
+                        }
+                    }) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 25, style: .continuous)
+                                .fill(Color(white: 0.15))
+                            Image(systemName: "lock.fill")
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(.white)
+                        }
+                        .frame(width: 50, height: 50)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 25, style: .continuous)
+                                .strokeBorder(Color.white.opacity(0.16), lineWidth: 1)
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    
+                    longPressEndWorkoutBar()
+                }
+                .padding(.bottom, 14)
+                .transition(.opacity.combined(with: .move(edge: .bottom)))
+            } else {
+                Color.clear.frame(height: 64)
+            }
         }
         .padding(.horizontal, 20)
     }
@@ -462,7 +494,7 @@ public struct ActiveTrainingSessionContainerView: View {
             
             pageIndicatorDots()
             
-            Color.clear.frame(height: 62)
+            Color.clear.frame(height: 64)
         }
     }
     
@@ -483,7 +515,7 @@ public struct ActiveTrainingSessionContainerView: View {
     @ViewBuilder
     private func longPressEndWorkoutBar() -> some View {
         ZStack(alignment: .leading) {
-            Color(white: 0.13)
+            Color(white: 0.12)
             
             GeometryReader { geo in
                 Rectangle()
@@ -491,34 +523,34 @@ public struct ActiveTrainingSessionContainerView: View {
                     .frame(width: max(0, geo.size.width * holdToEndProgress))
             }
             
-            HStack(spacing: 8) {
+            HStack(spacing: 10) {
                 ZStack {
                     Circle()
-                        .fill(Color.white.opacity(0.18))
+                        .fill(Color.white.opacity(0.15))
                         .frame(width: 32, height: 32)
                     Image(systemName: "stop.fill")
                         .font(.system(size: 13, weight: .bold))
                         .foregroundColor(.white)
                 }
-                .padding(.leading, 8)
+                .padding(.leading, 10)
                 
                 Spacer(minLength: 4)
                 
-                Text(isHoldingToEnd ? "正在结束..." : "长按 1.2 秒结束训练")
-                    .font(.system(size: 15, weight: .bold))
+                Text(isHoldingToEnd ? "正在结束... 松开取消" : "长按 1.2 秒结束本场训练")
+                    .font(.system(size: 15, weight: .semibold))
                     .foregroundColor(.white)
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
                 
                 Spacer(minLength: 4)
                 
-                Color.clear.frame(width: 40, height: 32)
+                Color.clear.frame(width: 42, height: 32)
             }
         }
-        .frame(height: 48)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .frame(height: 50)
+        .clipShape(RoundedRectangle(cornerRadius: 25, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
+            RoundedRectangle(cornerRadius: 25, style: .continuous)
                 .strokeBorder(Color.white.opacity(0.14), lineWidth: 1)
         )
         .shadow(color: Color.black.opacity(0.14), radius: 8, x: 0, y: 4)
