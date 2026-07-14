@@ -31,6 +31,7 @@ public struct TrainingView: View {
                 onStartWorkout: {
                     session.currentCalories = 0
                     elapsedTrainingSeconds = 0
+                    session.elapsedSeconds = 0
                     watchService.activeEnergyBurnedKcal = 0
                     withAnimation { isWorkoutActive = true }
                     watchService.startWatchWorkoutSession(exerciseTitle: session.exerciseName)
@@ -166,6 +167,7 @@ public struct TrainingView: View {
                 if started && !isWorkoutActive {
                     session.currentCalories = 0
                     elapsedTrainingSeconds = 0
+                    session.elapsedSeconds = 0
                     watchService.activeEnergyBurnedKcal = 0
                     withAnimation { isWorkoutActive = true }
                 }
@@ -180,6 +182,7 @@ public struct TrainingView: View {
             }
             .onReceive(Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()) { _ in
                 elapsedTrainingSeconds += 1
+                session.elapsedSeconds = elapsedTrainingSeconds
                 if watchService.activeEnergyBurnedKcal > 0 {
                     session.currentCalories = watchService.activeEnergyBurnedKcal
                 } else {

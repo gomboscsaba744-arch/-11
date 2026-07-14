@@ -13,6 +13,7 @@ public struct TrainingSessionMock {
     public var currentSet: Int = 1
     public var totalSets: Int = 4
     public var targetWeightKg: Double = 60.0
+    public var elapsedSeconds: Int = 0
     
     public var currentReps: Int = 0
     public var watchTelemetry: WatchSensorTelemetryModel = WatchSensorTelemetryModel()

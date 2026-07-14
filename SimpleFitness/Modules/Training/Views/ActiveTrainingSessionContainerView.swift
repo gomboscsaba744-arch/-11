@@ -413,25 +413,35 @@ public struct ActiveTrainingSessionContainerView: View {
         VStack(spacing: 0) {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 22) {
-                    // 1. 浑然一体的 Apple Fitness Studio 全场监测与能耗枢纽卡片
+                    // 1. 本场训练全局数据概览与宏观进度枢纽 (绝不与第一页单组数据重复)
+                    let macroTotalSets = currentRoutineExercises.reduce(0) { $0 + max(1, $1.sets) }
+                    let completedPrevSets = currentRoutineExercises.prefix(max(0, session.currentExerciseIndex - 1)).reduce(0) { $0 + max(1, $1.sets) }
+                    let macroCompletedSets = min(macroTotalSets, completedPrevSets + max(0, session.currentSet - 1))
+                    let macroProgressPercent = macroTotalSets > 0 ? Int((Double(macroCompletedSets) / Double(macroTotalSets)) * 100) : 0
+                    let formattedElapsed = String(format: "%02d:%02d", session.elapsedSeconds / 60, session.elapsedSeconds % 60)
+                    
                     VStack(spacing: 14) {
                         HStack {
                             HStack(spacing: 6) {
-                                Image(systemName: "applewatch.side.right")
+                                Image(systemName: "chart.bar.xaxis")
                                     .font(.system(size: 13, weight: .bold))
                                     .foregroundColor(AppColors.accentBlue)
-                                Text("全场遥测与表端协同")
-                                    .font(.system(size: 12, weight: .heavy))
+                                Text("本场训练全局概览")
+                                    .font(.system(size: 13, weight: .bold))
+                                    .foregroundColor(AppColors.primaryText)
+                                Text("· \(session.workoutTitle)")
+                                    .font(.system(size: 12, weight: .medium))
                                     .foregroundColor(AppColors.secondaryText)
+                                    .lineLimit(1)
                             }
                             Spacer()
                             HStack(spacing: 5) {
                                 Circle()
-                                    .fill(session.watchTelemetry.isWatchConnected ? Color.green : Color.orange)
+                                    .fill(Color.green)
                                     .frame(width: 6, height: 6)
-                                Text(session.watchTelemetry.isWatchConnected ? "Watch 已联动" : "表端待联动")
+                                Text("\(macroProgressPercent)% 已完成")
                                     .font(.system(size: 11, weight: .bold))
-                                    .foregroundColor(session.watchTelemetry.isWatchConnected ? .green : .orange)
+                                    .foregroundColor(.green)
                             }
                             .padding(.horizontal, 9)
                             .padding(.vertical, 4)
@@ -440,12 +450,12 @@ public struct ActiveTrainingSessionContainerView: View {
                         }
                         
                         HStack(spacing: 0) {
-                            // 完成组数
+                            // 全场总计组数
                             VStack(spacing: 4) {
-                                Text("\(session.currentSet)/\(session.totalSets)")
+                                Text("\(macroCompletedSets)/\(macroTotalSets)")
                                     .font(.system(size: 20, weight: .heavy, design: .rounded))
                                     .foregroundColor(AppColors.primaryText)
-                                Text("完成组数")
+                                Text("总计组数")
                                     .font(.system(size: 11, weight: .semibold))
                                     .foregroundColor(AppColors.secondaryText)
                             }
@@ -453,12 +463,12 @@ public struct ActiveTrainingSessionContainerView: View {
                             
                             Divider().frame(height: 28)
                             
-                            // 实时心率
+                            // 推进动作进度
                             VStack(spacing: 4) {
-                                Text(session.currentHeartRate > 0 ? "\(session.currentHeartRate)" : "--")
+                                Text("\(session.currentExerciseIndex)/\(currentRoutineExercises.count)")
                                     .font(.system(size: 20, weight: .heavy, design: .rounded))
-                                    .foregroundColor(.red)
-                                Text("实时心率 (bpm)")
+                                    .foregroundColor(AppColors.accentBlue)
+                                Text("推进动作")
                                     .font(.system(size: 11, weight: .semibold))
                                     .foregroundColor(AppColors.secondaryText)
                             }
@@ -466,24 +476,24 @@ public struct ActiveTrainingSessionContainerView: View {
                             
                             Divider().frame(height: 28)
                             
-                            // 活跃能耗
+                            // 本场已用时
                             VStack(spacing: 4) {
-                                Text("\(session.currentCalories)")
+                                Text(formattedElapsed)
                                     .font(.system(size: 20, weight: .heavy, design: .rounded))
                                     .foregroundColor(.orange)
-                                Text("活跃消耗 (kcal)")
+                                Text("训练耗时")
                                     .font(.system(size: 11, weight: .semibold))
                                     .foregroundColor(AppColors.secondaryText)
                             }
                             .frame(maxWidth: .infinity)
                         }
                         
-                        // 底部微光感知状态带（精炼融合，省去大面积冗余灰框）
+                        // 底部设备联动状态带
                         HStack(spacing: 8) {
-                            Image(systemName: "gyroscope")
+                            Image(systemName: session.watchTelemetry.isWatchConnected ? "applewatch" : "applewatch.slash")
                                 .font(.system(size: 12, weight: .semibold))
-                                .foregroundColor(AppColors.accentBlue)
-                            Text("Apple Watch 运动姿态检测中 · 自动计次已开启")
+                                .foregroundColor(session.watchTelemetry.isWatchConnected ? .green : AppColors.secondaryText)
+                            Text(session.watchTelemetry.isWatchConnected ? "Apple Watch 已连接 · 自动计次运行中" : "未连接 Apple Watch · 触控计次已开启")
                                 .font(.system(size: 11, weight: .medium))
                                 .foregroundColor(AppColors.secondaryText)
                             Spacer()
