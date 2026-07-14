@@ -244,9 +244,12 @@ public struct ActiveTrainingSessionContainerView: View {
                 onPrevExercise: { onPrevExercise() },
                 onNextExercise: { onNextExercise() }
             )
-            .padding(.bottom, 12)
+            .padding(.bottom, 6)
             
-            // 锁屏防误触按键 与 长按结束运动按键（上锁后自动隐藏，换为长按解锁条，避免重叠）
+            // 统一全局分页指示点 (位置绝对固定，绝不遮挡底部操作区)
+            pageIndicatorDots()
+            
+            // 锁屏防误触按键 与 长按结束训练条（仅第一页显示，严格限制单行绝不折行）
             if !isScreenLocked {
                 HStack(spacing: 12) {
                     Button(action: {
@@ -257,33 +260,33 @@ public struct ActiveTrainingSessionContainerView: View {
                         }
                     }) {
                         ZStack {
-                            RoundedRectangle(cornerRadius: 25, style: .continuous)
-                                .fill(Color(white: 0.15))
+                            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                                .fill(Color(white: 0.14))
                             Image(systemName: "lock.fill")
                                 .font(.system(size: 16, weight: .bold))
                                 .foregroundColor(.white)
                         }
-                        .frame(width: 50, height: 50)
+                        .frame(width: 48, height: 48)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 25, style: .continuous)
-                                .strokeBorder(Color.white.opacity(0.16), lineWidth: 1)
+                            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                                .strokeBorder(Color.white.opacity(0.14), lineWidth: 1)
                         )
                     }
                     .buttonStyle(.plain)
                     
-                    bottomHoldToEndBar()
+                    longPressEndWorkoutBar()
                 }
                 .padding(.bottom, 14)
                 .transition(.opacity.combined(with: .move(edge: .bottom)))
             } else {
-                Color.clear.frame(height: 64)
+                Color.clear.frame(height: 62)
             }
         }
         .padding(.horizontal, 20)
         .animation(.spring(response: 0.38, dampingFraction: 0.82), value: restTimer.isRunning || restTimer.isPaused)
     }
     
-    // MARK: - Page 1: 计时与休息管理页 (遵循苹果 Health/Fitness 原生精美卡片审美，彻底删除重复标题栏与黑块)
+    // MARK: - Page 1: 计时与休息管理页 (原生苹果 Health/Fitness 精美悬浮卡片审美，绝不堆砌冗余信息)
     @ViewBuilder
     private func pageOneRestTimer() -> some View {
         VStack(spacing: 0) {
@@ -388,139 +391,150 @@ public struct ActiveTrainingSessionContainerView: View {
                 onPrevExercise: { onPrevExercise() },
                 onNextExercise: { onNextExercise() }
             )
-            .padding(.bottom, 14)
+            .padding(.bottom, 6)
+            
+            // 统一全局分页指示点
+            pageIndicatorDots()
+            
+            Color.clear.frame(height: 62)
         }
         .padding(.horizontal, 20)
     }
     
-    // MARK: - Page 2: 手表传感器数据监测与全场计划页 (左滑切换)
+    // MARK: - Page 2: 手表传感器数据监测与全场计划页 (苹果高级卡片排版)
     @ViewBuilder
     private func pageTwoTelemetryAndSchedule() -> some View {
-        ScrollView(showsIndicators: false) {
-            VStack(spacing: 20) {
-                WatchSensorTelemetryCardView(telemetry: session.watchTelemetry)
-                    .padding(.top, 14)
-                
-                VStack(alignment: .leading, spacing: 14) {
-                    HStack {
-                        Text("今日训练全部动作")
-                            .font(.system(size: 17, weight: .heavy))
-                            .foregroundColor(AppColors.primaryText)
-                        Spacer()
-                        Text("共 \(currentRoutineExercises.count) 个动作")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundColor(AppColors.secondaryText)
-                    }
+        VStack(spacing: 0) {
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 20) {
+                    WatchSensorTelemetryCardView(telemetry: session.watchTelemetry)
+                        .padding(.top, 14)
                     
-                    VStack(spacing: 10) {
-                        ForEach(Array(currentRoutineExercises.enumerated()), id: \.offset) { index, item in
-                            HStack(spacing: 14) {
-                                Circle()
-                                    .fill(index + 1 == session.currentExerciseIndex ? Color.green : Color.black.opacity(0.06))
-                                    .frame(width: 32, height: 32)
-                                    .overlay(
-                                        Text("\(index + 1)")
-                                            .font(.system(size: 13, weight: .bold))
-                                            .foregroundColor(index + 1 == session.currentExerciseIndex ? .white : AppColors.primaryText)
-                                    )
-                                
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text(item.name)
-                                        .font(.system(size: 15, weight: .bold))
+                    VStack(alignment: .leading, spacing: 14) {
+                        HStack {
+                            Text("今日训练全部动作")
+                                .font(.system(size: 17, weight: .heavy))
+                                .foregroundColor(AppColors.primaryText)
+                            Spacer()
+                            Text("共 \(currentRoutineExercises.count) 个动作")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(AppColors.secondaryText)
+                        }
+                        
+                        VStack(spacing: 10) {
+                            ForEach(Array(currentRoutineExercises.enumerated()), id: \.offset) { index, item in
+                                HStack(spacing: 14) {
+                                    Circle()
+                                        .fill(index + 1 == session.currentExerciseIndex ? Color.green : Color.black.opacity(0.06))
+                                        .frame(width: 32, height: 32)
+                                        .overlay(
+                                            Text("\(index + 1)")
+                                                .font(.system(size: 13, weight: .bold))
+                                                .foregroundColor(index + 1 == session.currentExerciseIndex ? .white : AppColors.primaryText)
+                                        )
+                                    
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        Text(item.name)
+                                            .font(.system(size: 15, weight: .bold))
+                                            .foregroundColor(AppColors.primaryText)
+                                        Text("\(item.sets) 组 · 约 \(item.reps) 次")
+                                            .font(.system(size: 12, weight: .medium))
+                                            .foregroundColor(AppColors.secondaryText)
+                                    }
+                                    Spacer()
+                                    Text("\(Int(item.targetWeightKg)) kg")
+                                        .font(.system(size: 14, weight: .heavy))
                                         .foregroundColor(AppColors.primaryText)
-                                    Text("\(item.sets) 组 · 约 \(item.reps) 次")
-                                        .font(.system(size: 12, weight: .medium))
-                                        .foregroundColor(AppColors.secondaryText)
                                 }
-                                Spacer()
-                                Text("\(Int(item.targetWeightKg)) kg")
-                                    .font(.system(size: 14, weight: .heavy))
-                                    .foregroundColor(AppColors.primaryText)
+                                .padding(14)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                        .fill(Color.white.opacity(0.75))
+                                )
                             }
-                            .padding(14)
-                            .background(
-                                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                    .fill(Color.white.opacity(0.75))
-                            )
                         }
                     }
+                    
+                    Spacer(minLength: 24)
                 }
-                
-                Spacer(minLength: 140)
+                .padding(.horizontal, 20)
             }
-            .padding(.horizontal, 20)
+            
+            pageIndicatorDots()
+            
+            Color.clear.frame(height: 62)
         }
     }
     
-    // MARK: - 底部精致分页点与长按结束控制条（硬件加速平滑过渡·0卡顿）
+    // MARK: - 统一精美分页指示器 (全局同高定位)
     @ViewBuilder
-    private func bottomHoldToEndBar() -> some View {
-        VStack(spacing: 12) {
-            // 分页指示点
-            HStack(spacing: 6) {
-                ForEach(0..<3) { idx in
-                    Circle()
-                        .fill(selectedPageIndex == idx ? AppColors.primaryText : Color.black.opacity(0.16))
-                        .frame(width: 6, height: 6)
-                }
+    private func pageIndicatorDots() -> some View {
+        HStack(spacing: 8) {
+            ForEach(0..<3) { idx in
+                Circle()
+                    .fill(selectedPageIndex == idx ? AppColors.primaryText : Color.black.opacity(0.15))
+                    .frame(width: selectedPageIndex == idx ? 7 : 6, height: selectedPageIndex == idx ? 7 : 6)
+            }
+        }
+        .padding(.vertical, 6)
+    }
+    
+    // MARK: - 长按结束训练胶囊条 (严格单行，绝不折行)
+    @ViewBuilder
+    private func longPressEndWorkoutBar() -> some View {
+        ZStack(alignment: .leading) {
+            Color(white: 0.13)
+            
+            GeometryReader { geo in
+                Rectangle()
+                    .fill(Color(red: 0.95, green: 0.22, blue: 0.32))
+                    .frame(width: max(0, geo.size.width * holdToEndProgress))
             }
             
-            // 长按 1.2 秒结束本场训练
-            ZStack(alignment: .leading) {
-                // 底色
-                Color(white: 0.12)
-                
-                // 红色进度填充层（纯矩形从左向右平滑延伸，由最外层圆角严格裁切，左端圆角与外框绝对契合、绝不溢出或方形畸变）
-                GeometryReader { geo in
-                    Rectangle()
-                        .fill(Color(red: 0.95, green: 0.22, blue: 0.32))
-                        .frame(width: max(0, geo.size.width * holdToEndProgress))
-                }
-                
-                // 内容层：始终清晰居中对齐
-                HStack(spacing: 10) {
-                    ZStack {
-                        Circle()
-                            .fill(Color.white.opacity(0.15))
-                            .frame(width: 32, height: 32)
-                        Image(systemName: "stop.fill")
-                            .font(.system(size: 13, weight: .bold))
-                            .foregroundColor(.white)
-                    }
-                    .padding(.leading, 10)
-                    
-                    Spacer()
-                    
-                    Text(isHoldingToEnd ? "正在结束... 松开取消" : "长按 1.2 秒结束本场训练")
-                        .font(.system(size: 15, weight: .semibold))
+            HStack(spacing: 8) {
+                ZStack {
+                    Circle()
+                        .fill(Color.white.opacity(0.18))
+                        .frame(width: 32, height: 32)
+                    Image(systemName: "stop.fill")
+                        .font(.system(size: 13, weight: .bold))
                         .foregroundColor(.white)
-                    
-                    Spacer()
-                    
-                    Color.clear.frame(width: 42, height: 32)
                 }
+                .padding(.leading, 8)
+                
+                Spacer(minLength: 4)
+                
+                Text(isHoldingToEnd ? "正在结束..." : "长按 1.2 秒结束训练")
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+                
+                Spacer(minLength: 4)
+                
+                Color.clear.frame(width: 40, height: 32)
             }
-            .frame(height: 50)
-            .clipShape(RoundedRectangle(cornerRadius: 25, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 25, style: .continuous)
-                    .strokeBorder(Color.white.opacity(0.14), lineWidth: 1)
-            )
-            .shadow(color: Color.black.opacity(0.14), radius: 8, x: 0, y: 4)
-            .scaleEffect(isHoldingToEnd ? 0.98 : 1.0)
-            .animation(.easeInOut(duration: 0.2), value: isHoldingToEnd)
-            .gesture(
-                DragGesture(minimumDistance: 0)
-                    .onChanged { _ in
-                        if !isHoldingToEnd {
-                            startSmoothLongPress()
-                        }
-                    }
-                    .onEnded { _ in
-                        cancelSmoothLongPress()
-                    }
-            )
         }
+        .frame(height: 48)
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.14), lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(0.14), radius: 8, x: 0, y: 4)
+        .scaleEffect(isHoldingToEnd ? 0.98 : 1.0)
+        .animation(.easeInOut(duration: 0.2), value: isHoldingToEnd)
+        .gesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in
+                    if !isHoldingToEnd {
+                        startSmoothLongPress()
+                    }
+                }
+                .onEnded { _ in
+                    cancelSmoothLongPress()
+                }
+        )
     }
     
     // MARK: - 锁屏全透明防护层与长按解锁条 (完全透明不遮挡训练内容，底部无缝置换正常按键条)
