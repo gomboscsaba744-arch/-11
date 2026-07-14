@@ -416,7 +416,7 @@ public struct ActiveTrainingSessionContainerView: View {
                     // 1. 本场训练全局数据概览与宏观进度枢纽 (绝不与第一页单组数据重复)
                     let macroTotalSets = currentRoutineExercises.reduce(0) { $0 + max(1, $1.sets) }
                     let completedPrevSets = currentRoutineExercises.prefix(max(0, session.currentExerciseIndex - 1)).reduce(0) { $0 + max(1, $1.sets) }
-                    let macroCompletedSets = min(macroTotalSets, completedPrevSets + max(0, session.currentSet - 1))
+                    let macroCompletedSets = completedPrevSets + max(0, session.currentSet - 1)
                     let macroProgressPercent = macroTotalSets > 0 ? Int((Double(macroCompletedSets) / Double(macroTotalSets)) * 100) : 0
                     let formattedElapsed = String(format: "%02d:%02d", session.elapsedSeconds / 60, session.elapsedSeconds % 60)
                     
