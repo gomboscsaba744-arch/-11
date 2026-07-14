@@ -287,18 +287,17 @@ public struct ActiveTrainingSessionContainerView: View {
         .animation(.spring(response: 0.38, dampingFraction: 0.82), value: restTimer.isRunning || restTimer.isPaused)
     }
     
-    // MARK: - Page 1: 纯粹休息与倒计时管理页 (专属计时核心功能，绝不重复首部分动作打卡与建议数据)
-    // MARK: - Page 1: 纯粹休息与倒计时管理页 (专属计时核心功能，绝不重复首部分动作打卡与建议数据)
+    // MARK: - Page 1: 纯粹休息与倒计时管理页 (高精准度计时表盘美学，去除非必要拼接卡片)
     @ViewBuilder
     private func pageOneRestTimer() -> some View {
         VStack(spacing: 0) {
-            // 极简沉浸式顶部休息指引栏（有质感的上下文预告，绝不堆砌首页复杂的操作按钮）
+            // 极简沉浸式顶部休息指引栏（连贯呼应，无噪音）
             HStack {
                 HStack(spacing: 8) {
                     Circle()
                         .fill(Color.orange)
                         .frame(width: 8, height: 8)
-                    Text("组间休息调息")
+                    Text("组间调息倒计时")
                         .font(.system(size: 16, weight: .bold))
                         .foregroundColor(AppColors.primaryText)
                 }
@@ -320,39 +319,12 @@ public struct ActiveTrainingSessionContainerView: View {
             }
             .padding(.top, 14)
             
-            Spacer(minLength: 16)
+            Spacer(minLength: 20)
             
-            // 专一核心功能：260x260 光环倒计时与微调表盘控制区
+            // 专一核心功能：260x260 光环倒计时与整合式操控区
             RestTimerCardView(timerModel: $restTimer)
             
-            Spacer(minLength: 14)
-            
-            // 苹果健康/Fitness+ 风格调息指导与心率平复提示条（弥补垂直空间，富有沉浸仪式感）
-            HStack(spacing: 12) {
-                ZStack {
-                    Circle()
-                        .fill(Color.red.opacity(0.12))
-                        .frame(width: 32, height: 32)
-                    Image(systemName: "heart.fill")
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(.red)
-                }
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("心率平复与体能蓄力")
-                        .font(.system(size: 13, weight: .bold))
-                        .foregroundColor(AppColors.primaryText)
-                    Text("建议保持腹部微收深呼吸，准备迎接下一组")
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(AppColors.secondaryText)
-                }
-                Spacer()
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .background(AppColors.pillBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            
-            Spacer(minLength: 14)
+            Spacer(minLength: 20)
             
             // 统一全局分页指示点
             pageIndicatorDots()

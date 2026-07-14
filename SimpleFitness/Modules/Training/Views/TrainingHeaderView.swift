@@ -22,20 +22,19 @@ public struct TrainingHeaderView: View {
     }
     
     public var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // 1. 顶层导航栏：所属训练日切换 + 动作进度点阵
-            HStack(alignment: .center, spacing: 8) {
+        VStack(alignment: .leading, spacing: 14) {
+            // 1. 顶部训练日层级与当前动作进度（轻盈无边框，极简优雅）
+            HStack(alignment: .center) {
                 Button(action: onSelectRoutine) {
-                    HStack(alignment: .center, spacing: 4) {
+                    HStack(alignment: .center, spacing: 5) {
                         Image(systemName: "figure.strengthtraining.traditional")
                             .font(.subheadline.weight(.bold))
                             .foregroundColor(AppColors.accentBlue)
                         
                         Text(session.workoutTitle)
-                            .font(.system(size: 17, weight: .bold))
+                            .font(.system(size: 16, weight: .bold))
                             .foregroundColor(AppColors.primaryText)
                             .lineLimit(1)
-                            .minimumScaleFactor(0.7)
                         
                         Image(systemName: "chevron.down")
                             .font(.caption2.weight(.bold))
@@ -43,126 +42,102 @@ public struct TrainingHeaderView: View {
                     }
                 }
                 .buttonStyle(.plain)
-                .layoutPriority(1)
                 
-                Spacer(minLength: 4)
+                Spacer()
                 
-                // 动作点阵导航 (绝对单行防止 1/4 换行压缩)
                 Button(action: onTapExerciseListModal) {
-                    HStack(spacing: 5) {
+                    HStack(spacing: 6) {
                         Text("动作 \(session.currentExerciseIndex)/\(session.totalExercises)")
-                            .font(.caption.weight(.bold))
-                            .foregroundColor(AppColors.accentBlue)
-                            .lineLimit(1)
-                            .fixedSize(horizontal: true, vertical: false)
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundColor(AppColors.secondaryText)
                         
                         ExerciseProgressDotsView(
                             current: session.currentExerciseIndex,
                             total: session.totalExercises
                         )
                     }
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 5)
-                    .background(AppColors.pillBackground)
-                    .clipShape(Capsule())
                 }
                 .buttonStyle(.plain)
-                .fixedSize(horizontal: true, vertical: false)
-                .layoutPriority(10)
             }
             
-            // 2. 动作主标题 + 右侧当前组数入口
+            // 2. 动作主标题与对应组数切换（强烈的视觉中心与层级呼应）
             HStack(alignment: .center) {
                 Text(session.exerciseName)
-                    .font(.system(size: 28, weight: .black, design: .rounded))
+                    .font(.system(size: 30, weight: .black, design: .rounded))
                     .foregroundColor(AppColors.primaryText)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.75)
+                    .minimumScaleFactor(0.7)
                 
-                if isRestPhase {
-                    HStack(spacing: 4) {
-                        Circle()
-                            .fill(Color.orange)
-                            .frame(width: 6, height: 6)
-                        Text("休息中")
-                            .font(.caption2.weight(.bold))
-                            .foregroundColor(.orange)
-                    }
-                    .padding(.horizontal, 7)
-                    .padding(.vertical, 3)
-                    .background(Color.orange.opacity(0.12))
-                    .clipShape(Capsule())
-                }
+                Spacer(minLength: 12)
                 
-                Spacer(minLength: 8)
-                
-                // 组数明细导航
                 Button(action: onTapSetListModal) {
-                    HStack(spacing: 3) {
+                    HStack(spacing: 4) {
                         Text("第 \(session.currentSet)/\(session.totalSets) 组")
-                            .font(.caption.weight(.heavy))
-                            .lineLimit(1)
-                            .fixedSize(horizontal: true, vertical: false)
+                            .font(.system(size: 14, weight: .heavy))
                         Image(systemName: "chevron.right")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.system(size: 11, weight: .bold))
                     }
-                    .padding(.horizontal, 11)
-                    .padding(.vertical, 6)
-                    .background((isRestPhase ? Color.orange : Color.green).opacity(0.14))
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 7)
+                    .background(isRestPhase ? Color.orange.opacity(0.15) : Color.green.opacity(0.15))
                     .foregroundColor(isRestPhase ? .orange : .green)
                     .clipShape(Capsule())
                 }
                 .buttonStyle(.plain)
-                .fixedSize(horizontal: true, vertical: false)
-                .layoutPriority(10)
             }
-                
-                // 体征与目标负重集成指标带 (精炼水平对齐)
-                HStack(spacing: 10) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "scalemass.fill")
-                            .font(.caption2)
-                            .foregroundColor(AppColors.secondaryText)
-                        Text(String(format: "目标 %.1f kg", session.targetWeightKg))
-                            .font(.caption.weight(.bold))
-                            .foregroundColor(AppColors.primaryText)
-                    }
-                    .padding(.horizontal, 9)
-                    .padding(.vertical, 5)
-                    .background(AppColors.pillBackground)
-                    .clipShape(Capsule())
-                    
-                    HStack(spacing: 4) {
-                        Image(systemName: "heart.fill")
-                            .foregroundColor(.red)
-                            .font(.caption2)
-                        Text(session.currentHeartRate > 0 ? "\(session.currentHeartRate) bpm" : "--")
-                            .font(.caption.weight(.bold))
-                            .monospacedDigit()
-                    }
-                    .padding(.horizontal, 9)
-                    .padding(.vertical, 5)
-                    .background(AppColors.pillBackground)
-                    .clipShape(Capsule())
-                    
-                    HStack(spacing: 4) {
-                        Image(systemName: "flame.fill")
-                            .foregroundColor(.orange)
-                            .font(.caption2)
-                        Text("\(session.currentCalories) kcal")
-                            .font(.caption.weight(.bold))
-                            .monospacedDigit()
-                            .contentTransition(.numericText(value: Double(session.currentCalories)))
-                            .animation(.spring(response: 0.28, dampingFraction: 0.82), value: session.currentCalories)
-                    }
-                    .padding(.horizontal, 9)
-                    .padding(.vertical, 5)
-                    .background(AppColors.pillBackground)
-                    .clipShape(Capsule())
-                    
-                    Spacer()
+            
+            // 3. 统一式 Apple Studio 遥测与负重指标带 (整齐合一，彻底替代原有凌乱的分散小方块)
+            HStack(spacing: 0) {
+                // 目标重量
+                HStack(spacing: 5) {
+                    Image(systemName: "scalemass.fill")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(AppColors.accentBlue)
+                    Text(String(format: "目标 %.1f kg", session.targetWeightKg))
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundColor(AppColors.primaryText)
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                
+                Divider()
+                    .frame(height: 14)
+                    .padding(.horizontal, 8)
+                
+                // 心率监测
+                HStack(spacing: 5) {
+                    Image(systemName: "heart.fill")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(.red)
+                    Text(session.currentHeartRate > 0 ? "\(session.currentHeartRate) bpm" : "--")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundColor(AppColors.primaryText)
+                        .monospacedDigit()
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+                
+                Divider()
+                    .frame(height: 14)
+                    .padding(.horizontal, 8)
+                
+                // 动态卡路里
+                HStack(spacing: 5) {
+                    Image(systemName: "flame.fill")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(.orange)
+                    Text("\(session.currentCalories) kcal")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundColor(AppColors.primaryText)
+                        .monospacedDigit()
+                        .contentTransition(.numericText(value: Double(session.currentCalories)))
+                        .animation(.spring(response: 0.28, dampingFraction: 0.82), value: session.currentCalories)
+                }
+                .frame(maxWidth: .infinity, alignment: .trailing)
             }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .background(AppColors.pillBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        }
         .padding(.horizontal, 4)
         .padding(.vertical, 4)
     }
