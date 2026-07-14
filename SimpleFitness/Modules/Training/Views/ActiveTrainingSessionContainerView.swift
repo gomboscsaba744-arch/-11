@@ -319,12 +319,62 @@ public struct ActiveTrainingSessionContainerView: View {
             }
             .padding(.top, 14)
             
-            Spacer(minLength: 20)
+            Spacer(minLength: 16)
             
             // 专一核心功能：260x260 光环倒计时与整合式操控区
             RestTimerCardView(timerModel: $restTimer)
             
-            Spacer(minLength: 20)
+            Spacer(minLength: 14)
+            
+            // 下一组训练智能准备台 (高阶互动体验：休息倒计时与发力预设调校完美闭环)
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(Color.orange.opacity(0.14))
+                        .frame(width: 36, height: 36)
+                    Image(systemName: "scalemass.fill")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(.orange)
+                }
+                
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("下组预设 · \(Int(session.targetWeightKg)) kg × \(session.currentReps) 次")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(AppColors.primaryText)
+                    Text("上组完成轻松？休息时可直接调整下组参数")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(AppColors.secondaryText)
+                }
+                
+                Spacer()
+                
+                Button(action: {
+                    let impact = UIImpactFeedbackGenerator(style: .light)
+                    impact.impactOccurred()
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                        showingSetListModal = true
+                    }
+                }) {
+                    HStack(spacing: 3) {
+                        Text("微调")
+                            .font(.system(size: 12, weight: .bold))
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 10, weight: .bold))
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(Color.orange.opacity(0.18))
+                    .foregroundColor(.orange)
+                    .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
+            .background(AppColors.pillBackground)
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            
+            Spacer(minLength: 14)
             
             // 统一全局分页指示点
             pageIndicatorDots()
@@ -365,81 +415,174 @@ public struct ActiveTrainingSessionContainerView: View {
         .padding(.horizontal, 20)
     }
     
-    // MARK: - Page 2: 手表传感器数据监测与全场计划页 (苹果高级无框排版·浑然一体)
+    // MARK: - Page 2: 手表传感器数据监测与全场计划页 (苹果高级控制台·浑然一体)
     @ViewBuilder
     private func pageTwoTelemetryAndSchedule() -> some View {
         VStack(spacing: 0) {
             ScrollView(showsIndicators: false) {
-                VStack(spacing: 24) {
-                    // Apple Watch 传感器遥测专区
+                VStack(spacing: 22) {
+                    // 1. 全场实时综合能耗控制卡 (Apple Studio Live Command Center)
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Image(systemName: "bolt.heart.fill")
+                                .font(.system(size: 13, weight: .bold))
+                                .foregroundColor(.orange)
+                            Text("本场训练动态能耗总览")
+                                .font(.system(size: 12, weight: .heavy))
+                                .foregroundColor(AppColors.secondaryText)
+                                .tracking(0.8)
+                            Spacer()
+                            Text(session.workoutTitle)
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(AppColors.accentBlue)
+                        }
+                        
+                        HStack(spacing: 0) {
+                            // 当前进度
+                            VStack(spacing: 4) {
+                                Text("\(session.currentSet)/\(session.totalSets)")
+                                    .font(.system(size: 20, weight: .heavy, design: .rounded))
+                                    .foregroundColor(AppColors.primaryText)
+                                Text("完成组数")
+                                    .font(.system(size: 11, weight: .semibold))
+                                    .foregroundColor(AppColors.secondaryText)
+                            }
+                            .frame(maxWidth: .infinity)
+                            
+                            Divider().frame(height: 28)
+                            
+                            // 心率极值
+                            VStack(spacing: 4) {
+                                Text(session.currentHeartRate > 0 ? "\(session.currentHeartRate)" : "--")
+                                    .font(.system(size: 20, weight: .heavy, design: .rounded))
+                                    .foregroundColor(.red)
+                                Text("实时心率 (bpm)")
+                                    .font(.system(size: 11, weight: .semibold))
+                                    .foregroundColor(AppColors.secondaryText)
+                            }
+                            .frame(maxWidth: .infinity)
+                            
+                            Divider().frame(height: 28)
+                            
+                            // 动态消耗
+                            VStack(spacing: 4) {
+                                Text("\(session.currentCalories)")
+                                    .font(.system(size: 20, weight: .heavy, design: .rounded))
+                                    .foregroundColor(.orange)
+                                Text("活跃消耗 (kcal)")
+                                    .font(.system(size: 11, weight: .semibold))
+                                    .foregroundColor(AppColors.secondaryText)
+                            }
+                            .frame(maxWidth: .infinity)
+                        }
+                    }
+                    .padding(14)
+                    .background(AppColors.pillBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .padding(.top, 14)
+                    
+                    // 2. Apple Watch 传感器遥测专区
                     VStack(alignment: .leading, spacing: 10) {
                         HStack {
                             Image(systemName: "applewatch")
-                                .font(.system(size: 14, weight: .bold))
+                                .font(.system(size: 13, weight: .bold))
                                 .foregroundColor(AppColors.accentBlue)
-                            Text("APPLE WATCH 实时监测")
+                            Text("APPLE WATCH 实时感应")
                                 .font(.system(size: 12, weight: .heavy))
                                 .foregroundColor(AppColors.secondaryText)
-                                .tracking(1.0)
+                                .tracking(0.8)
                             Spacer()
                         }
                         
                         WatchSensorTelemetryCardView(telemetry: session.watchTelemetry)
                     }
-                    .padding(.top, 14)
                     
-                    // 今日训练全部动作清单
+                    // 3. 今日全场训练动作序列与进度追踪
                     VStack(alignment: .leading, spacing: 14) {
                         HStack {
-                            Text("今日计划概览")
+                            Text("全场训练序列")
                                 .font(.system(size: 17, weight: .heavy))
                                 .foregroundColor(AppColors.primaryText)
                             Spacer()
-                            Text("共 \(currentRoutineExercises.count) 个动作")
+                            Text("共 \(currentRoutineExercises.count) 个动作 · 进度 \(session.currentExerciseIndex)/\(currentRoutineExercises.count)")
                                 .font(.system(size: 12, weight: .semibold))
                                 .foregroundColor(AppColors.secondaryText)
                         }
                         
-                        // 苹果原生连续列表形式（抛弃大白方框割裂感，轻盈极简分隔）
-                        VStack(spacing: 0) {
+                        // 苹果原生阶梯序列卡片列表（直观区分已完成/正在进行/待开始）
+                        VStack(spacing: 8) {
                             ForEach(Array(currentRoutineExercises.enumerated()), id: \.offset) { index, item in
-                                VStack(spacing: 0) {
+                                let isCurrent = index + 1 == session.currentExerciseIndex
+                                let isCompleted = index + 1 < session.currentExerciseIndex
+                                
+                                Button(action: {
+                                    let impact = UIImpactFeedbackGenerator(style: .light)
+                                    impact.impactOccurred()
+                                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                        showingExerciseListModal = true
+                                    }
+                                }) {
                                     HStack(spacing: 14) {
-                                        Circle()
-                                            .fill(index + 1 == session.currentExerciseIndex ? Color.green : Color.black.opacity(0.06))
-                                            .frame(width: 32, height: 32)
-                                            .overlay(
+                                        ZStack {
+                                            Circle()
+                                                .fill(isCurrent ? Color.green : (isCompleted ? Color.green.opacity(0.18) : Color.secondary.opacity(0.12)))
+                                                .frame(width: 32, height: 32)
+                                            if isCompleted {
+                                                Image(systemName: "checkmark")
+                                                    .font(.system(size: 13, weight: .bold))
+                                                    .foregroundColor(.green)
+                                            } else {
                                                 Text("\(index + 1)")
                                                     .font(.system(size: 13, weight: .bold))
-                                                    .foregroundColor(index + 1 == session.currentExerciseIndex ? .white : AppColors.primaryText)
-                                            )
+                                                    .foregroundColor(isCurrent ? .white : AppColors.primaryText)
+                                            }
+                                        }
                                         
                                         VStack(alignment: .leading, spacing: 3) {
-                                            Text(item.name)
-                                                .font(.system(size: 15, weight: .bold))
-                                                .foregroundColor(AppColors.primaryText)
+                                            HStack(spacing: 6) {
+                                                Text(item.name)
+                                                    .font(.system(size: 15, weight: .bold))
+                                                    .foregroundColor(AppColors.primaryText)
+                                                if isCurrent {
+                                                    Text("LIVE")
+                                                        .font(.system(size: 9, weight: .black))
+                                                        .padding(.horizontal, 5)
+                                                        .padding(.vertical, 2)
+                                                        .background(Color.green)
+                                                        .foregroundColor(.white)
+                                                        .clipShape(Capsule())
+                                                }
+                                            }
                                             Text("\(item.sets) 组 · 约 \(item.reps) 次")
                                                 .font(.system(size: 12, weight: .medium))
                                                 .foregroundColor(AppColors.secondaryText)
                                         }
+                                        
                                         Spacer()
-                                        Text("\(Int(item.targetWeightKg)) kg")
-                                            .font(.system(size: 15, weight: .heavy, design: .rounded))
-                                            .foregroundColor(AppColors.primaryText)
+                                        
+                                        VStack(alignment: .trailing, spacing: 2) {
+                                            Text("\(Int(item.targetWeightKg)) kg")
+                                                .font(.system(size: 15, weight: .heavy, design: .rounded))
+                                                .foregroundColor(AppColors.primaryText)
+                                            Text(isCompleted ? "已完成" : (isCurrent ? "训练中" : "待训练"))
+                                                .font(.system(size: 11, weight: .semibold))
+                                                .foregroundColor(isCompleted ? .green : (isCurrent ? .green : AppColors.secondaryText))
+                                        }
                                     }
-                                    .padding(.vertical, 12)
-                                    .padding(.horizontal, 4)
-                                    
-                                    if index < currentRoutineExercises.count - 1 {
-                                        Divider()
-                                            .padding(.leading, 46)
-                                    }
+                                    .padding(12)
+                                    .background(isCurrent ? Color.green.opacity(0.08) : AppColors.pillBackground)
+                                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                            .strokeBorder(isCurrent ? Color.green.opacity(0.4) : Color.clear, lineWidth: 1.5)
+                                    )
                                 }
+                                .buttonStyle(.plain)
                             }
                         }
                     }
                     
-                    Spacer(minLength: 24)
+                    Spacer(minLength: 28)
                 }
                 .padding(.horizontal, 20)
             }
