@@ -48,7 +48,7 @@ public struct RestTimerCardView: View {
                     .contentTransition(.numericText(value: timerModel.remainingTime))
                     .animation(.spring(response: 0.28, dampingFraction: 0.82), value: timerModel.remainingTime)
                 
-                Text(timerModel.isRunning ? "休息恢复计时中" : "长按圆环展开表盘")
+                Text(timerModel.isRunning ? "正在休息" : "长按圆环展开表盘")
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundColor(AppColors.secondaryText)
             }
@@ -121,45 +121,82 @@ public struct RestTimerCardView: View {
                 }
             }
             
-            HStack(spacing: 12) {
-                Button(action: {
-                    withAnimation {
-                        if timerModel.isRunning {
-                            timerModel.pause()
-                        } else {
-                            timerModel.resume()
-                        }
-                    }
-                }) {
-                    HStack(spacing: 6) {
-                        Image(systemName: timerModel.isRunning ? "pause.fill" : "play.fill")
-                        Text(timerModel.isRunning ? "暂停倒计时" : "继续倒计时")
-                    }
-                    .font(.headline)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(timerModel.isRunning ? Color.orange : AppColors.accentBlue)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            VStack(spacing: 12) {
+                // 动态交互提示状态条 (解决继续与跳过提示感不强的问题)
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(timerModel.isRunning ? Color.green : Color.orange)
+                        .frame(width: 7, height: 7)
+                    Text(timerModel.isRunning ? "组间休息倒计时进行中" : "倒计时已暂停")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundColor(timerModel.isRunning ? AppColors.secondaryText : .orange)
+                    Spacer()
                 }
+                .padding(.horizontal, 4)
                 
-                Button(action: {
-                    withAnimation {
-                        timerModel.reset()
+                HStack(spacing: 12) {
+                    // 1. 核心主操作按键：开始/继续倒计时 或 暂停倒计时 (占据主体视觉重心 maxWidth: .infinity)
+                    Button(action: {
+                        let impact = UIImpactFeedbackGenerator(style: .heavy)
+                        impact.impactOccurred()
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.78)) {
+                            if timerModel.isRunning {
+                                timerModel.pause()
+                            } else {
+                                timerModel.resume()
+                            }
+                        }
+                    }) {
+                        HStack(spacing: 8) {
+                            Image(systemName: timerModel.isRunning ? "pause.fill" : "play.fill")
+                                .font(.system(size: 15, weight: .black))
+                            Text(timerModel.isRunning ? "暂停倒计时" : "开始 / 继续计时")
+                                .font(.system(size: 16, weight: .heavy))
+                        }
+                        .foregroundColor(timerModel.isRunning ? .orange : .white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(
+                            timerModel.isRunning
+                                ? AnyView(AppColors.pillBackground)
+                                : AnyView(
+                                    LinearGradient(
+                                        colors: [Color(red: 0.98, green: 0.52, blue: 0.12), Color(red: 0.92, green: 0.38, blue: 0.08)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .strokeBorder(timerModel.isRunning ? Color.orange.opacity(0.5) : Color.clear, lineWidth: 1.5)
+                        )
+                        .shadow(color: timerModel.isRunning ? Color.clear : Color.orange.opacity(0.32), radius: 8, y: 3)
                     }
-                }) {
-                    HStack(spacing: 4) {
-                        Text("跳过休息")
-                        Image(systemName: "forward.end.fill")
+                    .buttonStyle(.plain)
+                    
+                    // 2. 次要快捷按键：跳过休息立即开练
+                    Button(action: {
+                        let impact = UIImpactFeedbackGenerator(style: .medium)
+                        impact.impactOccurred()
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                            timerModel.reset()
+                        }
+                    }) {
+                        HStack(spacing: 5) {
+                            Text("跳过休息")
+                                .font(.system(size: 14, weight: .bold))
+                            Image(systemName: "forward.end.fill")
+                                .font(.system(size: 12, weight: .bold))
+                        }
+                        .foregroundColor(AppColors.primaryText)
+                        .padding(.horizontal, 18)
+                        .padding(.vertical, 14)
+                        .background(AppColors.pillBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                     }
-                    .font(.subheadline)
-                    .fontWeight(.bold)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(AppColors.pillBackground)
-                    .foregroundColor(AppColors.primaryText)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .buttonStyle(.plain)
                 }
             }
         }

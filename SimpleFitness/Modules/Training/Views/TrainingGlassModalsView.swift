@@ -512,7 +512,7 @@ public struct PlanOverviewGlassModalView: View {
                                 
                                 HStack(spacing: 12) {
                                     if item.targetWeightKg <= 0 {
-                                        Text("🤸 自重训练模式 (免负重)")
+                                        Text("自重模式 (无负重)")
                                             .font(.caption.weight(.bold))
                                             .foregroundColor(AppColors.accentBlue)
                                         Spacer()

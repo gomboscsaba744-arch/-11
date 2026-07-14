@@ -310,7 +310,7 @@ public struct ActiveTrainingSessionContainerView: View {
                     Circle()
                         .fill(Color.orange)
                         .frame(width: 8, height: 8)
-                    Text("组间调息倒计时")
+                    Text("休息倒计时")
                         .font(.system(size: 16, weight: .bold))
                         .foregroundColor(AppColors.primaryText)
                 }
@@ -322,8 +322,8 @@ public struct ActiveTrainingSessionContainerView: View {
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(AppColors.secondaryText)
                     let prepStr = session.targetWeightKg <= 0
-                        ? "下组准备 · 自重 × \(session.currentReps)次"
-                        : "下组准备 · \(Int(session.targetWeightKg))kg × \(session.currentReps)次"
+                        ? "下一组 · 自重 × \(session.currentReps) 次"
+                        : "下一组 · \(Int(session.targetWeightKg)) kg × \(session.currentReps) 次"
                     Text(prepStr)
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundColor(AppColors.secondaryText)
@@ -357,14 +357,14 @@ public struct ActiveTrainingSessionContainerView: View {
                 
                 VStack(alignment: .leading, spacing: 3) {
                     let titleStr = session.targetWeightKg <= 0
-                        ? "下组预设 · 自重训练 × \(session.currentReps) 次"
-                        : "下组预设 · \(Int(session.targetWeightKg)) kg × \(session.currentReps) 次"
+                        ? "下一组 · 自重训练 × \(session.currentReps) 次"
+                        : "下一组 · \(Int(session.targetWeightKg)) kg × \(session.currentReps) 次"
                     Text(titleStr)
                         .font(.system(size: 14, weight: .bold))
                         .foregroundColor(AppColors.primaryText)
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
-                    Text(session.targetWeightKg <= 0 ? "自重训练专注离心收缩与标准姿态控制" : "上组完成轻松？休息时可直接调整下组参数")
+                    Text(session.targetWeightKg <= 0 ? "点击右侧按钮修改下组次数" : "点击右侧按钮修改下组重量与次数")
                         .font(.system(size: 11, weight: .medium))
                         .foregroundColor(AppColors.secondaryText)
                         .lineLimit(1)
@@ -483,7 +483,7 @@ public struct ActiveTrainingSessionContainerView: View {
                             Image(systemName: "gyroscope")
                                 .font(.system(size: 12, weight: .semibold))
                                 .foregroundColor(AppColors.accentBlue)
-                            Text("动作检测与峰值振幅同步 · AI 计数实时护航")
+                            Text("Apple Watch 运动姿态检测中 · 自动计次已开启")
                                 .font(.system(size: 11, weight: .medium))
                                 .foregroundColor(AppColors.secondaryText)
                             Spacer()
@@ -900,7 +900,7 @@ public struct ActiveTrainingSessionContainerView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 24) {
-                Text("准备就绪 · 开启沉浸训练")
+                Text("准备开始")
                     .font(.system(size: 15, weight: .bold))
                     .foregroundColor(.white.opacity(0.75))
                 

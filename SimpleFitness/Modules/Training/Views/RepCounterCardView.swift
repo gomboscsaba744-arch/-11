@@ -96,10 +96,10 @@ public struct RepCounterCardView: View {
                         .foregroundColor(.orange)
                         .font(.subheadline.weight(.bold))
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("已完成 \(targetReps) 次！达标反馈")
+                        Text("已完成目标 \(targetReps) 次")
                             .font(.caption.weight(.bold))
                             .foregroundColor(AppColors.primaryText)
-                        Text("\(bufferRemaining)s 后自动进入休息倒计时")
+                        Text("\(bufferRemaining) 秒后进入休息")
                             .font(.caption2)
                             .foregroundColor(.orange)
                     }
