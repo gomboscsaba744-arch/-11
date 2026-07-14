@@ -291,26 +291,37 @@ public struct ActiveTrainingSessionContainerView: View {
     @ViewBuilder
     private func pageOneRestTimer() -> some View {
         VStack(spacing: 0) {
-            TrainingHeaderView(
-                session: session,
-                isRestPhase: restTimer.isRunning,
-                onSelectRoutine: onSelectRoutine,
-                onTapExerciseListModal: {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                        showingExerciseListModal = true
-                    }
-                },
-                onTapSetListModal: {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                        showingSetListModal = true
-                    }
+            // 极简沉浸式顶部休息指引栏（彻底抛弃首页复杂的训练动作与重量目标卡片，零干预零冗余）
+            HStack {
+                HStack(spacing: 8) {
+                    Circle()
+                        .fill(Color.orange)
+                        .frame(width: 8, height: 8)
+                    Text("组间休息恢复")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(AppColors.primaryText)
                 }
-            )
-            .padding(.top, 6)
+                
+                Spacer()
+                
+                HStack(spacing: 6) {
+                    Image(systemName: "flag.fill")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundColor(AppColors.secondaryText)
+                    Text("准备第 \(min(session.totalSets, session.currentSet + 1))/\(session.totalSets) 组")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(AppColors.secondaryText)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(AppColors.pillBackground)
+                .clipShape(Capsule())
+            }
+            .padding(.top, 14)
             
             Spacer(minLength: 20)
             
-            // 专一核心功能：休息倒计时与表盘控制区（开阔通透，零干扰）
+            // 专一核心功能：236x236 悬浮倒计时与滚动动效微调表盘控制区（开阔通透，视觉聚焦）
             RestTimerCardView(timerModel: $restTimer)
             
             Spacer(minLength: 20)
@@ -359,13 +370,28 @@ public struct ActiveTrainingSessionContainerView: View {
     private func pageTwoTelemetryAndSchedule() -> some View {
         VStack(spacing: 0) {
             ScrollView(showsIndicators: false) {
-                VStack(spacing: 20) {
-                    WatchSensorTelemetryCardView(telemetry: session.watchTelemetry)
-                        .padding(.top, 14)
+                VStack(spacing: 24) {
+                    // Apple Watch 传感器遥测专区
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack {
+                            Image(systemName: "applewatch")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(AppColors.accentBlue)
+                            Text("APPLE WATCH 实时监测")
+                                .font(.system(size: 12, weight: .heavy))
+                                .foregroundColor(AppColors.secondaryText)
+                                .tracking(1.0)
+                            Spacer()
+                        }
+                        
+                        WatchSensorTelemetryCardView(telemetry: session.watchTelemetry)
+                    }
+                    .padding(.top, 14)
                     
+                    // 今日训练全部动作清单
                     VStack(alignment: .leading, spacing: 14) {
                         HStack {
-                            Text("今日训练全部动作")
+                            Text("今日计划概览")
                                 .font(.system(size: 17, weight: .heavy))
                                 .foregroundColor(AppColors.primaryText)
                             Spacer()

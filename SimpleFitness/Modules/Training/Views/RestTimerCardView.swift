@@ -9,8 +9,7 @@ public struct RestTimerCardView: View {
     }
     
     public var body: some View {
-        VStack(spacing: 18) {
-            topHeaderBar
+        VStack(spacing: 26) {
             centerWatchDialSection
             standardQuickActionButtons
         }
@@ -21,92 +20,36 @@ public struct RestTimerCardView: View {
         }
     }
     
-    // MARK: - 顶部标题与展开
-    private var topHeaderBar: some View {
-        HStack {
-            HStack(spacing: 6) {
-                Image(systemName: timerModel.isExerciseRestPhase ? "arrow.triangle.2.circlepath" : "timer")
-                    .font(.subheadline)
-                    .foregroundColor(timerModel.isExerciseRestPhase ? .orange : AppColors.accentBlue)
-                Text(timerModel.isExerciseRestPhase ? "动作切换休息" : "组间倒计时")
-                    .font(.headline)
-                    .fontWeight(.bold)
-                    .foregroundColor(timerModel.isExerciseRestPhase ? .orange : AppColors.primaryText)
-                
-                if let nextTitle = timerModel.nextExerciseTitle, timerModel.isExerciseRestPhase {
-                    Text("准备: \(nextTitle)")
-                        .font(.caption2.weight(.bold))
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 3)
-                        .background(Color.orange.opacity(0.15))
-                        .clipShape(Capsule())
-                        .foregroundColor(.orange)
-                        .lineLimit(1)
-                } else {
-                    Text("\(timerModel.defaultDuration)s")
-                        .font(.caption2)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(AppColors.pillBackground)
-                        .clipShape(Capsule())
-                        .foregroundColor(AppColors.secondaryText)
-                }
-            }
-            
-            Spacer()
-            
-            Button(action: {
-                withAnimation(.spring(response: 0.38, dampingFraction: 0.78)) {
-                    timerModel.isPrecisionZoomed = true
-                    timerModel.isRunning = false
-                }
-            }) {
-                HStack(spacing: 4) {
-                    Image(systemName: "dial.max.fill")
-                    Text("展开")
-                }
-                .font(.caption)
-                .fontWeight(.semibold)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(AppColors.pillBackground)
-                .foregroundColor(AppColors.secondaryText)
-                .clipShape(Capsule())
-            }
-        }
-    }
-    
-    // MARK: - 首页圆形表盘
+    // MARK: - 首页圆形表盘 (236x236 极致沉浸悬浮表盘)
     private var centerWatchDialSection: some View {
         ZStack {
             Circle()
-                .stroke(Color.secondary.opacity(0.14), lineWidth: 14)
+                .stroke(Color.secondary.opacity(0.12), lineWidth: 16)
             
             Circle()
                 .trim(from: 0, to: CGFloat(timerModel.progress))
                 .stroke(
                     lapGradient(for: timerModel.currentLap),
-                    style: StrokeStyle(lineWidth: 14, lineCap: .round)
+                    style: StrokeStyle(lineWidth: 16, lineCap: .round)
                 )
                 .rotationEffect(.degrees(-90))
                 .animation(.spring(response: 0.35, dampingFraction: 0.85), value: timerModel.progress)
             
-            VStack(spacing: 4) {
+            VStack(spacing: 6) {
                 Text(timerModel.formattedTimeString)
-                    .font(.system(size: 42, weight: .black, design: .rounded))
+                    .font(.system(size: 52, weight: .black, design: .rounded))
                     .monospacedDigit()
                     .foregroundColor(AppColors.primaryText)
                     .contentTransition(.numericText(value: timerModel.remainingTime))
                     .animation(.spring(response: 0.28, dampingFraction: 0.82), value: timerModel.remainingTime)
                 
-                Text(timerModel.isRunning ? "计时中" : "长按展开表盘")
-                    .font(.caption)
-                    .fontWeight(.medium)
+                Text(timerModel.isRunning ? "休息恢复计时中" : "长按圆环展开表盘")
+                    .font(.system(size: 13, weight: .semibold))
                     .foregroundColor(AppColors.secondaryText)
             }
         }
-        .frame(width: 190, height: 190)
-        .padding(.vertical, 4)
+        .frame(width: 236, height: 236)
+        .padding(.vertical, 6)
         .contentShape(Circle())
         .onLongPressGesture(minimumDuration: 0.3) {
             let impact = UIImpactFeedbackGenerator(style: .medium)
