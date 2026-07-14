@@ -88,14 +88,32 @@ public struct TrainingHeaderView: View {
             
             // 3. 统一式 Apple Studio 遥测与负重指标带 (整齐合一，彻底替代原有凌乱的分散小方块)
             HStack(spacing: 0) {
-                // 目标重量
-                HStack(spacing: 5) {
-                    Image(systemName: "scalemass.fill")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(AppColors.accentBlue)
-                    Text(String(format: "目标 %.1f kg", session.targetWeightKg))
-                        .font(.system(size: 13, weight: .bold))
-                        .foregroundColor(AppColors.primaryText)
+                // 目标重量或自重模式 (严格防止两行换行与自重适配)
+                HStack(spacing: 4) {
+                    if session.targetWeightKg <= 0 {
+                        Image(systemName: "figure.core.training")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(AppColors.accentBlue)
+                        Text("自重训练")
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundColor(AppColors.primaryText)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                            .fixedSize(horizontal: true, vertical: false)
+                    } else {
+                        Image(systemName: "scalemass.fill")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(AppColors.accentBlue)
+                        let weightStr = session.targetWeightKg.truncatingRemainder(dividingBy: 1) == 0
+                            ? "\(Int(session.targetWeightKg))"
+                            : String(format: "%.1f", session.targetWeightKg)
+                        Text("目标\(weightStr)kg")
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundColor(AppColors.primaryText)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                            .fixedSize(horizontal: true, vertical: false)
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 

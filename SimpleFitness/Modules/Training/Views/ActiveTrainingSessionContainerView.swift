@@ -305,12 +305,17 @@ public struct ActiveTrainingSessionContainerView: View {
                 Spacer()
                 
                 HStack(spacing: 6) {
-                    Image(systemName: "scalemass.fill")
+                    Image(systemName: session.targetWeightKg <= 0 ? "figure.core.training" : "scalemass.fill")
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(AppColors.secondaryText)
-                    Text("下组准备 · \(Int(session.targetWeightKg))kg × \(session.currentReps)次")
+                    let prepStr = session.targetWeightKg <= 0
+                        ? "下组准备 · 自重 × \(session.currentReps)次"
+                        : "下组准备 · \(Int(session.targetWeightKg))kg × \(session.currentReps)次"
+                    Text(prepStr)
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundColor(AppColors.secondaryText)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
@@ -332,18 +337,24 @@ public struct ActiveTrainingSessionContainerView: View {
                     Circle()
                         .fill(Color.orange.opacity(0.14))
                         .frame(width: 36, height: 36)
-                    Image(systemName: "scalemass.fill")
+                    Image(systemName: session.targetWeightKg <= 0 ? "figure.core.training" : "scalemass.fill")
                         .font(.system(size: 14, weight: .bold))
                         .foregroundColor(.orange)
                 }
                 
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("下组预设 · \(Int(session.targetWeightKg)) kg × \(session.currentReps) 次")
+                    let titleStr = session.targetWeightKg <= 0
+                        ? "下组预设 · 自重训练 × \(session.currentReps) 次"
+                        : "下组预设 · \(Int(session.targetWeightKg)) kg × \(session.currentReps) 次"
+                    Text(titleStr)
                         .font(.system(size: 14, weight: .bold))
                         .foregroundColor(AppColors.primaryText)
-                    Text("上组完成轻松？休息时可直接调整下组参数")
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                    Text(session.targetWeightKg <= 0 ? "自重训练专注离心收缩与标准姿态控制" : "上组完成轻松？休息时可直接调整下组参数")
                         .font(.system(size: 11, weight: .medium))
                         .foregroundColor(AppColors.secondaryText)
+                        .lineLimit(1)
                 }
                 
                 Spacer()
