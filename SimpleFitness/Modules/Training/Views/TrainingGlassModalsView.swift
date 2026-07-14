@@ -510,8 +510,16 @@ public struct PlanOverviewGlassModalView: View {
                                     }
                                 }
                                 
-                                HStack(spacing: 16) {
-                                    HStack(spacing: 6) {
+                                HStack(spacing: 12) {
+                                    if item.targetWeightKg <= 0 {
+                                        Text("🤸 自重训练模式 (免负重)")
+                                            .font(.caption.weight(.bold))
+                                            .foregroundColor(AppColors.accentBlue)
+                                        Spacer()
+                                        Button("转为负重") { item.targetWeightKg = 20.0 }
+                                            .buttonStyle(.bordered)
+                                            .controlSize(.mini)
+                                    } else {
                                         Text("重量: \(String(format: "%.1f", item.targetWeightKg))kg")
                                             .font(.caption.weight(.bold))
                                         Spacer()
@@ -519,6 +527,9 @@ public struct PlanOverviewGlassModalView: View {
                                             .buttonStyle(.bordered)
                                             .controlSize(.mini)
                                         Button("+5") { item.targetWeightKg += 5 }
+                                            .buttonStyle(.bordered)
+                                            .controlSize(.mini)
+                                        Button("自重") { item.targetWeightKg = 0.0 }
                                             .buttonStyle(.bordered)
                                             .controlSize(.mini)
                                     }

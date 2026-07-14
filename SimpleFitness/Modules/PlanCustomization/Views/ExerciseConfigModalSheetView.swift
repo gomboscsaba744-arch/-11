@@ -12,6 +12,7 @@ public struct ExerciseConfigModalSheetView: View {
     @State private var restSeconds: Int = 90
     @State private var exerciseRestSeconds: Int = 120
     @State private var customRepsPerSet: [Int: Int] = [:]
+    @State private var isBodyweight: Bool = false
     
     private let restOptions = [45, 60, 90, 120, 180]
     private let exerciseRestOptions = [60, 90, 120, 180, 240]
@@ -20,12 +21,15 @@ public struct ExerciseConfigModalSheetView: View {
         self.exercise = exercise
         self.onConfirm = onConfirm
         self._restSeconds = State(initialValue: exercise.restSeconds)
+        let bodyweightKeywords = ["引体", "俯卧", "卷腹", "平板", "波比", "自重", "举腿", "深蹲跳"]
+        let defaultBodyweight = exercise.category.contains("自重") || bodyweightKeywords.contains { exercise.name.contains($0) }
+        self._isBodyweight = State(initialValue: defaultBodyweight)
     }
     
     public init(existingItem: PlanExerciseItemMock, onConfirm: @escaping (PlanExerciseItemMock) -> Void) {
         self.exercise = ExerciseItemMock(
             name: existingItem.name,
-            category: "力量动作",
+            category: existingItem.targetWeightKg <= 0 ? "自重训练" : "力量动作",
             description: "已编排动作参数自定义编辑",
             restSeconds: existingItem.restSeconds,
             thresholdG: "0.20G",
@@ -34,10 +38,11 @@ public struct ExerciseConfigModalSheetView: View {
         self.onConfirm = onConfirm
         self._sets = State(initialValue: existingItem.sets)
         self._reps = State(initialValue: existingItem.reps)
-        self._weight = State(initialValue: existingItem.targetWeightKg)
+        self._weight = State(initialValue: existingItem.targetWeightKg <= 0 ? 20.0 : existingItem.targetWeightKg)
         self._restSeconds = State(initialValue: existingItem.restSeconds)
         self._exerciseRestSeconds = State(initialValue: existingItem.exerciseRestSeconds)
         self._customRepsPerSet = State(initialValue: existingItem.customRepsPerSet)
+        self._isBodyweight = State(initialValue: existingItem.targetWeightKg <= 0)
     }
     
     public var body: some View {
@@ -189,33 +194,70 @@ public struct ExerciseConfigModalSheetView: View {
                             .standardCardStyle()
                         }
                         
-                        // 3. 目标负重配置卡片
-                        VStack(alignment: .leading, spacing: 12) {
+                        // 2.5 训练负重模式选择 (器械负重 vs 自重训练)
+                        VStack(alignment: .leading, spacing: 10) {
                             HStack {
-                                Text("建议负重 (Weight)")
+                                Text("训练负重类型 (Type)")
                                     .font(.headline)
                                 Spacer()
-                                Text(String(format: "%.1f kg", weight))
-                                    .font(.title3)
-                                    .fontWeight(.black)
-                                    .foregroundColor(AppColors.accentBlue)
                             }
-                            HStack(spacing: 12) {
-                                Button("- 2.5 kg") {
-                                    if weight >= 2.5 { weight -= 2.5 }
-                                }
-                                .buttonStyle(.bordered)
-                                
-                                Slider(value: $weight, in: 0...200, step: 2.5)
-                                
-                                Button("+ 2.5 kg") {
-                                    if weight <= 197.5 { weight += 2.5 }
-                                }
-                                .buttonStyle(.bordered)
+                            Picker("负重类型", selection: $isBodyweight.animation(.spring(response: 0.3, dampingFraction: 0.8))) {
+                                Text("🏋️ 器械负重").tag(false)
+                                Text("🤸 自重训练 (免填重量)").tag(true)
                             }
+                            .pickerStyle(.segmented)
                         }
                         .padding(16)
                         .standardCardStyle()
+                        
+                        // 3. 目标负重配置卡片或自重引导
+                        if isBodyweight {
+                            HStack(spacing: 14) {
+                                Image(systemName: "figure.core.training")
+                                    .font(.title2)
+                                    .foregroundColor(AppColors.accentBlue)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("自重训练模式 (Bodyweight)")
+                                        .font(.subheadline.weight(.bold))
+                                        .foregroundColor(AppColors.primaryText)
+                                    Text("目标负重将自动记为 0 kg，建议专注标准的动作控制与计划次数")
+                                        .font(.caption)
+                                        .foregroundColor(AppColors.secondaryText)
+                                }
+                                Spacer()
+                            }
+                            .padding(16)
+                            .standardCardStyle()
+                            .transition(.opacity.combined(with: .scale(scale: 0.98)))
+                        } else {
+                            VStack(alignment: .leading, spacing: 12) {
+                                HStack {
+                                    Text("建议负重 (Weight)")
+                                        .font(.headline)
+                                    Spacer()
+                                    Text(String(format: "%.1f kg", weight))
+                                        .font(.title3)
+                                        .fontWeight(.black)
+                                        .foregroundColor(AppColors.accentBlue)
+                                }
+                                HStack(spacing: 12) {
+                                    Button("- 2.5 kg") {
+                                        if weight >= 2.5 { weight -= 2.5 }
+                                    }
+                                    .buttonStyle(.bordered)
+                                    
+                                    Slider(value: $weight, in: 0...200, step: 2.5)
+                                    
+                                    Button("+ 2.5 kg") {
+                                        if weight <= 197.5 { weight += 2.5 }
+                                    }
+                                    .buttonStyle(.bordered)
+                                }
+                            }
+                            .padding(16)
+                            .standardCardStyle()
+                            .transition(.opacity.combined(with: .scale(scale: 0.98)))
+                        }
                         
                         // 4. 组间休息时长卡片
                         VStack(alignment: .leading, spacing: 12) {
@@ -280,7 +322,7 @@ public struct ExerciseConfigModalSheetView: View {
                             name: exercise.name,
                             sets: sets,
                             reps: reps,
-                            targetWeightKg: weight,
+                            targetWeightKg: isBodyweight ? 0.0 : weight,
                             restSeconds: restSeconds,
                             exerciseRestSeconds: exerciseRestSeconds,
                             customRepsPerSet: customRepsPerSet
