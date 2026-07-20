@@ -17,7 +17,7 @@ public struct WatchSensorTelemetryCardView: View {
                     Image(systemName: "applewatch")
                         .font(.subheadline)
                         .foregroundColor(AppColors.accentBlue)
-                    Text("Watch 动作检测与陀螺仪")
+                    Text("Apple Watch 监测数据")
                         .font(.subheadline)
                         .fontWeight(.bold)
                         .foregroundColor(AppColors.primaryText)
@@ -64,7 +64,7 @@ public struct WatchSensorTelemetryCardView: View {
                             .foregroundColor(AppColors.secondaryText)
                     }
                     
-                    Text(String(format: "识别置信度 %.0f%%", telemetry.repDetectionConfidence * 100))
+                    Text(String(format: "准确度 %.0f%%", telemetry.repDetectionConfidence * 100))
                         .font(.caption2)
                         .foregroundColor(AppColors.accentBlue)
                 }
@@ -79,7 +79,7 @@ public struct WatchSensorTelemetryCardView: View {
                         Image(systemName: "gyroscope")
                             .font(.caption)
                             .foregroundColor(.orange)
-                        Text("陀螺仪峰值振幅")
+                        Text("动作振幅")
                             .font(.caption)
                             .foregroundColor(AppColors.secondaryText)
                     }

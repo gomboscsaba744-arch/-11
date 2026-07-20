@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// 1. 训练日课表切换选择弹窗（主页左上角标题点击触发）
+/// 1. 训练日计划切换选择弹窗（主页左上角标题点击触发）
 public struct TrainingRoutinePickerGlassModalView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject private var libraryStore = TrainingPlanLibraryStore.shared
@@ -96,6 +96,7 @@ public struct TrainingRoutinePickerGlassModalView: View {
 
 /// 2. 动作总量展开列表模糊浮层（Apple 原生毛玻璃圆钮 + 高白透虚化）
 public struct TrainingExerciseListGlassModalView: View {
+    @Environment(\.colorScheme) private var colorScheme
     public let exercises: [PlanExerciseItemMock]
     public let currentIndex: Int
     public var onClose: () -> Void
@@ -115,7 +116,7 @@ public struct TrainingExerciseListGlassModalView: View {
     
     public var body: some View {
         ZStack {
-            Color.white.opacity(0.12)
+            (colorScheme == .dark ? Color.black.opacity(0.45) : Color.white.opacity(0.12))
                 .ignoresSafeArea()
                 .onTapGesture { onClose() }
             
@@ -132,7 +133,7 @@ public struct TrainingExerciseListGlassModalView: View {
                             ForEach(Array(exercises.enumerated()), id: \.element.id) { index, item in
                                 let orderIndex = index + 1
                                 let isCurrent = orderIndex == currentIndex
-                                let isDone = orderIndex < currentIndex
+                                let isDone = item.completedSets >= item.sets && item.sets > 0
                                 
                                 Button(action: {
                                     let impact = UIImpactFeedbackGenerator(style: .medium)
@@ -143,47 +144,51 @@ public struct TrainingExerciseListGlassModalView: View {
                                     HStack(spacing: 12) {
                                         ZStack {
                                             Circle()
-                                                .fill(isCurrent ? AppColors.accentBlue : (isDone ? Color.green : AppColors.pillBackground))
-                                                .frame(width: 34, height: 34)
+                                                .fill(isCurrent ? AppColors.accentBlue : (isDone ? Color.green.opacity(0.18) : AppColors.pillBackground))
+                                                .frame(width: 32, height: 32)
                                             
                                             if isDone {
                                                 Image(systemName: "checkmark")
-                                                    .font(.caption.weight(.bold))
-                                                    .foregroundColor(.white)
+                                                    .font(.system(size: 13, weight: .bold))
+                                                    .foregroundColor(.green)
                                             } else {
                                                 Text("\(orderIndex)")
-                                                    .font(.subheadline)
-                                                    .fontWeight(.bold)
-                                                    .foregroundColor(isCurrent ? .white : AppColors.primaryText)
+                                                    .font(.system(size: 13, weight: .bold))
+                                                    .foregroundColor(isCurrent ? .white : AppColors.secondaryText)
                                             }
                                         }
                                         
-                                        VStack(alignment: .leading, spacing: 2) {
+                                        VStack(alignment: .leading, spacing: 3) {
                                             Text(item.name)
-                                                .font(.subheadline)
-                                                .fontWeight(isCurrent ? .heavy : .bold)
-                                                .foregroundColor(AppColors.primaryText)
+                                                .font(.system(size: 15, weight: isCurrent ? .bold : .medium))
+                                                .foregroundColor(isCurrent ? AppColors.primaryText : (isDone ? AppColors.secondaryText : AppColors.primaryText))
+                                                .lineLimit(1)
                                             
-                                            Text("\(item.sets)组 × \(item.reps)次 · \(String(format: "%.1f", item.targetWeightKg))kg")
-                                                .font(.caption2)
-                                                .foregroundColor(AppColors.secondaryText)
+                                            HStack(spacing: 6) {
+                                                Text("\(item.sets)组 × \(item.reps)次")
+                                                Text("·")
+                                                Text(item.targetWeightKg == 0 ? "自重" : "\(Int(item.targetWeightKg))kg")
+                                                Text("·")
+                                                Text("休\(item.restSeconds)s")
+                                            }
+                                            .font(.system(size: 12, weight: .regular))
+                                            .foregroundColor(AppColors.secondaryText)
                                         }
                                         
                                         Spacer()
                                         
-                                        Text(isCurrent ? "进行中" : (isDone ? "已完成" : "待训练"))
-                                            .font(.caption)
-                                            .fontWeight(.bold)
+                                        Text(isCurrent ? "进行中" : (isDone ? "已完成" : "未开始"))
+                                            .font(.system(size: 12, weight: .bold))
                                             .padding(.horizontal, 8)
                                             .padding(.vertical, 4)
-                                            .background((isCurrent ? AppColors.accentBlue : (isDone ? Color.green : Color.secondary)).opacity(0.12))
+                                            .background(isCurrent ? AppColors.accentBlue.opacity(0.15) : (isDone ? Color.green.opacity(0.12) : AppColors.pillBackground))
                                             .foregroundColor(isCurrent ? AppColors.accentBlue : (isDone ? Color.green : AppColors.secondaryText))
                                             .clipShape(Capsule())
                                     }
                                     .padding(12)
                                     .background(
                                         RoundedRectangle(cornerRadius: 14)
-                                            .fill(isCurrent ? AppColors.accentBlue.opacity(0.12) : Color.white.opacity(0.65))
+                                            .fill(isCurrent ? AppColors.accentBlue.opacity(0.15) : (colorScheme == .dark ? AppColors.cardBackground : Color.white.opacity(0.65)))
                                             .overlay(
                                                 RoundedRectangle(cornerRadius: 14)
                                                     .stroke(isCurrent ? AppColors.accentBlue : Color.clear, lineWidth: 1.5)
@@ -205,7 +210,7 @@ public struct TrainingExerciseListGlassModalView: View {
                             .fill(.ultraThinMaterial)
                             .frame(width: 28, height: 28)
                         Circle()
-                            .strokeBorder(Color.white.opacity(0.35), lineWidth: 0.5)
+                            .strokeBorder(Color.primary.opacity(0.15), lineWidth: 0.5)
                             .frame(width: 28, height: 28)
                         Image(systemName: "xmark")
                             .font(.system(size: 11, weight: .bold))
@@ -220,13 +225,12 @@ public struct TrainingExerciseListGlassModalView: View {
                 ZStack {
                     RoundedRectangle(cornerRadius: 28, style: .continuous)
                         .fill(.ultraThinMaterial)
-                        .opacity(0.72)
                     RoundedRectangle(cornerRadius: 28, style: .continuous)
-                        .fill(Color.white.opacity(0.72))
+                        .fill(colorScheme == .dark ? AppColors.background.opacity(0.78) : Color.white.opacity(0.72))
                 }
                 .overlay(
                     RoundedRectangle(cornerRadius: 28, style: .continuous)
-                        .stroke(Color.white.opacity(0.75), lineWidth: 1)
+                        .stroke(Color.primary.opacity(0.12), lineWidth: 1)
                 )
                 .shadow(color: Color.black.opacity(0.14), radius: 30, x: 0, y: 12)
             )
@@ -237,6 +241,7 @@ public struct TrainingExerciseListGlassModalView: View {
 
 /// 3. 当前动作组数明细展开模糊浮层 (支持每组独立调整次数)
 public struct TrainingSetListGlassModalView: View {
+    @Environment(\.colorScheme) private var colorScheme
     public let exerciseName: String
     public let totalSets: Int
     public let currentSet: Int
@@ -271,171 +276,161 @@ public struct TrainingSetListGlassModalView: View {
     
     public var body: some View {
         ZStack {
-            Color.white.opacity(0.12)
+            (colorScheme == .dark ? Color.black.opacity(0.45) : Color.white.opacity(0.12))
                 .ignoresSafeArea()
                 .onTapGesture { onClose() }
             
             ZStack(alignment: .topTrailing) {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("\(exerciseName) · 组数明细")
+                    Text("\(exerciseName) 组数明细")
                         .font(.title3)
                         .fontWeight(.heavy)
                         .foregroundColor(AppColors.primaryText)
                         .padding(.top, 2)
-                        .padding(.trailing, 28)
                     
                     ScrollView(showsIndicators: false) {
-                    VStack(spacing: 10) {
-                        ForEach(1...max(1, totalSets), id: \.self) { setIdx in
-                            let isCurrent = setIdx == currentSet
-                            let isDone = setIdx < currentSet
-                            let setReps = exerciseItem?.getTargetReps(forSet: setIdx) ?? targetReps
-                            
-                            HStack(spacing: 12) {
-                                // 左侧与中部区域：点击切换当前执行组数（无盲区）
-                                Button(action: {
-                                    let impact = UIImpactFeedbackGenerator(style: .medium)
-                                    impact.impactOccurred()
-                                    onSelectSet(setIdx)
-                                    onClose()
-                                }) {
-                                    HStack(spacing: 12) {
-                                        ZStack {
-                                            Circle()
-                                                .fill(isCurrent ? AppColors.accentBlue : (isDone ? Color.green : AppColors.pillBackground))
-                                                .frame(width: 34, height: 34)
+                        VStack(spacing: 10) {
+                            ForEach(1...max(1, totalSets), id: \.self) { setIdx in
+                                let isCurrent = setIdx == currentSet
+                                let isDone = setIdx < currentSet
+                                let currentTargetReps = exerciseItem?.getTargetReps(forSet: setIdx) ?? targetReps
+                                
+                                HStack(spacing: 12) {
+                                    Button(action: {
+                                        let impact = UIImpactFeedbackGenerator(style: .medium)
+                                        impact.impactOccurred()
+                                        onSelectSet(setIdx)
+                                        onClose()
+                                    }) {
+                                        HStack(spacing: 12) {
+                                            ZStack {
+                                                Circle()
+                                                    .fill(isCurrent ? AppColors.accentBlue : (isDone ? Color.green.opacity(0.18) : AppColors.pillBackground))
+                                                    .frame(width: 32, height: 32)
+                                                
+                                                if isDone {
+                                                    Image(systemName: "checkmark")
+                                                        .font(.system(size: 13, weight: .bold))
+                                                        .foregroundColor(.green)
+                                                } else {
+                                                    Text("\(setIdx)")
+                                                        .font(.system(size: 13, weight: .bold))
+                                                        .foregroundColor(isCurrent ? .white : AppColors.secondaryText)
+                                                }
+                                            }
                                             
-                                            if isDone {
-                                                Image(systemName: "checkmark")
-                                                    .font(.caption.weight(.bold))
-                                                    .foregroundColor(.white)
-                                            } else {
-                                                Text("\(setIdx)")
-                                                    .font(.subheadline)
-                                                    .fontWeight(.bold)
-                                                    .foregroundColor(isCurrent ? .white : AppColors.primaryText)
+                                            VStack(alignment: .leading, spacing: 3) {
+                                                Text("第 \(setIdx) 组")
+                                                    .font(.system(size: 15, weight: isCurrent ? .bold : .medium))
+                                                    .foregroundColor(isCurrent ? AppColors.primaryText : (isDone ? AppColors.secondaryText : AppColors.primaryText))
+                                                
+                                                Text("目标: \(currentTargetReps) 次 · \(targetWeightKg == 0 ? "自重" : "\(Int(targetWeightKg))kg")")
+                                                    .font(.system(size: 12, weight: .regular))
+                                                    .foregroundColor(AppColors.secondaryText)
                                             }
                                         }
-                                        
-                                        VStack(alignment: .leading, spacing: 4) {
-                                            Text("第 \(setIdx) 组")
-                                                .font(.headline)
-                                                .foregroundColor(AppColors.primaryText)
+                                        .contentShape(Rectangle())
+                                    }
+                                    .buttonStyle(.plain)
+                                    
+                                    Spacer()
+                                    
+                                    if let onAdjust = onAdjustSetReps {
+                                        HStack(spacing: 0) {
+                                            Button(action: {
+                                                let impact = UIImpactFeedbackGenerator(style: .light)
+                                                impact.impactOccurred()
+                                                if currentTargetReps > 1 {
+                                                    onAdjust(setIdx, currentTargetReps - 1)
+                                                }
+                                            }) {
+                                                Image(systemName: "minus")
+                                                    .font(.system(size: 11, weight: .heavy))
+                                                    .foregroundColor(AppColors.primaryText)
+                                                    .frame(width: 28, height: 28)
+                                                    .contentShape(Rectangle())
+                                            }
+                                            .buttonStyle(.plain)
                                             
-                                            Text("建议负重 \(String(format: "%.1f", targetWeightKg)) kg")
-                                                .font(.caption)
-                                                .foregroundColor(AppColors.secondaryText)
+                                            Text("\(currentTargetReps) 次")
+                                                .font(.subheadline.weight(.heavy))
+                                                .foregroundColor(isCurrent ? AppColors.accentBlue : AppColors.primaryText)
+                                                .frame(minWidth: 42)
+                                                .monospacedDigit()
+                                            
+                                            Button(action: {
+                                                let impact = UIImpactFeedbackGenerator(style: .light)
+                                                impact.impactOccurred()
+                                                onAdjust(setIdx, currentTargetReps + 1)
+                                            }) {
+                                                Image(systemName: "plus")
+                                                    .font(.system(size: 11, weight: .heavy))
+                                                    .foregroundColor(AppColors.primaryText)
+                                                    .frame(width: 28, height: 28)
+                                                    .contentShape(Rectangle())
+                                            }
+                                            .buttonStyle(.plain)
                                         }
-                                        Spacer(minLength: 4)
+                                        .padding(.horizontal, 4)
+                                        .padding(.vertical, 3)
+                                        .background(
+                                            Capsule()
+                                                .fill(Color.secondary.opacity(0.12))
+                                        )
+                                    } else {
+                                        Text(isCurrent ? "当前" : (isDone ? "已完成" : "待做"))
+                                            .font(.caption2)
+                                            .fontWeight(.bold)
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 4)
+                                            .background(isCurrent ? AppColors.accentBlue.opacity(0.15) : (isDone ? Color.green.opacity(0.12) : AppColors.pillBackground))
+                                            .foregroundColor(isCurrent ? AppColors.accentBlue : (isDone ? Color.green : AppColors.secondaryText))
+                                            .clipShape(Capsule())
                                     }
-                                    .contentShape(Rectangle())
                                 }
-                                .buttonStyle(.plain)
-                                
-                                // 右侧高审美胶囊次数控制器 (Pill Stepper)
-                                HStack(spacing: 0) {
-                                    Button(action: {
-                                        let impact = UIImpactFeedbackGenerator(style: .light)
-                                        impact.impactOccurred()
-                                        if setReps > 1 {
-                                            onAdjustSetReps?(setIdx, setReps - 1)
-                                        }
-                                    }) {
-                                        Image(systemName: "minus")
-                                            .font(.system(size: 11, weight: .heavy))
-                                            .foregroundColor(AppColors.primaryText)
-                                            .frame(width: 28, height: 28)
-                                            .contentShape(Rectangle())
-                                    }
-                                    .buttonStyle(.plain)
-                                    
-                                    Text("\(setReps) 次")
-                                        .font(.subheadline.weight(.heavy))
-                                        .foregroundColor(isCurrent ? AppColors.accentBlue : AppColors.primaryText)
-                                        .frame(minWidth: 42)
-                                        .monospacedDigit()
-                                    
-                                    Button(action: {
-                                        let impact = UIImpactFeedbackGenerator(style: .light)
-                                        impact.impactOccurred()
-                                        onAdjustSetReps?(setIdx, setReps + 1)
-                                    }) {
-                                        Image(systemName: "plus")
-                                            .font(.system(size: 11, weight: .heavy))
-                                            .foregroundColor(AppColors.primaryText)
-                                            .frame(width: 28, height: 28)
-                                            .contentShape(Rectangle())
-                                    }
-                                    .buttonStyle(.plain)
-                                }
-                                .padding(.horizontal, 4)
-                                .padding(.vertical, 3)
+                                .padding(12)
                                 .background(
-                                    Capsule()
-                                        .fill(Color.secondary.opacity(0.12))
+                                    RoundedRectangle(cornerRadius: 14)
+                                        .fill(isCurrent ? AppColors.accentBlue.opacity(0.15) : (colorScheme == .dark ? AppColors.cardBackground : Color.white.opacity(0.65)))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 14)
+                                                .stroke(isCurrent ? AppColors.accentBlue : Color.clear, lineWidth: 1.5)
+                                        )
                                 )
-                                
-                                Button(action: {
-                                    let impact = UIImpactFeedbackGenerator(style: .medium)
-                                    impact.impactOccurred()
-                                    onSelectSet(setIdx)
-                                    onClose()
-                                }) {
-                                    Text(isCurrent ? "当前" : (isDone ? "已完" : "待做"))
-                                        .font(.caption2)
-                                        .fontWeight(.bold)
-                                        .padding(.horizontal, 8)
-                                        .padding(.vertical, 4)
-                                        .background((isCurrent ? AppColors.accentBlue : (isDone ? Color.green : Color.secondary)).opacity(0.12))
-                                        .foregroundColor(isCurrent ? AppColors.accentBlue : (isDone ? Color.green : AppColors.secondaryText))
-                                        .clipShape(Capsule())
-                                }
-                                .buttonStyle(.plain)
                             }
-                            .padding(12)
-                            .background(
-                                RoundedRectangle(cornerRadius: 14)
-                                    .fill(isCurrent ? AppColors.accentBlue.opacity(0.12) : Color.white.opacity(0.65))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 14)
-                                            .stroke(isCurrent ? AppColors.accentBlue : Color.clear, lineWidth: 1.5)
-                                    )
-                            )
                         }
                     }
+                    .frame(maxHeight: 320)
                 }
-                .frame(maxHeight: 320)
-            }
-            .padding(22)
-            
-            Button(action: { onClose() }) {
-                ZStack {
-                    Circle()
-                        .fill(.ultraThinMaterial)
-                        .frame(width: 28, height: 28)
-                    Circle()
-                        .strokeBorder(Color.white.opacity(0.35), lineWidth: 0.5)
-                        .frame(width: 28, height: 28)
-                    Image(systemName: "xmark")
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(AppColors.primaryText.opacity(0.85))
+                .padding(22)
+                
+                Button(action: { onClose() }) {
+                    ZStack {
+                        Circle()
+                            .fill(.ultraThinMaterial)
+                            .frame(width: 28, height: 28)
+                        Circle()
+                            .strokeBorder(Color.primary.opacity(0.15), lineWidth: 0.5)
+                            .frame(width: 28, height: 28)
+                        Image(systemName: "xmark")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(AppColors.primaryText.opacity(0.85))
+                    }
                 }
+                .buttonStyle(.plain)
+                .padding(.top, 14)
+                .padding(.trailing, 14)
             }
-            .buttonStyle(.plain)
-            .padding(.top, 14)
-            .padding(.trailing, 14)
-        }
             .background(
                 ZStack {
                     RoundedRectangle(cornerRadius: 28, style: .continuous)
                         .fill(.ultraThinMaterial)
-                        .opacity(0.72)
                     RoundedRectangle(cornerRadius: 28, style: .continuous)
-                        .fill(Color.white.opacity(0.72))
+                        .fill(colorScheme == .dark ? AppColors.background.opacity(0.78) : Color.white.opacity(0.72))
                 }
                 .overlay(
                     RoundedRectangle(cornerRadius: 28, style: .continuous)
-                        .stroke(Color.white.opacity(0.75), lineWidth: 1)
+                        .stroke(Color.primary.opacity(0.12), lineWidth: 1)
                 )
                 .shadow(color: Color.black.opacity(0.14), radius: 30, x: 0, y: 12)
             )
@@ -444,8 +439,9 @@ public struct TrainingSetListGlassModalView: View {
     }
 }
 
-/// 4. 课表定制页：总计划动作清单快速调整模糊浮层
+/// 4. 计划定制页：总计划动作清单快速调整模糊浮层
 public struct PlanOverviewGlassModalView: View {
+    @Environment(\.colorScheme) private var colorScheme
     @Binding public var exercises: [PlanExerciseItemMock]
     public var onClose: () -> Void
     
@@ -456,77 +452,49 @@ public struct PlanOverviewGlassModalView: View {
     
     public var body: some View {
         ZStack {
-            Color.white.opacity(0.12)
+            (colorScheme == .dark ? Color.black.opacity(0.45) : Color.white.opacity(0.12))
                 .ignoresSafeArea()
                 .onTapGesture { onClose() }
             
             ZStack(alignment: .topTrailing) {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("课表动作微调")
+                    Text("计划动作微调")
                         .font(.title3)
                         .fontWeight(.heavy)
                         .foregroundColor(AppColors.primaryText)
                         .padding(.top, 2)
-                        .padding(.trailing, 28)
-                
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 12) {
-                        ForEach($exercises) { $item in
-                            VStack(alignment: .leading, spacing: 10) {
-                                HStack {
-                                    Text(item.name)
-                                        .font(.headline)
-                                        .fontWeight(.heavy)
-                                        .foregroundColor(AppColors.primaryText)
-                                    Spacer()
-                                    Button(action: {
-                                        if let idx = exercises.firstIndex(where: { $0.id == item.id }) {
-                                            withAnimation {
-                                                _ = exercises.remove(at: idx)
-                                            }
-                                        }
-                                    }) {
-                                        Image(systemName: "trash")
-                                            .font(.footnote)
-                                            .foregroundColor(.red)
-                                    }
-                                }
-                                
-                                HStack(spacing: 16) {
-                                    HStack(spacing: 6) {
-                                        Text("组数:")
-                                            .font(.caption2)
-                                            .foregroundColor(AppColors.secondaryText)
-                                        Stepper("\(item.sets)组", value: $item.sets, in: 1...20)
-                                            .font(.caption.weight(.bold))
+                    
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 12) {
+                            ForEach($exercises) { $item in
+                                VStack(alignment: .leading, spacing: 10) {
+                                    HStack {
+                                        Text(item.name)
+                                            .font(.system(size: 15, weight: .bold))
+                                            .foregroundColor(AppColors.primaryText)
+                                        Spacer()
+                                        Text("\(item.sets)组 × \(item.reps)次")
+                                            .font(.system(size: 13, weight: .semibold))
+                                            .foregroundColor(AppColors.accentBlue)
                                     }
                                     
-                                    HStack(spacing: 6) {
-                                        Text("次数:")
-                                            .font(.caption2)
+                                    HStack(spacing: 8) {
+                                        Text("目标负重(kg):")
+                                            .font(.system(size: 12, weight: .medium))
                                             .foregroundColor(AppColors.secondaryText)
-                                        Stepper("\(item.reps)次", value: $item.reps, in: 1...50)
-                                            .font(.caption.weight(.bold))
-                                    }
-                                }
-                                
-                                HStack(spacing: 12) {
-                                    if item.targetWeightKg <= 0 {
-                                        Text("自重模式 (无负重)")
-                                            .font(.caption.weight(.bold))
-                                            .foregroundColor(AppColors.accentBlue)
+                                        
                                         Spacer()
-                                        Button("转为负重") { item.targetWeightKg = 20.0 }
+                                        
+                                        Button("-2.5") { item.targetWeightKg = max(0, item.targetWeightKg - 2.5) }
                                             .buttonStyle(.bordered)
                                             .controlSize(.mini)
-                                    } else {
-                                        Text("重量: \(String(format: "%.1f", item.targetWeightKg))kg")
-                                            .font(.caption.weight(.bold))
-                                        Spacer()
-                                        Button("-5") { if item.targetWeightKg >= 5 { item.targetWeightKg -= 5 } }
-                                            .buttonStyle(.bordered)
-                                            .controlSize(.mini)
-                                        Button("+5") { item.targetWeightKg += 5 }
+                                        
+                                        Text("\(item.targetWeightKg == 0 ? "自重" : String(format: "%.1f", item.targetWeightKg))")
+                                            .font(.system(size: 14, weight: .bold))
+                                            .foregroundColor(AppColors.primaryText)
+                                            .frame(minWidth: 44)
+                                        
+                                        Button("+2.5") { item.targetWeightKg += 2.5 }
                                             .buttonStyle(.bordered)
                                             .controlSize(.mini)
                                         Button("自重") { item.targetWeightKg = 0.0 }
@@ -534,47 +502,45 @@ public struct PlanOverviewGlassModalView: View {
                                             .controlSize(.mini)
                                     }
                                 }
+                                .padding(14)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .fill(colorScheme == .dark ? AppColors.cardBackground : Color.white.opacity(0.65))
+                                )
                             }
-                            .padding(14)
-                            .background(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .fill(Color.white.opacity(0.65))
-                            )
                         }
                     }
+                    .frame(maxHeight: 400)
                 }
-                .frame(maxHeight: 400)
-            }
-            .padding(22)
-            
-            Button(action: { onClose() }) {
-                ZStack {
-                    Circle()
-                        .fill(.ultraThinMaterial)
-                        .frame(width: 28, height: 28)
-                    Circle()
-                        .strokeBorder(Color.white.opacity(0.35), lineWidth: 0.5)
-                        .frame(width: 28, height: 28)
-                    Image(systemName: "xmark")
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(AppColors.primaryText.opacity(0.85))
+                .padding(22)
+                
+                Button(action: { onClose() }) {
+                    ZStack {
+                        Circle()
+                            .fill(.ultraThinMaterial)
+                            .frame(width: 28, height: 28)
+                        Circle()
+                            .strokeBorder(Color.primary.opacity(0.15), lineWidth: 0.5)
+                            .frame(width: 28, height: 28)
+                        Image(systemName: "xmark")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(AppColors.primaryText.opacity(0.85))
+                    }
                 }
+                .buttonStyle(.plain)
+                .padding(.top, 14)
+                .padding(.trailing, 14)
             }
-            .buttonStyle(.plain)
-            .padding(.top, 14)
-            .padding(.trailing, 14)
-        }
             .background(
                 ZStack {
                     RoundedRectangle(cornerRadius: 28, style: .continuous)
                         .fill(.ultraThinMaterial)
-                        .opacity(0.72)
                     RoundedRectangle(cornerRadius: 28, style: .continuous)
-                        .fill(Color.white.opacity(0.72))
+                        .fill(colorScheme == .dark ? AppColors.background.opacity(0.78) : Color.white.opacity(0.72))
                 }
                 .overlay(
                     RoundedRectangle(cornerRadius: 28, style: .continuous)
-                        .stroke(Color.white.opacity(0.75), lineWidth: 1)
+                        .stroke(Color.primary.opacity(0.12), lineWidth: 1)
                 )
                 .shadow(color: Color.black.opacity(0.14), radius: 30, x: 0, y: 12)
             )

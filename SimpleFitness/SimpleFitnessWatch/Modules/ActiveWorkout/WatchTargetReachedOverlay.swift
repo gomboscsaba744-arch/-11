@@ -9,7 +9,6 @@ public struct WatchTargetReachedOverlay: View {
     let onDismiss: () -> Void
     
     @State private var remainingSeconds: Int = 8
-    @State private var bannerTimer: Timer?
     @State private var iconScale: CGFloat = 0.8
     
     public init(workoutManager: WatchWorkoutManager, onDismiss: @escaping () -> Void) {
@@ -19,34 +18,34 @@ public struct WatchTargetReachedOverlay: View {
     
     public var body: some View {
         ZStack {
-            // 纯深色纯净底背板，彻底隔离背层干扰
-            Color.black.edgesIgnoringSafeArea(.all)
+            // 自适应纯净底背板，彻底隔离背层干扰
+            AppColors.background.edgesIgnoringSafeArea(.all)
             
             VStack(spacing: 8) {
                 Spacer(minLength: 2)
                 
                 // 顶部达标印章与数字
                 HStack(spacing: 6) {
-                    Image(systemName: "checkmark.seal.fill")
+                    Image(systemName: "flame.fill")
                         .font(.system(size: 22, weight: .bold))
-                        .foregroundColor(.green)
+                        .foregroundColor(.orange)
                     
                     Text("\(workoutManager.targetReps) 次目标达成")
-                        .font(.system(size: 15, weight: .heavy))
-                        .foregroundColor(.green)
+                        .font(.system(size: 15, weight: .heavy, design: .rounded))
+                        .foregroundColor(.orange)
                 }
                 .scaleEffect(iconScale)
                 
                 Text("\(remainingSeconds)s 后返回监控或手动操作")
                     .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppColors.secondaryText)
                 
                 Spacer(minLength: 2)
                 
                 // 主操作与次操作高对比度双按钮（上下分级展示，留出充足呼吸空间）
                 VStack(spacing: 6) {
                     Button(action: {
-                        stopTimer()
+                        remainingSeconds = 0
                         onDismiss()
                         workoutManager.completeCurrentSet()
                     }) {
@@ -57,24 +56,25 @@ public struct WatchTargetReachedOverlay: View {
                                 .font(.system(size: 13, weight: .heavy))
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
-                        .background(Color.green)
-                        .foregroundColor(.black)
-                        .cornerRadius(20)
+                        .padding(.vertical, 10)
+                        .background(Color.orange)
+                        .foregroundColor(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                        .shadow(color: Color.orange.opacity(0.35), radius: 5, x: 0, y: 3)
                     }
                     .buttonStyle(.plain)
                     
                     Button(action: {
-                        stopTimer()
+                        remainingSeconds = 0
                         onDismiss()
                     }) {
                         Text("继续超越挑战")
                             .font(.system(size: 12, weight: .bold))
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 7)
-                            .background(Color.white.opacity(0.18))
-                            .foregroundColor(.white)
-                            .cornerRadius(18)
+                            .padding(.vertical, 8)
+                            .background(AppColors.adaptivePillBackground)
+                            .foregroundColor(AppColors.primaryText)
+                            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                     }
                     .buttonStyle(.plain)
                 }
@@ -85,32 +85,24 @@ public struct WatchTargetReachedOverlay: View {
             .padding(.vertical, 4)
         }
         .onAppear {
+            remainingSeconds = 8
             withAnimation(.spring(response: 0.35, dampingFraction: 0.65)) {
                 iconScale = 1.0
             }
-            startTimer()
-        }
-        .onDisappear {
-            stopTimer()
-        }
-    }
-    
-    private func startTimer() {
-        bannerTimer?.invalidate()
-        remainingSeconds = 8
-        bannerTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
-            if remainingSeconds > 1 {
-                remainingSeconds -= 1
-            } else {
-                stopTimer()
-                onDismiss()
+            for i in 1...8 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + Double(i)) {
+                    if remainingSeconds > 1 {
+                        remainingSeconds -= 1
+                    } else if remainingSeconds == 1 {
+                        remainingSeconds = 0
+                        onDismiss()
+                    }
+                }
             }
         }
-    }
-    
-    private func stopTimer() {
-        bannerTimer?.invalidate()
-        bannerTimer = nil
+        .onDisappear {
+            remainingSeconds = 0
+        }
     }
 }
 #endif

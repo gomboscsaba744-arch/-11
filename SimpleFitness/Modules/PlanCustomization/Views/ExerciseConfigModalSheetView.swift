@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// 动作参数自定义弹窗：在将动作库选中的动作加入课表前，让用户手动设定具体组数、推荐次数、目标负重与组间休息时长
+/// 动作参数自定义弹窗：在将动作库选中的动作加入计划前，让用户手动设定具体组数、推荐次数、目标负重与组间休息时长
 public struct ExerciseConfigModalSheetView: View {
     @Environment(\.dismiss) private var dismiss
     let exercise: ExerciseItemMock
@@ -86,7 +86,7 @@ public struct ExerciseConfigModalSheetView: View {
                         // 1. 组数配置卡片
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
-                                Text("计划组数 (Sets)")
+                                Text("计划组数")
                                     .font(.headline)
                                 Spacer()
                                 Text("\(sets) 组")
@@ -103,7 +103,7 @@ public struct ExerciseConfigModalSheetView: View {
                         // 2. 每组次数配置卡片
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
-                                Text("目标次数 (Reps / 组)")
+                                Text("目标次数 / 组")
                                     .font(.headline)
                                 Spacer()
                                 Text("\(reps) 次")
@@ -197,7 +197,7 @@ public struct ExerciseConfigModalSheetView: View {
                         // 2.5 训练负重模式选择 (器械负重 vs 自重训练)
                         VStack(alignment: .leading, spacing: 10) {
                             HStack {
-                                Text("训练负重类型 (Type)")
+                                Text("训练负重类型")
                                     .font(.headline)
                                 Spacer()
                             }
@@ -217,7 +217,7 @@ public struct ExerciseConfigModalSheetView: View {
                                     .font(.title2)
                                     .foregroundColor(AppColors.accentBlue)
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text("自重训练模式 (Bodyweight)")
+                                    Text("自重训练模式")
                                         .font(.subheadline.weight(.bold))
                                         .foregroundColor(AppColors.primaryText)
                                     Text("目标负重将自动记为 0 kg，建议专注标准的动作控制与计划次数")
@@ -232,7 +232,7 @@ public struct ExerciseConfigModalSheetView: View {
                         } else {
                             VStack(alignment: .leading, spacing: 12) {
                                 HStack {
-                                    Text("建议负重 (Weight)")
+                                    Text("建议负重")
                                         .font(.headline)
                                     Spacer()
                                     Text(String(format: "%.1f kg", weight))
@@ -261,7 +261,7 @@ public struct ExerciseConfigModalSheetView: View {
                         
                         // 4. 组间休息时长卡片
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("组间休息时长 (Set Rest)")
+                            Text("组间休息时长")
                                 .font(.headline)
                             
                             HStack(spacing: 8) {
@@ -286,7 +286,7 @@ public struct ExerciseConfigModalSheetView: View {
                         
                         // 5. 动作间切换休息时长卡片
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("动作切换后休息 (Exercise Rest)")
+                            Text("动作切换后休息")
                                 .font(.headline)
                             
                             HStack(spacing: 8) {
@@ -313,11 +313,16 @@ public struct ExerciseConfigModalSheetView: View {
                     }
                     .padding(20)
                 }
-                
-                // 底部确定按钮
-                VStack {
-                    Spacer()
-                    Button(action: {
+            }
+            .navigationTitle("动作训练参数配置")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("取消") { dismiss() }
+                        .foregroundColor(AppColors.secondaryText)
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("确认添加") {
                         let configuredItem = PlanExerciseItemMock(
                             name: exercise.name,
                             sets: sets,
@@ -329,29 +334,9 @@ public struct ExerciseConfigModalSheetView: View {
                         )
                         onConfirm(configuredItem)
                         dismiss()
-                    }) {
-                        HStack(spacing: 8) {
-                            Image(systemName: "checkmark.circle.fill")
-                            Text("确认参数并添至当次课表")
-                                .fontWeight(.bold)
-                        }
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(AppColors.accentBlue)
-                        .cornerRadius(14)
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 12)
-                }
-            }
-            .navigationTitle("动作训练参数配置")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("取消") { dismiss() }
-                        .foregroundColor(AppColors.accentBlue)
+                    .font(.headline.weight(.bold))
+                    .foregroundColor(AppColors.accentBlue)
                 }
             }
         }

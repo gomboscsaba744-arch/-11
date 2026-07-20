@@ -12,18 +12,35 @@ public struct WatchTrainingView: View {
     public init() {}
     
     public var body: some View {
-        if workoutManager.showWorkoutSummary {
-            WatchPostWorkoutSummaryView(workoutManager: workoutManager) {
-                withAnimation {
-                    workoutManager.dismissSummary()
+        ZStack {
+            AppColors.background
+                .ignoresSafeArea()
+            
+            // 沉浸式高级暖橙光感底层渲染（消除手表沉闷压抑感，与 App 通透玻璃质感完美贴合）
+            RadialGradient(
+                colors: [Color.orange.opacity(AppColors.isWatchLightMode ? 0.16 : 0.26), Color.clear],
+                center: .top,
+                startRadius: 5,
+                endRadius: 180
+            )
+            .ignoresSafeArea()
+            
+            Group {
+                if workoutManager.showWorkoutSummary {
+                    WatchPostWorkoutSummaryView(workoutManager: workoutManager) {
+                        withAnimation {
+                            workoutManager.dismissSummary()
+                        }
+                    }
+                    .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                } else if !workoutManager.isWorkoutRunning {
+                    WatchPreWorkoutTabView(workoutManager: workoutManager)
+                } else {
+                    WatchActiveWorkoutTabView(workoutManager: workoutManager)
                 }
             }
-            .transition(.opacity.combined(with: .scale(scale: 0.95)))
-        } else if !workoutManager.isWorkoutRunning {
-            WatchPreWorkoutTabView(workoutManager: workoutManager)
-        } else {
-            WatchActiveWorkoutTabView(workoutManager: workoutManager)
         }
+        .preferredColorScheme(AppThemeMode(rawValue: workoutManager.appThemeMode)?.colorScheme)
     }
 }
 

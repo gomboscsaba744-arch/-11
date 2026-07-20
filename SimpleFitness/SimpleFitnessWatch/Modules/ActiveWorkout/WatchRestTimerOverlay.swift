@@ -9,16 +9,16 @@ public struct WatchRestTimerOverlay: View {
         self.workoutManager = workoutManager
     }
     
-    public var body: some View {
+public var body: some View {
         ZStack {
-            Color.black.opacity(0.96).edgesIgnoringSafeArea(.all)
+            AppColors.background.opacity(0.96).edgesIgnoringSafeArea(.all)
             
             VStack(spacing: 6) {
                 HStack(spacing: 4) {
                     Image(systemName: "timer")
                         .foregroundColor(.orange)
                     Text("组间休息")
-                        .font(.system(size: 11, weight: .bold))
+                        .font(.system(size: 11, weight: .heavy))
                         .foregroundColor(.orange)
                 }
                 
@@ -36,7 +36,7 @@ public struct WatchRestTimerOverlay: View {
                     VStack(spacing: 1) {
                         Text("\(workoutManager.restTimeRemaining)")
                             .font(.system(size: 34, weight: .black, design: .rounded))
-                            .foregroundColor(.white)
+                            .foregroundColor(AppColors.primaryText)
                             .monospacedDigit()
                         Text("秒")
                             .font(.system(size: 10, weight: .bold))
@@ -46,8 +46,8 @@ public struct WatchRestTimerOverlay: View {
                 .frame(width: 86, height: 86)
                 
                 Text("下组准备：\(workoutManager.exerciseName)")
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundColor(.secondary)
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundColor(AppColors.secondaryText)
                     .lineLimit(1)
                 
                 HStack(spacing: 8) {
@@ -56,18 +56,28 @@ public struct WatchRestTimerOverlay: View {
                     }) {
                         Text("+15s")
                             .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(AppColors.primaryText)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
+                            .background(AppColors.adaptivePillBackground)
+                            .cornerRadius(12)
                     }
-                    .tint(.blue.opacity(0.4))
+                    .buttonStyle(.plain)
                     
                     Button(action: {
                         workoutManager.skipRestPeriod()
                     }) {
                         Text("跳过休息")
                             .font(.system(size: 11, weight: .heavy))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
+                            .background(Color.orange)
+                            .cornerRadius(12)
                     }
-                    .tint(.green)
+                    .buttonStyle(.plain)
                 }
-                .frame(height: 32)
+                .padding(.top, 2)
             }
             .padding(.horizontal, 4)
         }

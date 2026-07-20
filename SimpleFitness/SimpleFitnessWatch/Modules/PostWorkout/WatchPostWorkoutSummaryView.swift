@@ -6,6 +6,7 @@ import SwiftUI
 public struct WatchPostWorkoutSummaryView: View {
     @ObservedObject var workoutManager: WatchWorkoutManager
     let onDismiss: () -> Void
+    @Environment(\.colorScheme) private var colorScheme
     
     @State private var appearHeader: Bool = false
     @State private var appearCards: Bool = false
@@ -25,7 +26,7 @@ public struct WatchPostWorkoutSummaryView: View {
                         Circle()
                             .fill(
                                 RadialGradient(
-                                    colors: [Color.yellow.opacity(0.28), Color.clear],
+                                    colors: [Color.orange.opacity(0.32), Color.clear],
                                     center: .center,
                                     startRadius: 2,
                                     endRadius: 28
@@ -37,19 +38,19 @@ public struct WatchPostWorkoutSummaryView: View {
                         
                         Image(systemName: "trophy.fill")
                             .font(.system(size: 26, weight: .bold))
-                            .foregroundColor(.yellow)
+                            .foregroundColor(.orange)
                     }
                     .scaleEffect(appearHeader ? 1.0 : 0.7)
                     .opacity(appearHeader ? 1.0 : 0.0)
                     
                     Text("训练完成！")
                         .font(.system(size: 16, weight: .black))
-                        .foregroundColor(.white)
+                        .foregroundColor(AppColors.primaryText)
                         .opacity(appearHeader ? 1.0 : 0.0)
                     
-                    Text("力量举重 & 核心突破")
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(.green)
+                    Text("力量挑战与突破")
+                        .font(.system(size: 11, weight: .heavy))
+                        .foregroundColor(.orange)
                         .opacity(appearHeader ? 1.0 : 0.0)
                 }
                 .frame(maxWidth: .infinity)
@@ -67,7 +68,7 @@ public struct WatchPostWorkoutSummaryView: View {
                         )
                         SummaryMetricBox(
                             icon: "clock.fill",
-                            iconColor: .green,
+                            iconColor: AppColors.accentBlue,
                             title: "真实用时",
                             value: workoutManager.summaryDurationString,
                             unit: ""
@@ -99,20 +100,20 @@ public struct WatchPostWorkoutSummaryView: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("累计完成量")
                             .font(.system(size: 10, weight: .semibold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(AppColors.secondaryText)
                         Text("\(workoutManager.summaryCompletedSets) 组 · \(workoutManager.summaryTotalVolumeKg) kg")
                             .font(.system(size: 13, weight: .heavy, design: .rounded))
-                            .foregroundColor(.white)
+                            .foregroundColor(AppColors.primaryText)
                     }
                     Spacer()
                 }
-                .padding(9)
+                .padding(10)
                 .background(
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(Color.white.opacity(0.12))
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(AppColors.adaptiveCardBackground)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.white.opacity(0.16), lineWidth: 0.5)
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .strokeBorder(AppColors.adaptiveGlassBorder, lineWidth: 0.5)
                         )
                 )
                 .offset(y: appearCards ? 0 : 14)
@@ -126,11 +127,20 @@ public struct WatchPostWorkoutSummaryView: View {
                         Text("完成并保存")
                             .font(.system(size: 14, weight: .heavy))
                     }
+                    .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
+                    .padding(.vertical, 12)
+                    .background(
+                        LinearGradient(
+                            colors: [Color.orange, Color.orange.opacity(0.85)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                    .shadow(color: Color.orange.opacity(0.3), radius: 6, x: 0, y: 3)
                 }
-                .tint(.green)
-                .cornerRadius(20)
+                .buttonStyle(.plain)
                 .padding(.top, 4)
                 .opacity(appearCards ? 1.0 : 0.0)
             }
@@ -157,6 +167,7 @@ private struct SummaryMetricBox: View {
     let title: String
     let value: String
     let unit: String
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
@@ -166,12 +177,12 @@ private struct SummaryMetricBox: View {
                     .foregroundColor(iconColor)
                 Text(title)
                     .font(.system(size: 10, weight: .semibold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppColors.secondaryText)
             }
             HStack(alignment: .firstTextBaseline, spacing: 2) {
                 Text(value)
                     .font(.system(size: 17, weight: .black, design: .rounded))
-                    .foregroundColor(.white)
+                    .foregroundColor(AppColors.primaryText)
                     .monospacedDigit()
                 if !unit.isEmpty {
                     Text(unit)
@@ -181,13 +192,13 @@ private struct SummaryMetricBox: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(8)
+        .padding(9)
         .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color.white.opacity(0.12))
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(AppColors.adaptiveCardBackground)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.white.opacity(0.16), lineWidth: 0.5)
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .strokeBorder(AppColors.adaptiveGlassBorder, lineWidth: 0.5)
                 )
         )
     }

@@ -22,6 +22,7 @@ public struct ActiveTrainingSessionContainerView: View {
     
     @ObservedObject private var libraryStore = TrainingPlanLibraryStore.shared
     @ObservedObject private var watchService = WatchConnectivityService.shared
+    @Environment(\.colorScheme) private var colorScheme
     
     // 左右滑动分页选择：
     // 0: 核心打卡页（极简，专注打卡与动作控制）
@@ -147,48 +148,48 @@ public struct ActiveTrainingSessionContainerView: View {
             holdWorkItem?.cancel()
             MotionSensorLogManager.shared.stopRecording()
         }
-        .onChange(of: session.currentSet) { newSet in
+        .onChange(of: session.currentSet) { _, newSet in
             MotionSensorLogManager.shared.startRecording(
                 exerciseName: session.exerciseName,
                 setNumber: newSet
             )
             syncFullStateToWatch()
         }
-        .onChange(of: session.totalSets) { _ in
+        .onChange(of: session.totalSets) { _, _ in
             syncFullStateToWatch()
         }
-        .onChange(of: session.exerciseName) { newName in
+        .onChange(of: session.exerciseName) { _, newName in
             MotionSensorLogManager.shared.startRecording(
                 exerciseName: newName,
                 setNumber: session.currentSet
             )
             syncFullStateToWatch()
         }
-        .onChange(of: restTimer.isRunning) { _ in
+        .onChange(of: restTimer.isRunning) { _, _ in
             syncFullStateToWatch()
         }
         // 表端数据实时遥测与双向同步绑定
-        .onChange(of: watchService.syncedCurrentSet) { newSet in
+        .onChange(of: watchService.syncedCurrentSet) { _, newSet in
             if newSet != session.currentSet {
                 session.currentSet = newSet
             }
         }
-        .onChange(of: watchService.syncedTotalSets) { newTotal in
+        .onChange(of: watchService.syncedTotalSets) { _, newTotal in
             if newTotal != session.totalSets {
                 session.totalSets = newTotal
             }
         }
-        .onChange(of: watchService.syncedExerciseIndex) { newIndex in
+        .onChange(of: watchService.syncedExerciseIndex) { _, newIndex in
             onSwitchExercise(newIndex)
         }
-        .onChange(of: watchService.currentHeartRate) { hr in
+        .onChange(of: watchService.currentHeartRate) { _, hr in
             if hr > 0 { session.currentHeartRate = hr }
         }
-        .onChange(of: watchService.activeEnergyBurnedKcal) { kcal in
+        .onChange(of: watchService.activeEnergyBurnedKcal) { _, kcal in
             if kcal >= 0 { session.currentCalories = kcal }
         }
-        .onChange(of: watchService.detectedRepCount) { reps in
-            if reps > 0 { recordedReps = reps }
+        .onChange(of: watchService.detectedRepCount) { _, reps in
+            if reps >= 0 { recordedReps = reps }
         }
     }
     
@@ -199,11 +200,12 @@ public struct ActiveTrainingSessionContainerView: View {
             totalSets: session.totalSets,
             targetReps: session.currentReps,
             targetWeightKg: session.targetWeightKg,
-            isResting: restTimer.isRunning
+            isResting: restTimer.isRunning,
+            restSeconds: restTimer.totalDuration > 0 ? restTimer.totalDuration : 60
         )
     }
     
-    // MARK: - Page 0: 核心专注打卡主页 (极简清晰，毫无冗余卡片堆砌)
+    // MARK: - Page 0: 核心专注打卡主页 (极简清晰，自适应各种手机屏幕与 iPhone 16)
     @ViewBuilder
     private func pageZeroCoreWorkout() -> some View {
         VStack(spacing: 0) {
@@ -222,82 +224,164 @@ public struct ActiveTrainingSessionContainerView: View {
                     }
                 }
             )
-            .padding(.top, 6)
+            .padding(.top, 4)
+            .fixedSize(horizontal: false, vertical: true)
+            .layoutPriority(2)
             
-            Spacer(minLength: 12)
-            
-            if restTimer.isRunning || restTimer.isPaused {
-                RestTimerCardView(timerModel: $restTimer)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                Spacer(minLength: 12)
-            }
-            
-            RepCounterCardView(
-                recordedReps: $recordedReps,
-                targetReps: $session.currentReps,
-                isAutoMode: $isAutoFlowModeEnabled,
-                isBufferActive: isAutoBufferActive,
-                bufferRemaining: autoBufferRemaining,
-                onCancelBuffer: {
-                    withAnimation {
-                        isAutoBufferActive = false
-                        isAutoFlowModeEnabled = false
-                    }
-                },
-                onImmediateRest: {
-                    isAutoBufferActive = false
-                    onCompleteSet()
-                }
-            )
-            
-            Spacer(minLength: 14)
-            
-            TrainingActionButtonsView(
-                currentSet: session.currentSet,
-                onCompleteSet: { onCompleteSet() },
-                onPrevExercise: { onPrevExercise() },
-                onNextExercise: { onNextExercise() }
-            )
-            .padding(.bottom, 6)
-            
-            // 统一全局分页指示点 (位置绝对固定，绝不遮挡底部操作区)
-            pageIndicatorDots()
-            
-            // 锁屏防误触按键 与 长按结束训练条（仅出现在首页/第一页 Page 0，其他页面保持纯净）
-            if selectedPageIndex == 0 && !isScreenLocked {
-                HStack(spacing: 12) {
-                    Button(action: {
-                        let impact = UIImpactFeedbackGenerator(style: .medium)
-                        impact.impactOccurred()
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                            isScreenLocked = true
-                        }
-                    }) {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 25, style: .continuous)
-                                .fill(Color(white: 0.15))
-                            Image(systemName: "lock.fill")
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundColor(.white)
-                        }
-                        .frame(width: 50, height: 50)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 25, style: .continuous)
-                                .strokeBorder(Color.white.opacity(0.16), lineWidth: 1)
-                        )
-                    }
-                    .buttonStyle(.plain)
+            // 中间可滚动与真实自适应核心计次区域（去除了强制抢占优先级的 layoutPriority(1) 与固定 minHeight 280）
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 8) {
+                    Spacer(minLength: 2)
                     
-                    longPressEndWorkoutBar()
+                    if restTimer.isRunning || restTimer.isPaused {
+                        restTimerMiniHUD()
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                    }
+                    
+                    RepCounterCardView(
+                        recordedReps: $recordedReps,
+                        targetReps: $session.currentReps,
+                        isAutoMode: $isAutoFlowModeEnabled,
+                        isBufferActive: isAutoBufferActive,
+                        bufferRemaining: autoBufferRemaining,
+                        onCancelBuffer: {
+                            withAnimation {
+                                isAutoBufferActive = false
+                                isAutoFlowModeEnabled = false
+                            }
+                        },
+                        onImmediateRest: {
+                            isAutoBufferActive = false
+                            onCompleteSet()
+                        }
+                    )
+                    
+                    Spacer(minLength: 2)
                 }
-                .padding(.bottom, 14)
-                .transition(.opacity.combined(with: .move(edge: .bottom)))
-            } else if selectedPageIndex == 0 {
-                Color.clear.frame(height: 64)
             }
+            
+            // 底部操作与控制按键区 (最高优先级锁定与固定垂直尺寸，确保在物理真机放大模式或大字体下每个按键饱满可见不被挤压)
+            VStack(spacing: 8) {
+                TrainingActionButtonsView(
+                    currentSet: session.currentSet,
+                    onCompleteSet: { onCompleteSet() },
+                    onPrevExercise: { onPrevExercise() },
+                    onNextExercise: { onNextExercise() }
+                )
+                
+                // 统一全局分页指示点
+                pageIndicatorDots()
+                    .padding(.vertical, 2)
+                
+                // 锁屏防误触按键 与 长按结束训练条
+                if !isScreenLocked {
+                    HStack(spacing: 12) {
+                        Button(action: {
+                            let impact = UIImpactFeedbackGenerator(style: .medium)
+                            impact.impactOccurred()
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                isScreenLocked = true
+                            }
+                        }) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 25, style: .continuous)
+                                    .fill(AppColors.adaptivePillBackground)
+                                Image(systemName: "lock.fill")
+                                    .font(.system(size: 16, weight: .bold))
+                                    .foregroundColor(AppColors.primaryText)
+                            }
+                            .frame(width: 50, height: 50)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 25, style: .continuous)
+                                    .strokeBorder(Color.primary.opacity(0.12), lineWidth: 1)
+                            )
+                        }
+                        .buttonStyle(.plain)
+                        
+                        longPressEndWorkoutBar()
+                    }
+                    .padding(.bottom, 6)
+                    .transition(.opacity)
+                } else {
+                    Color.clear.frame(height: 56)
+                }
+            }
+            .fixedSize(horizontal: false, vertical: true)
+            .layoutPriority(2)
         }
         .padding(.horizontal, 20)
         .animation(.spring(response: 0.38, dampingFraction: 0.82), value: restTimer.isRunning || restTimer.isPaused)
+    }
+    
+    @ViewBuilder
+    private func restTimerMiniHUD() -> some View {
+        HStack(spacing: 12) {
+            ZStack {
+                Circle()
+                    .stroke(Color.orange.opacity(0.25), lineWidth: 4)
+                    .frame(width: 36, height: 36)
+                Circle()
+                    .trim(from: 0, to: CGFloat(restTimer.progress))
+                    .stroke(Color.orange, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                    .frame(width: 36, height: 36)
+                    .rotationEffect(.degrees(-90))
+                Image(systemName: restTimer.isRunning ? "timer" : "pause.fill")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundColor(.orange)
+            }
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(restTimer.formattedTimeString)
+                    .font(.system(size: 18, weight: .heavy, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundColor(AppColors.primaryText)
+                Text(restTimer.isRunning ? "组间休息中 · 左滑进表盘" : "休息已暂停")
+                    .font(.caption2.weight(.medium))
+                    .foregroundColor(AppColors.secondaryText)
+            }
+            
+            Spacer(minLength: 4)
+            
+            HStack(spacing: 6) {
+                Button(action: { restTimer.adjustDuration(by: 15) }) {
+                    Text("+15s")
+                        .font(.caption.weight(.bold))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(AppColors.adaptivePillBackground)
+                        .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                
+                Button(action: {
+                    withAnimation { restTimer.reset() }
+                }) {
+                    Text("跳过")
+                        .font(.caption.weight(.heavy))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Color.orange)
+                        .foregroundColor(.white)
+                        .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(AppColors.adaptiveCardBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(Color.orange.opacity(0.35), lineWidth: 1)
+        )
+        .shadow(color: AppColors.adaptiveCardShadow, radius: 8, y: 3)
+        .onTapGesture {
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                selectedPageIndex = 1
+            }
+        }
     }
     
     // MARK: - Page 1: 纯粹休息与倒计时管理页 (高精准度计时表盘美学，去除非必要拼接卡片)
@@ -403,6 +487,7 @@ public struct ActiveTrainingSessionContainerView: View {
             // 统一全局分页指示点
             pageIndicatorDots()
             
+            Color.clear.frame(height: 64)
         }
         .padding(.horizontal, 20)
     }
@@ -415,21 +500,29 @@ public struct ActiveTrainingSessionContainerView: View {
                 VStack(spacing: 22) {
                     // 1. 本场训练全局数据概览与宏观进度枢纽 (绝不与第一页单组数据重复)
                     let macroTotalSets = currentRoutineExercises.reduce(0) { $0 + max(1, $1.sets) }
-                    let completedPrevSets = currentRoutineExercises.prefix(max(0, session.currentExerciseIndex - 1)).reduce(0) { $0 + max(1, $1.sets) }
-                    let macroCompletedSets = completedPrevSets + max(0, session.currentSet - 1)
+                    let macroCompletedSets = currentRoutineExercises.enumerated().reduce(0) { sum, pair in
+                        let (idx, item) = pair
+                        if idx == session.currentExerciseIndex - 1 {
+                            return sum + max(item.completedSets, max(0, session.currentSet - 1))
+                        } else {
+                            return sum + min(item.sets, item.completedSets)
+                        }
+                    }
                     let macroProgressPercent = macroTotalSets > 0 ? Int((Double(macroCompletedSets) / Double(macroTotalSets)) * 100) : 0
                     let macroTotalReps = currentRoutineExercises.reduce(0) { sum, item in
                         sum + (1...max(1, item.sets)).reduce(0) { $0 + item.getTargetReps(forSet: $1) }
                     }
-                    let prevExercisesReps = currentRoutineExercises.prefix(max(0, session.currentExerciseIndex - 1)).reduce(0) { sum, item in
-                        sum + (1...max(1, item.sets)).reduce(0) { $0 + item.getTargetReps(forSet: $1) }
+                    let macroCompletedReps = currentRoutineExercises.enumerated().reduce(0) { sum, pair in
+                        let (idx, item) = pair
+                        let setsDone: Int
+                        if idx == session.currentExerciseIndex - 1 {
+                            setsDone = max(item.completedSets, max(0, session.currentSet - 1))
+                        } else {
+                            setsDone = min(item.sets, item.completedSets)
+                        }
+                        guard setsDone > 0 else { return sum }
+                        return sum + (1...setsDone).reduce(0) { $0 + item.getTargetReps(forSet: $1) }
                     }
-                    let currentExerciseCompletedReps: Int = {
-                        guard session.currentExerciseIndex >= 1 && session.currentExerciseIndex <= currentRoutineExercises.count else { return 0 }
-                        let currentItem = currentRoutineExercises[session.currentExerciseIndex - 1]
-                        return (1 ..< max(1, session.currentSet)).reduce(0) { $0 + currentItem.getTargetReps(forSet: $1) }
-                    }()
-                    let macroCompletedReps = prevExercisesReps + currentExerciseCompletedReps
                     let repsProgressPercent = macroTotalReps > 0 ? Int((Double(macroCompletedReps) / Double(macroTotalReps)) * 100) : 0
                     let formattedElapsed = String(format: "%02d:%02d", session.elapsedSeconds / 60, session.elapsedSeconds % 60)
                     
@@ -439,7 +532,7 @@ public struct ActiveTrainingSessionContainerView: View {
                                 Image(systemName: "chart.bar.xaxis")
                                     .font(.system(size: 13, weight: .bold))
                                     .foregroundColor(AppColors.accentBlue)
-                                Text("本场训练全局概览")
+                                Text("训练概览")
                                     .font(.system(size: 13, weight: .bold))
                                     .foregroundColor(AppColors.primaryText)
                                 Text("· \(session.workoutTitle)")
@@ -481,7 +574,7 @@ public struct ActiveTrainingSessionContainerView: View {
                                 Text("\(repsProgressPercent)%")
                                     .font(.system(size: 20, weight: .heavy, design: .rounded))
                                     .foregroundColor(AppColors.accentBlue)
-                                Text("总次数百分比")
+                                Text("完成进度")
                                     .font(.system(size: 11, weight: .semibold))
                                     .foregroundColor(AppColors.secondaryText)
                             }
@@ -506,7 +599,7 @@ public struct ActiveTrainingSessionContainerView: View {
                             Image(systemName: session.watchTelemetry.isWatchConnected ? "applewatch" : "applewatch.slash")
                                 .font(.system(size: 12, weight: .semibold))
                                 .foregroundColor(session.watchTelemetry.isWatchConnected ? .green : AppColors.secondaryText)
-                            Text(session.watchTelemetry.isWatchConnected ? "Apple Watch 已连接 · 自动计次运行中" : "未连接 Apple Watch · 触控计次已开启")
+                            Text(session.watchTelemetry.isWatchConnected ? "Apple Watch 已连接 · 自动计次" : "未连接 Apple Watch · 手动计次")
                                 .font(.system(size: 11, weight: .medium))
                                 .foregroundColor(AppColors.secondaryText)
                             Spacer()
@@ -524,11 +617,11 @@ public struct ActiveTrainingSessionContainerView: View {
                     // 2. 今日全场训练动作序列与进度追踪
                     VStack(alignment: .leading, spacing: 14) {
                         HStack {
-                            Text("全场训练序列")
+                            Text("动作清单")
                                 .font(.system(size: 17, weight: .heavy))
                                 .foregroundColor(AppColors.primaryText)
                             Spacer()
-                            Text("共 \(currentRoutineExercises.count) 个动作 · 进度 \(session.currentExerciseIndex)/\(currentRoutineExercises.count)")
+                            Text("进度 \(session.currentExerciseIndex)/\(currentRoutineExercises.count)")
                                 .font(.system(size: 12, weight: .semibold))
                                 .foregroundColor(AppColors.secondaryText)
                         }
@@ -537,7 +630,7 @@ public struct ActiveTrainingSessionContainerView: View {
                         VStack(spacing: 8) {
                             ForEach(Array(currentRoutineExercises.enumerated()), id: \.offset) { index, item in
                                 let isCurrent = index + 1 == session.currentExerciseIndex
-                                let isCompleted = index + 1 < session.currentExerciseIndex
+                                let isCompleted = item.completedSets >= item.sets && item.sets > 0
                                 
                                 Button(action: {
                                     let impact = UIImpactFeedbackGenerator(style: .light)
@@ -599,9 +692,9 @@ public struct ActiveTrainingSessionContainerView: View {
                                                     .font(.system(size: 15, weight: .heavy, design: .rounded))
                                                     .foregroundColor(AppColors.primaryText)
                                             }
-                                            Text(isCompleted ? "已完成" : (isCurrent ? "训练中" : "点击切换"))
+                                            Text(isCompleted ? "已完成" : (isCurrent ? "训练中" : (item.completedSets > 0 ? "已做 \(item.completedSets)/\(item.sets)组" : "点击切换")))
                                                 .font(.system(size: 11, weight: .semibold))
-                                                .foregroundColor(isCompleted ? .green : (isCurrent ? .green : AppColors.secondaryText))
+                                                .foregroundColor(isCompleted ? .green : (isCurrent ? .green : (item.completedSets > 0 ? Color.orange : AppColors.secondaryText)))
                                         }
                                     }
                                     .padding(12)
@@ -781,7 +874,7 @@ public struct ActiveTrainingSessionContainerView: View {
     private func modalsAndFloatingDialsOverlay() -> some View {
         ZStack {
             if restTimer.isPrecisionZoomed {
-                Color.white.opacity(0.32)
+                (colorScheme == .dark ? Color.black.opacity(0.55) : Color.white.opacity(0.32))
                     .ignoresSafeArea()
                     .onTapGesture {
                         withAnimation(.spring(response: 0.38, dampingFraction: 0.78)) {

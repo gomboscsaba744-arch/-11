@@ -51,7 +51,7 @@ public struct RepCounterCardView: View {
                     Image(systemName: "applewatch")
                         .foregroundColor(AppColors.accentBlue)
                         .scaleEffect(isAutoMode ? (pulseAura ? 1.08 : 0.96) : 1.0)
-                    Text("Watch自动计次")
+                    Text("自动计次")
                         .foregroundColor(AppColors.secondaryText)
                     Text("·")
                         .foregroundColor(AppColors.secondaryText.opacity(0.5))
@@ -61,7 +61,7 @@ public struct RepCounterCardView: View {
                             .foregroundColor(isAutoMode ? .orange : AppColors.primaryText)
                             .transition(.scale.combined(with: .opacity))
                             .id("icon_\(isAutoMode)")
-                        Text(isAutoMode ? "自动开" : "手动")
+                        Text(isAutoMode ? "已开启" : "手动")
                             .foregroundColor(isAutoMode ? .orange : AppColors.primaryText)
                             .transition(.opacity)
                             .id("text_\(isAutoMode)")
@@ -72,7 +72,7 @@ public struct RepCounterCardView: View {
                 .padding(.vertical, 6)
                 .background(
                     Capsule()
-                        .fill(isAutoMode ? Color.orange.opacity(0.18) : AppColors.pillBackground)
+                        .fill(isAutoMode ? Color.orange.opacity(0.18) : AppColors.adaptivePillBackground)
                 )
                 .overlay(
                     Capsule()
@@ -88,8 +88,7 @@ public struct RepCounterCardView: View {
                 }
             }
              
-             // 达标提示与 10s 倒计时缓冲横幅
-             // 达标提示与 10s 倒计时缓冲横幅
+            // 达标提示与 10s 倒计时缓冲横幅
             if isBufferActive {
                 HStack(spacing: 10) {
                     Image(systemName: "timer")
@@ -110,7 +109,7 @@ public struct RepCounterCardView: View {
                     .font(.caption2.weight(.bold))
                     .padding(.horizontal, 9)
                     .padding(.vertical, 5)
-                    .background(AppColors.pillBackground)
+                    .background(AppColors.adaptivePillBackground)
                     .clipShape(Capsule())
                     
                     Button("立即休息") {
@@ -123,80 +122,110 @@ public struct RepCounterCardView: View {
                     .foregroundColor(.white)
                     .clipShape(Capsule())
                 }
-                .padding(14)
+                .padding(12)
                 .background(Color.orange.opacity(0.14))
                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 .transition(.move(edge: .top).combined(with: .opacity))
             }
             
-            // 雕塑感环形光晕 HUD 中央计次台 (无任何方框束缚)
+            // 雕塑感环形光晕 HUD 中央计次台 (精准自适应真机屏幕宽高比，绝不挤压上下方组件)
             ZStack {
-                // 背景微光环形渲染
-                Circle()
-                    .fill(
-                        RadialGradient(
-                            gradient: Gradient(colors: [
-                                (recordedReps >= targetReps && targetReps > 0 ? Color.orange : AppColors.accentBlue).opacity(0.15),
-                                Color.clear
-                            ]),
-                            center: .center,
-                            startRadius: 20,
-                            endRadius: 150
-                        )
-                    )
-                    .frame(width: 280, height: 280)
+                // 背景微光环形渲染：严格约束在屏幕高度的 22% 或宽度 52% 内，确保 iPhone 16 真机放大显示或大字体下也不挤压其他元素
+                let dialDiameter: CGFloat = min(UIScreen.main.bounds.width * 0.52, UIScreen.main.bounds.height * 0.22, 195)
+                let btnSize: CGFloat = min(UIScreen.main.bounds.width * 0.12, 48)
                 
-                HStack(spacing: 28) {
-                    // 减次数大圆触控
+                // 背景微光环形弥散渲染：去除硬切边界，使用双层高斯模糊（radius: 36 与 18）平滑弥散融进空气背景中
+                ZStack {
+                    // 外层深度弥散光晕：把蓝色/橙色微光完全扩散，自然过渡到透明无边界
+                    Circle()
+                        .fill(
+                            RadialGradient(
+                                gradient: Gradient(colors: [
+                                    (recordedReps >= targetReps && targetReps > 0 ? Color.orange : AppColors.accentBlue).opacity(0.32),
+                                    (recordedReps >= targetReps && targetReps > 0 ? Color.orange : AppColors.accentBlue).opacity(0.12),
+                                    Color.clear
+                                ]),
+                                center: .center,
+                                startRadius: 0,
+                                endRadius: dialDiameter * 0.55
+                            )
+                        )
+                        .frame(width: dialDiameter * 1.5, height: dialDiameter * 1.5)
+                        .blur(radius: 36)
+                    
+                    // 内层柔和通透焦点层：增强中心层次感，无明显圆环外框
+                    Circle()
+                        .fill(
+                            RadialGradient(
+                                gradient: Gradient(colors: [
+                                    (recordedReps >= targetReps && targetReps > 0 ? Color.orange : AppColors.accentBlue).opacity(0.20),
+                                    Color.clear
+                                ]),
+                                center: .center,
+                                startRadius: 0,
+                                endRadius: dialDiameter * 0.35
+                            )
+                        )
+                        .frame(width: dialDiameter * 1.1, height: dialDiameter * 1.1)
+                        .blur(radius: 18)
+                }
+                .allowsHitTesting(false)
+                
+                HStack(spacing: min(UIScreen.main.bounds.width * 0.04, 16)) {
+                    // 减次数触控
                     Button(action: {
                         let impact = UIImpactFeedbackGenerator(style: .light)
                         impact.impactOccurred()
                         if recordedReps > 0 { recordedReps -= 1 }
                     }) {
                         Image(systemName: "minus")
-                            .font(.title.weight(.bold))
+                            .font(.title3.weight(.bold))
                             .foregroundColor(AppColors.primaryText)
-                            .frame(width: 64, height: 64)
-                            .background(AppColors.pillBackground)
+                            .frame(width: btnSize, height: btnSize)
+                            .background(AppColors.adaptivePillBackground)
                             .clipShape(Circle())
-                            .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 3)
+                            .shadow(color: AppColors.adaptiveCardShadow, radius: 5, x: 0, y: 2)
                     }
                     
-                    // 核心数字 (96pt 视觉绝对主宰)
-                    HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    // 核心数字 (高精度弹性适应屏幕，最小缩放 0.5)
+                    HStack(alignment: .firstTextBaseline, spacing: 4) {
                         Text("\(recordedReps)")
-                            .font(.system(size: 96, weight: .black, design: .rounded))
+                            .font(.system(size: min(UIScreen.main.bounds.height * 0.08, 68), weight: .black, design: .rounded))
                             .foregroundColor(recordedReps >= targetReps && targetReps > 0 ? .orange : AppColors.primaryText)
+                            .minimumScaleFactor(0.5)
+                            .lineLimit(1)
                             .contentTransition(.numericText(value: Double(recordedReps)))
                             .animation(.spring(response: 0.28, dampingFraction: 0.82), value: recordedReps)
                         Text("/ \(targetReps)")
-                            .font(.system(size: 36, weight: .bold, design: .rounded))
+                            .font(.system(size: min(UIScreen.main.bounds.height * 0.035, 26), weight: .bold, design: .rounded))
                             .foregroundColor(AppColors.secondaryText)
+                            .minimumScaleFactor(0.5)
+                            .lineLimit(1)
                             .contentTransition(.numericText(value: Double(targetReps)))
                             .animation(.spring(response: 0.28, dampingFraction: 0.82), value: targetReps)
                     }
-                    .frame(minWidth: 170)
+                    .frame(minWidth: min(UIScreen.main.bounds.width * 0.32, 120))
                     
-                    // 加次数大圆触控
+                    // 加次数触控
                     Button(action: {
                         let impact = UIImpactFeedbackGenerator(style: .medium)
                         impact.impactOccurred()
                         recordedReps += 1
                     }) {
                         Image(systemName: "plus")
-                            .font(.title.weight(.bold))
+                            .font(.title3.weight(.bold))
                             .foregroundColor(.white)
-                            .frame(width: 64, height: 64)
+                            .frame(width: btnSize, height: btnSize)
                             .background(AppColors.accentBlue)
                             .clipShape(Circle())
-                            .shadow(color: AppColors.accentBlue.opacity(0.35), radius: 10, x: 0, y: 4)
+                            .shadow(color: AppColors.accentBlue.opacity(0.35), radius: 6, x: 0, y: 3)
                     }
                 }
             }
-            .padding(.vertical, 24)
+            .padding(.vertical, 4)
         }
-        .padding(.vertical, 12)
-        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .padding(.horizontal, 6)
         .frame(maxWidth: .infinity)
     }
 }

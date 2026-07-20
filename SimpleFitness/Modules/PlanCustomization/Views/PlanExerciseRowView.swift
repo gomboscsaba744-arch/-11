@@ -44,7 +44,7 @@ public struct PlanExerciseRowView: View {
                 }
             }
             
-            HStack(spacing: 24) {
+            HStack(spacing: 16) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("组数 x 次数")
                         .font(.caption2)
@@ -67,7 +67,16 @@ public struct PlanExerciseRowView: View {
                     Text("组间休息")
                         .font(.caption2)
                         .foregroundColor(AppColors.secondaryText)
-                    Text("\(item.restSeconds) 秒")
+                    Text("\(item.restSeconds)秒")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                }
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("动作间")
+                        .font(.caption2)
+                        .foregroundColor(AppColors.secondaryText)
+                    Text("\(item.exerciseRestSeconds)秒")
                         .font(.subheadline)
                         .fontWeight(.semibold)
                 }

@@ -7,14 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		09B7F6DB3009DD1D00603075 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000032E1E0003 /* AppColors.swift */; };
 		110000012E1E0001 /* SimpleFitnessApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000012E1E0001 /* SimpleFitnessApp.swift */; };
 		110000022E1E0002 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000022E1E0002 /* MainTabView.swift */; };
 		110000032E1E0003 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000032E1E0003 /* AppColors.swift */; };
 		110000042E1E0004 /* AppStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000042E1E0004 /* AppStyles.swift */; };
 		110000052E1E0005 /* TrainingMockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000052E1E0005 /* TrainingMockData.swift */; };
 		110000062E1E0006 /* TrainingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000062E1E0006 /* TrainingView.swift */; };
-		110000912E1E0091 /* TrainingHomeDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000912E1E0091 /* TrainingHomeDashboardView.swift */; };
-		110000922E1E0092 /* ActiveTrainingSessionContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000922E1E0092 /* ActiveTrainingSessionContainerView.swift */; };
 		110000072E1E0007 /* TrainingHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000072E1E0007 /* TrainingHeaderView.swift */; };
 		110000082E1E0008 /* RepCounterCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000082E1E0008 /* RepCounterCardView.swift */; };
 		110000092E1E0009 /* TrainingActionButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000092E1E0009 /* TrainingActionButtonsView.swift */; };
@@ -25,6 +24,7 @@
 		110000142E1E0014 /* ExerciseLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000142E1E0014 /* ExerciseLibraryView.swift */; };
 		110000152E1E0015 /* CategoryFilterBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000152E1E0015 /* CategoryFilterBarView.swift */; };
 		110000162E1E0016 /* ExerciseCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000162E1E0016 /* ExerciseCardView.swift */; };
+		110000A12E1E00A1 /* ExercisePanoramaModalSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000A12E1E00A1 /* ExercisePanoramaModalSheetView.swift */; };
 		110000172E1E0017 /* HistoryMockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000172E1E0017 /* HistoryMockData.swift */; };
 		110000182E1E0018 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000182E1E0018 /* HistoryView.swift */; };
 		110000192E1E0019 /* WeeklySummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000192E1E0019 /* WeeklySummaryView.swift */; };
@@ -51,6 +51,9 @@
 		1100008A2E1E008A /* Modules/ActiveWorkout/WatchTargetReachedOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1000007A2E1E007A /* Modules/ActiveWorkout/WatchTargetReachedOverlay.swift */; };
 		1100008B2E1E008B /* Modules/PostWorkout/WatchPostWorkoutSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1000007B2E1E007B /* Modules/PostWorkout/WatchPostWorkoutSummaryView.swift */; };
 		110000902E1E0090 /* SimpleFitnessWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 990000502E1E0050 /* SimpleFitnessWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		110000912E1E0091 /* TrainingHomeDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000912E1E0091 /* TrainingHomeDashboardView.swift */; };
+		110000922E1E0092 /* ActiveTrainingSessionContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000922E1E0092 /* ActiveTrainingSessionContainerView.swift */; };
+		110000A02E1E00A0 /* exercises_database.json in Resources */ = {isa = PBXBuildFile; fileRef = 100000A02E1E00A0 /* exercises_database.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -84,8 +87,6 @@
 		100000042E1E0004 /* AppStyles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStyles.swift; sourceTree = "<group>"; };
 		100000052E1E0005 /* TrainingMockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingMockData.swift; sourceTree = "<group>"; };
 		100000062E1E0006 /* TrainingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingView.swift; sourceTree = "<group>"; };
-		100000912E1E0091 /* TrainingHomeDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingHomeDashboardView.swift; sourceTree = "<group>"; };
-		100000922E1E0092 /* ActiveTrainingSessionContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveTrainingSessionContainerView.swift; sourceTree = "<group>"; };
 		100000072E1E0007 /* TrainingHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingHeaderView.swift; sourceTree = "<group>"; };
 		100000082E1E0008 /* RepCounterCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepCounterCardView.swift; sourceTree = "<group>"; };
 		100000092E1E0009 /* TrainingActionButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingActionButtonsView.swift; sourceTree = "<group>"; };
@@ -96,6 +97,7 @@
 		100000142E1E0014 /* ExerciseLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseLibraryView.swift; sourceTree = "<group>"; };
 		100000152E1E0015 /* CategoryFilterBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryFilterBarView.swift; sourceTree = "<group>"; };
 		100000162E1E0016 /* ExerciseCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseCardView.swift; sourceTree = "<group>"; };
+		100000A12E1E00A1 /* ExercisePanoramaModalSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExercisePanoramaModalSheetView.swift; sourceTree = "<group>"; };
 		100000172E1E0017 /* HistoryMockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryMockData.swift; sourceTree = "<group>"; };
 		100000182E1E0018 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		100000192E1E0019 /* WeeklySummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklySummaryView.swift; sourceTree = "<group>"; };
@@ -121,8 +123,11 @@
 		100000792E1E0079 /* Modules/ActiveWorkout/WatchRestTimerOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modules/ActiveWorkout/WatchRestTimerOverlay.swift; sourceTree = "<group>"; };
 		1000007A2E1E007A /* Modules/ActiveWorkout/WatchTargetReachedOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modules/ActiveWorkout/WatchTargetReachedOverlay.swift; sourceTree = "<group>"; };
 		1000007B2E1E007B /* Modules/PostWorkout/WatchPostWorkoutSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modules/PostWorkout/WatchPostWorkoutSummaryView.swift; sourceTree = "<group>"; };
+		100000912E1E0091 /* TrainingHomeDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingHomeDashboardView.swift; sourceTree = "<group>"; };
+		100000922E1E0092 /* ActiveTrainingSessionContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveTrainingSessionContainerView.swift; sourceTree = "<group>"; };
 		990000002E1E0000 /* SimpleFitness.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleFitness.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		990000502E1E0050 /* SimpleFitnessWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleFitnessWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		100000A02E1E00A0 /* exercises_database.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = exercises_database.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -263,6 +268,7 @@
 			isa = PBXGroup;
 			children = (
 				100000132E1E0013 /* ExerciseMockData.swift */,
+				100000A02E1E00A0 /* exercises_database.json */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -273,6 +279,7 @@
 				100000142E1E0014 /* ExerciseLibraryView.swift */,
 				100000152E1E0015 /* CategoryFilterBarView.swift */,
 				100000162E1E0016 /* ExerciseCardView.swift */,
+				100000A12E1E00A1 /* ExercisePanoramaModalSheetView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -345,6 +352,7 @@
 			buildConfigurationList = 400000002E1E0000 /* Build configuration list for PBXNativeTarget "SimpleFitness" */;
 			buildPhases = (
 				300000012E1E0001 /* Sources */,
+				300000032E1E0003 /* Resources */,
 				300000022E1E0002 /* Embed Watch Content */,
 			);
 			buildRules = (
@@ -401,6 +409,17 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		300000032E1E0003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				110000A02E1E00A0 /* exercises_database.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		300000012E1E0001 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -408,7 +427,7 @@
 			files = (
 				110000012E1E0001 /* SimpleFitnessApp.swift in Sources */,
 				110000022E1E0002 /* MainTabView.swift in Sources */,
-				110000032E1E0003 /* AppColors.swift in Sources */,
+				09B7F6DB3009DD1D00603075 /* AppColors.swift in Sources */,
 				110000042E1E0004 /* AppStyles.swift in Sources */,
 				110000052E1E0005 /* TrainingMockData.swift in Sources */,
 				110000402E1E0040 /* WatchConnectivityService.swift in Sources */,
@@ -432,6 +451,7 @@
 				110000142E1E0014 /* ExerciseLibraryView.swift in Sources */,
 				110000152E1E0015 /* CategoryFilterBarView.swift in Sources */,
 				110000162E1E0016 /* ExerciseCardView.swift in Sources */,
+				110000A12E1E00A1 /* ExercisePanoramaModalSheetView.swift in Sources */,
 				110000172E1E0017 /* HistoryMockData.swift in Sources */,
 				110000182E1E0018 /* HistoryView.swift in Sources */,
 				110000602E1E0060 /* UserProfileAndSettingsView.swift in Sources */,
@@ -446,6 +466,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				110000032E1E0003 /* AppColors.swift in Sources */,
 				110000822E1E0082 /* SimpleFitnessWatchApp.swift in Sources */,
 				110000802E1E0080 /* WatchTrainingView.swift in Sources */,
 				110000812E1E0081 /* WatchWorkoutManager.swift in Sources */,

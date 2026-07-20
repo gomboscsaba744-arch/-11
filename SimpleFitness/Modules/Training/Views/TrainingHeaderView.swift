@@ -153,7 +153,7 @@ public struct TrainingHeaderView: View {
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
-            .background(AppColors.pillBackground)
+            .background(AppColors.adaptivePillBackground)
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
         .padding(.horizontal, 4)

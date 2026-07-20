@@ -6,11 +6,15 @@ public typealias AppSettingsView = UserProfileAndSettingsView
 public struct UserProfileAndSettingsView: View {
     @AppStorage("userNickname") private var userNickname: String = "硬核力量先锋"
     @AppStorage("userBio") private var userBio: String = "自律无界 · 每一组都在铸就最强体魄"
+    @AppStorage("appThemeMode") private var appThemeMode: String = AppThemeMode.system.rawValue
     @AppStorage("isAutoFlowModeEnabled") private var isAutoFlowModeEnabled: Bool = true
     @AppStorage("autoRestBufferSeconds") private var autoRestBufferSeconds: Int = 10
     @AppStorage("isWatchSimulationEnabled") private var isWatchSimulationEnabled: Bool = true
     @AppStorage("hapticFeedbackEnabled") private var hapticFeedbackEnabled: Bool = true
     @AppStorage("soundAlertsEnabled") private var soundAlertsEnabled: Bool = true
+    @AppStorage("repCountdownHapticCount") private var repCountdownHapticCount: Int = 3
+    @AppStorage("restCountdownHapticSeconds") private var restCountdownHapticSeconds: Int = 5
+    @AppStorage("exerciseLanguage") private var exerciseLanguage: String = "zh"
     
     @State private var showingEditProfileModal: Bool = false
     @State private var showingAccountNotice: Bool = false
@@ -39,6 +43,21 @@ public struct UserProfileAndSettingsView: View {
                         
                         // 2. 身体档案指标网格 (Body Profile Metrics)
                         bodyMetricsGrid
+                        
+                        Text("系统外观与显示")
+                            .font(.headline)
+                            .foregroundColor(AppColors.secondaryText)
+                            .padding(.top, 6)
+                        
+                        // 3. 外观模式设置卡片 (Theme Mode Selector)
+                        appearanceSettingsCard
+                        
+                        Text("多语言与动作显示")
+                            .font(.headline)
+                            .foregroundColor(AppColors.secondaryText)
+                            .padding(.top, 6)
+                        
+                        languageSettingsCard
                         
                         Text("训练偏好与设备管理")
                             .font(.headline)
@@ -190,6 +209,137 @@ public struct UserProfileAndSettingsView: View {
         .standardCardStyle()
     }
     
+    // MARK: - 外观模式设置卡片
+    private var appearanceSettingsCard: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Image(systemName: "paintpalette.fill")
+                    .foregroundColor(AppColors.accentBlue)
+                    .font(.subheadline)
+                Text("显示外观模式")
+                    .font(.headline)
+                    .foregroundColor(AppColors.primaryText)
+            }
+            
+            Text("选择您偏好的视觉外观，可随时一键切换为深邃 OLED 深色模式、通透浅色模式或跟随系统。")
+                .font(.caption)
+                .foregroundColor(AppColors.secondaryText)
+            
+            HStack(spacing: 10) {
+                ForEach(AppThemeMode.allCases) { mode in
+                    let isSelected = appThemeMode == mode.rawValue
+                    Button(action: {
+                        let impact = UIImpactFeedbackGenerator(style: .medium)
+                        impact.impactOccurred()
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                            appThemeMode = mode.rawValue
+                            WatchConnectivityService.shared.syncThemeModeToWatch(mode.rawValue)
+                        }
+                    }) {
+                        VStack(spacing: 8) {
+                            Image(systemName: mode.icon)
+                                .font(.system(size: 20, weight: .bold))
+                                .foregroundColor(isSelected ? .white : AppColors.primaryText)
+                            Text(mode.title)
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(isSelected ? .white : AppColors.primaryText)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(
+                            ZStack {
+                                if isSelected {
+                                    LinearGradient(
+                                        colors: [AppColors.accentBlue, Color.blue.opacity(0.75)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                } else {
+                                    AppColors.pillBackground
+                                }
+                            }
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .strokeBorder(isSelected ? Color.white.opacity(0.35) : Color.clear, lineWidth: 1)
+                        )
+                        .shadow(color: isSelected ? AppColors.accentBlue.opacity(0.35) : Color.clear, radius: 8, y: 3)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .padding(20)
+        .standardCardStyle()
+    }
+    
+    // MARK: - 多语言与动作库显示卡片
+    private var languageSettingsCard: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Image(systemName: "globe")
+                    .foregroundColor(AppColors.accentBlue)
+                    .font(.subheadline)
+                Text("动作库中英双语热切换")
+                    .font(.headline)
+                    .foregroundColor(AppColors.primaryText)
+            }
+            
+            Text("实时无缝切换全部 1,324 个训练动作的名称、部位分类、分步要领以及器械说明的显示语言。")
+                .font(.caption)
+                .foregroundColor(AppColors.secondaryText)
+            
+            HStack(spacing: 12) {
+                Button(action: {
+                    let impact = UIImpactFeedbackGenerator(style: .medium)
+                    impact.impactOccurred()
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                        exerciseLanguage = "zh"
+                    }
+                }) {
+                    HStack(spacing: 6) {
+                        Text("🇨🇳")
+                            .font(.title3)
+                        Text("中文 (默认)")
+                            .font(.subheadline.weight(.bold))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(exerciseLanguage == "zh" ? AppColors.accentBlue : AppColors.pillBackground)
+                    .foregroundColor(exerciseLanguage == "zh" ? .white : AppColors.primaryText)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .shadow(color: exerciseLanguage == "zh" ? AppColors.accentBlue.opacity(0.35) : Color.clear, radius: 8, y: 3)
+                }
+                .buttonStyle(.plain)
+                
+                Button(action: {
+                    let impact = UIImpactFeedbackGenerator(style: .medium)
+                    impact.impactOccurred()
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                        exerciseLanguage = "en"
+                    }
+                }) {
+                    HStack(spacing: 6) {
+                        Text("🇬🇧")
+                            .font(.title3)
+                        Text("English")
+                            .font(.subheadline.weight(.bold))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(exerciseLanguage == "en" ? AppColors.accentBlue : AppColors.pillBackground)
+                    .foregroundColor(exerciseLanguage == "en" ? .white : AppColors.primaryText)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .shadow(color: exerciseLanguage == "en" ? AppColors.accentBlue.opacity(0.35) : Color.clear, radius: 8, y: 3)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(20)
+        .standardCardStyle()
+    }
+    
     // MARK: - 智能连携与倒计时自动化卡片
     private var automationSettingsCard: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -290,12 +440,69 @@ public struct UserProfileAndSettingsView: View {
                     Text("高精度触感震动")
                         .font(.subheadline.weight(.bold))
                         .foregroundColor(AppColors.primaryText)
-                    Text("倒计时结束、完成大重量组时触发 Taptic Engine 沉浸式冲击。")
+                    Text("倒计时结束、完成做组目标时触发 Taptic Engine 沉浸式冲击。")
                         .font(.caption2)
                         .foregroundColor(AppColors.secondaryText)
                 }
             }
             .tint(.orange)
+            .onChange(of: appThemeMode) { _, newValue in
+                WatchConnectivityService.shared.syncThemeModeToWatch(newValue)
+            }
+            .onChange(of: hapticFeedbackEnabled) { _, newValue in
+                WatchConnectivityService.shared.syncHapticSettings(repCount: repCountdownHapticCount, restSeconds: restCountdownHapticSeconds, enabled: newValue)
+            }
+            
+            if hapticFeedbackEnabled {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Text("做组末尾倒数渐进震动")
+                            .font(.caption.weight(.medium))
+                            .foregroundColor(AppColors.secondaryText)
+                        Spacer()
+                        Picker("做组倒数", selection: $repCountdownHapticCount) {
+                            Text("关闭").tag(0)
+                            Text("倒数 3 次").tag(3)
+                            Text("倒数 5 次").tag(5)
+                        }
+                        .pickerStyle(.segmented)
+                        .frame(width: 180)
+                        .onChange(of: repCountdownHapticCount) { _, newValue in
+                            WatchConnectivityService.shared.syncHapticSettings(repCount: newValue, restSeconds: restCountdownHapticSeconds, enabled: hapticFeedbackEnabled)
+                        }
+                    }
+                    Text("在每组最后几次重复中触发从无到有的渐进增强震动，最后一震明显区隔确认做完。")
+                        .font(.caption2)
+                        .foregroundColor(AppColors.secondaryText.opacity(0.85))
+                    
+                    Divider().padding(.vertical, 4)
+                    
+                    HStack {
+                        Text("休息末尾倒计时震动")
+                            .font(.caption.weight(.medium))
+                            .foregroundColor(AppColors.secondaryText)
+                        Spacer()
+                        Picker("休息倒计", selection: $restCountdownHapticSeconds) {
+                            Text("关闭").tag(0)
+                            Text("最后 3 秒").tag(3)
+                            Text("最后 5 秒").tag(5)
+                            Text("最后 10 秒").tag(10)
+                        }
+                        .pickerStyle(.segmented)
+                        .frame(width: 220)
+                        .onChange(of: restCountdownHapticSeconds) { _, newValue in
+                            WatchConnectivityService.shared.syncHapticSettings(repCount: repCountdownHapticCount, restSeconds: newValue, enabled: hapticFeedbackEnabled)
+                        }
+                    }
+                    Text("在组间休息结束前的最后几秒逐秒轻柔敲击，结束时强震冲锋提示。")
+                        .font(.caption2)
+                        .foregroundColor(AppColors.secondaryText.opacity(0.85))
+                }
+                .padding(.leading, 12)
+                .padding(.vertical, 8)
+                .background(Color.orange.opacity(0.05))
+                .cornerRadius(10)
+            }
             
             Divider()
             

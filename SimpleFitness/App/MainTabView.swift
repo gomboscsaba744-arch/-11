@@ -2,6 +2,7 @@ import SwiftUI
 
 public struct MainTabView: View {
     @State private var selectedTab: Int = 0
+    @AppStorage("appThemeMode") private var appThemeMode: String = AppThemeMode.system.rawValue
     
     public init() {}
     
@@ -15,7 +16,7 @@ public struct MainTabView: View {
             
             PlanCustomizationView()
                 .tabItem {
-                    Label("课表定制", systemImage: "list.clipboard")
+                    Label("计划定制", systemImage: "list.clipboard")
                 }
                 .tag(1)
             
@@ -38,6 +39,7 @@ public struct MainTabView: View {
                 .tag(4)
         }
         .tint(AppColors.accentBlue)
+        .preferredColorScheme(AppThemeMode(rawValue: appThemeMode)?.colorScheme)
     }
 }
 

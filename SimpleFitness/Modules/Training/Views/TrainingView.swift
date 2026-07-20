@@ -98,8 +98,9 @@ public struct TrainingView: View {
             }
             .onReceive(watchService.$syncedIsResting) { resting in
                 if resting {
-                    restTimer.totalDuration = watchService.syncedRestSeconds
-                    restTimer.remainingTime = Double(watchService.syncedRestSeconds)
+                    let restSecs = watchService.syncedRestSeconds > 0 && watchService.syncedRestSeconds != 60 ? watchService.syncedRestSeconds : (restTimer.totalDuration > 0 ? restTimer.totalDuration : watchService.syncedRestSeconds)
+                    restTimer.totalDuration = restSecs
+                    restTimer.remainingTime = Double(restSecs)
                     restTimer.start()
                 } else {
                     restTimer.reset()
@@ -140,7 +141,23 @@ public struct TrainingView: View {
                     libraryStore.updateActivePlanExercise(item, at: idx)
                 }
             }
+            .onChange(of: restTimer.totalDuration) { _, newDuration in
+                guard newDuration > 0 else { return }
+                watchService.syncedRestSeconds = newDuration
+                let exercises = currentRoutineExercises
+                let idx = max(0, min(exercises.count - 1, session.currentExerciseIndex - 1))
+                if idx < exercises.count {
+                    var item = exercises[idx]
+                    if item.restSeconds != newDuration {
+                        item.restSeconds = newDuration
+                        libraryStore.updateActivePlanExercise(item, at: idx)
+                    }
+                }
+            }
             .onChange(of: recordedReps) { _, newCount in
+                if newCount != watchService.detectedRepCount {
+                    watchService.syncRepCountToWatch(newCount)
+                }
                 if newCount >= session.currentReps && session.currentReps > 0 {
                     UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
                     UINotificationFeedbackGenerator().notificationOccurred(.success)
@@ -163,7 +180,7 @@ public struct TrainingView: View {
             .onChange(of: session.currentExerciseIndex) { _, _ in
                 syncStateToWatch()
             }
-            .onChange(of: watchService.syncedIsWorkoutStarted) { started in
+            .onChange(of: watchService.syncedIsWorkoutStarted) { _, started in
                 if started && !isWorkoutActive {
                     session.currentCalories = 0
                     elapsedTrainingSeconds = 0
@@ -172,7 +189,7 @@ public struct TrainingView: View {
                     withAnimation { isWorkoutActive = true }
                 }
             }
-            .onChange(of: watchService.syncedIsWorkoutEnded) { ended in
+            .onChange(of: watchService.syncedIsWorkoutEnded) { _, ended in
                 if ended && isWorkoutActive {
                     withAnimation {
                         isWorkoutActive = false
@@ -225,7 +242,6 @@ public struct TrainingView: View {
         session.workoutTitle = routine.name
         session.totalExercises = max(1, routine.exercises.count)
         session.currentExerciseIndex = 1
-        session.currentSet = 1
         updateExerciseDetails()
     }
     
@@ -243,35 +259,64 @@ public struct TrainingView: View {
         // 记录当组次数
         var currentItem = exercises[idx]
         currentItem.setTargetReps(session.currentReps, forSet: session.currentSet)
+        currentItem.completedSets = max(currentItem.completedSets, session.currentSet)
         libraryStore.updateActivePlanExercise(currentItem, at: idx)
+        
+        let updatedExercises = currentRoutineExercises
         
         if session.currentSet < session.totalSets {
             session.currentSet += 1
             session.currentReps = currentItem.getTargetReps(forSet: session.currentSet)
-            restTimer.defaultDuration = currentItem.restSeconds
-            restTimer.totalDuration = currentItem.restSeconds
+            let customDuration = restTimer.totalDuration > 0 && restTimer.totalDuration != 60 ? restTimer.totalDuration : currentItem.restSeconds
+            restTimer.defaultDuration = customDuration
+            restTimer.totalDuration = customDuration
             restTimer.isExerciseRestPhase = false
             restTimer.nextExerciseTitle = nil
             restTimer.reset()
             restTimer.start()
+            syncStateToWatch()
         } else {
-            // 已完成当前动作最后一组：自动切换至下一动作并出明显提示，避免误多做
+            // 已完成当前动作最后一组：寻找下一个未完成的动作（先往后找，若后面没有再往前面找被跳过的动作）
             let oldName = session.exerciseName
-            if session.currentExerciseIndex < session.totalExercises {
-                session.currentExerciseIndex += 1
-                session.currentSet = 1
+            var targetIndex: Int? = nil
+            
+            if idx + 1 < updatedExercises.count {
+                for i in (idx + 1)..<updatedExercises.count {
+                    if updatedExercises[i].completedSets < updatedExercises[i].sets {
+                        targetIndex = i + 1
+                        break
+                    }
+                }
+            }
+            if targetIndex == nil && idx > 0 {
+                for i in 0..<idx {
+                    if updatedExercises[i].completedSets < updatedExercises[i].sets {
+                        targetIndex = i + 1
+                        break
+                    }
+                }
+            }
+            
+            if let nextIdx = targetIndex {
+                session.currentExerciseIndex = nextIdx
                 updateExerciseDetails()
                 
-                restTimer.defaultDuration = currentItem.exerciseRestSeconds
-                restTimer.totalDuration = currentItem.exerciseRestSeconds
+                let customDuration = restTimer.totalDuration > 0 && restTimer.totalDuration != 60 ? restTimer.totalDuration : currentItem.exerciseRestSeconds
+                restTimer.defaultDuration = customDuration
+                restTimer.totalDuration = customDuration
                 restTimer.isExerciseRestPhase = true
                 restTimer.nextExerciseTitle = session.exerciseName
                 restTimer.reset()
                 restTimer.start()
+                syncStateToWatch()
                 
                 UINotificationFeedbackGenerator().notificationOccurred(.success)
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                    completedExerciseNotice = "已完成「\(oldName)」！自动进入新动作：\(session.exerciseName)"
+                    if nextIdx < idx + 1 {
+                        completedExerciseNotice = "已完成「\(oldName)」！自动跳转至前期待办动作：\(session.exerciseName)"
+                    } else {
+                        completedExerciseNotice = "已完成「\(oldName)」！自动进入新动作：\(session.exerciseName)"
+                    }
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 4.5) {
                     withAnimation { completedExerciseNotice = nil }
@@ -293,7 +338,6 @@ public struct TrainingView: View {
         impact.impactOccurred()
         if session.currentExerciseIndex > 1 {
             session.currentExerciseIndex -= 1
-            session.currentSet = 1
             updateExerciseDetails()
         }
     }
@@ -303,7 +347,6 @@ public struct TrainingView: View {
         impact.impactOccurred()
         if session.currentExerciseIndex < session.totalExercises {
             session.currentExerciseIndex += 1
-            session.currentSet = 1
             updateExerciseDetails()
         }
     }
@@ -311,7 +354,6 @@ public struct TrainingView: View {
     private func switchToExercise(at index: Int) {
         guard index >= 1 && index <= session.totalExercises else { return }
         session.currentExerciseIndex = index
-        session.currentSet = 1
         updateExerciseDetails()
     }
     
@@ -326,10 +368,18 @@ public struct TrainingView: View {
         session.exerciseName = currentItem.name
         session.totalSets = currentItem.sets
         session.targetWeightKg = currentItem.targetWeightKg
+        if currentItem.completedSets < currentItem.sets {
+            session.currentSet = max(1, min(currentItem.sets, currentItem.completedSets + 1))
+        } else {
+            session.currentSet = currentItem.sets
+        }
         session.currentReps = currentItem.getTargetReps(forSet: session.currentSet)
-        restTimer.defaultDuration = currentItem.restSeconds
-        restTimer.totalDuration = currentItem.restSeconds
-        restTimer.remainingTime = Double(currentItem.restSeconds)
+        let targetSecs = (restTimer.totalDuration > 0 && restTimer.totalDuration != 60 && restTimer.defaultDuration == restTimer.totalDuration) ? restTimer.totalDuration : currentItem.restSeconds
+        restTimer.defaultDuration = targetSecs
+        restTimer.totalDuration = targetSecs
+        if !restTimer.isRunning && !restTimer.isPaused {
+            restTimer.remainingTime = Double(targetSecs)
+        }
         
         watchService.syncWorkoutStateToWatch(
             exerciseName: currentItem.name,
@@ -337,7 +387,8 @@ public struct TrainingView: View {
             totalSets: currentItem.sets,
             targetReps: session.currentReps,
             targetWeightKg: currentItem.targetWeightKg,
-            isResting: restTimer.isRunning
+            isResting: restTimer.isRunning,
+            restSeconds: restTimer.totalDuration > 0 ? restTimer.totalDuration : currentItem.restSeconds
         )
     }
     
@@ -348,7 +399,8 @@ public struct TrainingView: View {
             totalSets: session.totalSets,
             targetReps: session.currentReps,
             targetWeightKg: session.targetWeightKg,
-            isResting: restTimer.isRunning
+            isResting: restTimer.isRunning,
+            restSeconds: restTimer.totalDuration > 0 ? restTimer.totalDuration : 60
         )
     }
 }

@@ -143,7 +143,10 @@ public struct RestTimerCardView: View {
                             if timerModel.isRunning {
                                 timerModel.pause()
                             } else {
-                                timerModel.resume()
+                                if !timerModel.isPaused || timerModel.remainingTime <= 0 {
+                                    timerModel.reset()
+                                }
+                                timerModel.start()
                             }
                         }
                     }) {

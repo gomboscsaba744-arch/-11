@@ -17,49 +17,51 @@ public struct WatchCountdownView: View {
     
     public var body: some View {
         ZStack {
-            Color.black.edgesIgnoringSafeArea(.all)
+            AppColors.background.edgesIgnoringSafeArea(.all)
             
             VStack(spacing: 8) {
                 Text(count > 0 ? "\(count)" : "GO!")
                     .font(.system(size: 72, weight: .black, design: .rounded))
-                    .foregroundColor(count > 0 ? .green : .yellow)
+                    .foregroundColor(count > 0 ? .orange : .yellow)
                     .scaleEffect(scale)
                     .opacity(opacity)
                 
                 Text("准备出发")
                     .font(.system(size: 13, weight: .bold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(AppColors.secondaryText)
             }
         }
         .onAppear {
-            runCountdownStep(number: 3)
-        }
-    }
-    
-    private func runCountdownStep(number: Int) {
-        count = number
-        scale = 0.6
-        opacity = 0.0
-        
-        // 播放触感反馈震动
-        if number > 0 {
+            count = 3
+            scale = 0.6
+            opacity = 0.0
             WKInterfaceDevice.current().play(.start)
-        } else {
-            WKInterfaceDevice.current().play(.success)
-        }
-        
-        withAnimation(.spring(response: 0.35, dampingFraction: 0.65)) {
-            scale = 1.0
-            opacity = 1.0
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.85) {
-            if number > 1 {
-                runCountdownStep(number: number - 1)
-            } else if number == 1 {
-                runCountdownStep(number: 0)
-            } else {
-                onFinished()
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.65)) {
+                scale = 1.0
+                opacity = 1.0
+            }
+            
+            for i in 1...3 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 0.85) {
+                    let nextCount = 3 - i
+                    count = nextCount
+                    scale = 0.6
+                    opacity = 0.0
+                    if nextCount > 0 {
+                        WKInterfaceDevice.current().play(.start)
+                    } else {
+                        WKInterfaceDevice.current().play(.success)
+                    }
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.65)) {
+                        scale = 1.0
+                        opacity = 1.0
+                    }
+                    if nextCount == 0 {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.85) {
+                            onFinished()
+                        }
+                    }
+                }
             }
         }
     }
